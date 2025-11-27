@@ -1,0 +1,253 @@
+'use client';
+
+import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+
+export function Hero() {
+  const [settings, setSettings] = useState({
+    heroTitle: 'Where Every Bite',
+    heroHighlight: 'Melts Your Heart',
+    heroSubtitle: 'Experience the finest handmade chocolates, crafted with passion and premium ingredients.',
+    heroSlides: [] as string[],
+  });
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  useEffect(() => {
+    if (settings.heroSlides.length > 1) {
+      const timer = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % settings.heroSlides.length);
+      }, 5000); // Change slide every 5 seconds
+      return () => clearInterval(timer);
+    }
+  }, [settings.heroSlides.length]);
+
+  const fetchSettings = async () => {
+    try {
+      const res = await fetch('/api/settings');
+      if (res.ok) {
+        const data = await res.json();
+        console.log('Hero slides:', data.heroSlides?.length || 0, 'slides');
+        if (data.heroSlides?.length > 0 && typeof data.heroSlides[0] === 'string') {
+          console.log('First slide preview:', data.heroSlides[0].substring(0, 50) + '...');
+        }
+        setSettings({
+          heroTitle: data.heroTitle || 'Where Every Bite',
+          heroHighlight: data.heroHighlight || 'Melts Your Heart',
+          heroSubtitle: data.heroSubtitle || 'Experience the finest handmade chocolates, crafted with passion and premium ingredients.',
+          heroSlides: Array.isArray(data.heroSlides) ? data.heroSlides : [],
+        });
+      } else {
+        console.warn('Settings API returned:', res.status);
+      }
+    } catch (error) {
+      console.error('Failed to fetch settings:', error);
+      // Set default values even on error
+      setSettings({
+        heroTitle: 'Where Every Bite',
+        heroHighlight: 'Melts Your Heart',
+        heroSubtitle: 'Experience the finest handmade chocolates, crafted with passion and premium ingredients.',
+        heroSlides: [],
+      });
+    }
+  };
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % settings.heroSlides.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + settings.heroSlides.length) % settings.heroSlides.length);
+  };
+
+  return (
+    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+      {/* Image Slider Background */}
+      <AnimatePresence mode="wait">
+        {settings.heroSlides.length > 0 ? (
+          <motion.div
+            key={currentSlide}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1 }}
+            className="absolute inset-0 z-0"
+          >
+            <img
+              src={settings.heroSlides[currentSlide]}
+              alt={`Slide ${currentSlide + 1}`}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/50" />
+          </motion.div>
+        ) : (
+          <div className="absolute inset-0 z-0 bg-gradient-to-b from-chocolate-50 to-white dark:from-chocolate-950 dark:to-chocolate-900" />
+        )}
+      </AnimatePresence>
+
+      {/* Gradient Overlay Elements */}
+      {settings.heroSlides.length === 0 && (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 0.1, scale: 1 }}
+            transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+            className="absolute -top-20 -right-20 w-96 h-96 bg-chocolate-400 rounded-full blur-3xl"
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 0.1, scale: 1 }}
+            transition={{ duration: 3, repeat: Infinity, repeatType: "reverse", delay: 1 }}
+            className="absolute -bottom-20 -left-20 w-96 h-96 bg-gold-500 rounded-full blur-3xl"
+          />
+        </div>
+      )}
+
+      {/* Slider Controls */}
+      {settings.heroSlides.length > 1 && (
+        <>
+          <button
+            onClick={prevSlide}
+            className="absolute left-4 z-20 p-3 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm transition-all text-white"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <button
+            onClick={nextSlide}
+            className="absolute right-4 z-20 p-3 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm transition-all text-white"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+          
+          {/* Dots Indicator */}
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex gap-2">
+            {settings.heroSlides.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  currentSlide === index ? 'bg-white w-8' : 'bg-white/50'
+                }`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          className="relative"
+        >
+          {/* Decorative Elements */}
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="absolute -top-10 left-1/2 transform -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-transparent via-gold-400 to-transparent"
+          />
+
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold font-serif text-white mb-6 px-4"
+            style={{ 
+              textShadow: '0 4px 20px rgba(0,0,0,0.5), 0 0 40px rgba(212,175,55,0.3)',
+              lineHeight: '1.2'
+            }}
+          >
+            {settings.heroTitle}
+            <br />
+            <motion.span 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+              className="inline-block bg-gradient-to-r from-gold-400 via-gold-500 to-gold-400 bg-clip-text text-transparent"
+              style={{
+                filter: 'drop-shadow(0 2px 10px rgba(212,175,55,0.5))'
+              }}
+            >
+              {settings.heroHighlight}
+            </motion.span>
+          </motion.h1>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="relative inline-block"
+          >
+            <p className="text-base sm:text-lg md:text-2xl text-white/95 mb-12 max-w-3xl mx-auto leading-relaxed px-6"
+               style={{ textShadow: '0 2px 10px rgba(0,0,0,0.7)' }}>
+              {settings.heroSubtitle}
+            </p>
+            <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-32 h-0.5 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+          </motion.div>
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center mt-8 px-4"
+          >
+            <Link 
+              href="/menu"
+              className="group relative px-8 sm:px-10 py-4 sm:py-5 bg-gradient-to-r from-chocolate-600 to-chocolate-700 text-white rounded-full font-bold text-base sm:text-lg overflow-hidden shadow-2xl hover:shadow-chocolate-600/50 transition-all duration-300 transform hover:scale-105 w-full sm:w-auto"
+            >
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                Explore Menu
+                <motion.span
+                  animate={{ x: [0, 5, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                >
+                  →
+                </motion.span>
+              </span>
+              <div className="absolute inset-0 bg-gradient-to-r from-chocolate-700 to-chocolate-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </Link>
+            
+            <Link 
+              href="/about"
+              className="group relative px-8 sm:px-10 py-4 sm:py-5 bg-white/10 backdrop-blur-md text-white border-2 border-white/30 rounded-full font-bold text-base sm:text-lg hover:bg-white/20 hover:border-white/50 transition-all duration-300 transform hover:scale-105 shadow-xl w-full sm:w-auto"
+            >
+              <span className="flex items-center justify-center gap-2">
+                Our Story
+              </span>
+            </Link>
+          </motion.div>
+
+          {/* Scroll Indicator */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 1.2 }}
+            className="absolute -bottom-20 left-1/2 transform -translate-x-1/2 hidden md:block"
+          >
+            <motion.div
+              animate={{ y: [0, 10, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="flex flex-col items-center gap-2 text-white/60"
+            >
+              <span className="text-xs uppercase tracking-wider">Scroll</span>
+              <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
+                <motion.div
+                  animate={{ y: [0, 12, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="w-1 h-3 bg-white/60 rounded-full mt-2"
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
