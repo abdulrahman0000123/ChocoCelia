@@ -1,50 +1,125 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Loader2 } from 'lucide-react';
 
-// Mock Data
-const MOCK_CATEGORIES = [
-  { id: '1', name: 'Dark Chocolate', productsCount: 12 },
-  { id: '2', name: 'Milk Chocolate', productsCount: 8 },
-  { id: '3', name: 'White Chocolate', productsCount: 5 },
-  { id: '4', name: 'Gift Boxes', productsCount: 3 },
-];
-
 export default function CategoriesPage() {
-  const [categories, setCategories] = useState(MOCK_CATEGORIES);
+  const [categories, setCategories] = useState<any[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<any>(null);
-  const [formData, setFormData] = useState({ name: '' });
+  const [formData, setFormData] = useState({ name: '', nameAr: '' });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch('/api/categories');
+      if (res.ok) {
+        const data = await res.json();
+        setCategories(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch categories:', error);
+      alert('Failed to load categories');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleEdit = (category: any) => {
     setEditingCategory(category);
-    setFormData({ name: category.name });
+    setFormData({ name: category.name, nameAr: category.nameAr || '' });
     setIsFormOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this category?')) {
-      setCategories(categories.filter(c => c.id !== id));
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this category?')) return;
+    
+    try {
+      const res = await fetch(`/api/categories/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        setCategories(categories.filter(c => c.id !== id));
+        alert('Category deleted successfully!');
+      } else {
+        const error = await res.json();
+        alert(error.error || 'Failed to delete category');
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Failed to delete category');
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingCategory) {
-      setCategories(categories.map(c => 
-        c.id === editingCategory.id ? { ...c, name: formData.name } : c
-      ));
-    } else {
-      setCategories([
-        ...categories,
-        { id: Math.random().toString(), name: formData.name, productsCount: 0 }
-      ]);
+    setSaving(true);
+
+    try {
+      if (editingCategory) {
+        // Update existing category
+        const res = await fetch(`/api/categories/${editingCategory.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+
+        if (res.ok) {
+          const updatedCategory = await res.json();
+          setCategories(categories.map(c => 
+            c.id === editingCategory.id ? updatedCategory : c
+          ));
+          alert('Category updated successfully!');
+        } else {
+          const error = await res.json();
+          alert(error.error || 'Failed to update category');
+          setSaving(false);
+          return;
+        }
+      } else {
+        // Create new category
+        const res = await fetch('/api/categories', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+
+        if (res.ok) {
+          const newCategory = await res.json();
+          setCategories([newCategory, ...categories]);
+          alert('Category created successfully!');
+        } else {
+          const error = await res.json();
+          alert(error.error || 'Failed to create category');
+          setSaving(false);
+          return;
+        }
+      }
+
+      setIsFormOpen(false);
+      setEditingCategory(null);
+      setFormData({ name: '', nameAr: '' });
+    } catch (error) {
+      console.error('Save error:', error);
+      alert('Failed to save category');
+    } finally {
+      setSaving(false);
     }
-    setIsFormOpen(false);
-    setEditingCategory(null);
-    setFormData({ name: '' });
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-chocolate-600" />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -53,7 +128,7 @@ export default function CategoriesPage() {
         <button
           onClick={() => {
             setEditingCategory(null);
-            setFormData({ name: '' });
+            setFormData({ name: '', nameAr: '' });
             setIsFormOpen(true);
           }}
           className="bg-chocolate-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-chocolate-700 transition-colors"
@@ -70,7 +145,7 @@ export default function CategoriesPage() {
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Name (English)</label>
               <input
                 type="text"
                 required
@@ -79,19 +154,32 @@ export default function CategoriesPage() {
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Name (Arabic)</label>
+              <input
+                type="text"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none"
+                value={formData.nameAr}
+                onChange={(e) => setFormData({ ...formData, nameAr: e.target.value })}
+                dir="rtl"
+              />
+            </div>
             <div className="flex justify-end gap-3 pt-4">
               <button
                 type="button"
                 onClick={() => setIsFormOpen(false)}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                disabled={saving}
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-chocolate-600 text-white rounded-lg hover:bg-chocolate-700 transition-colors"
+                disabled={saving}
+                className="px-4 py-2 bg-chocolate-600 text-white rounded-lg hover:bg-chocolate-700 transition-colors disabled:opacity-50 flex items-center gap-2"
               >
-                Save Category
+                {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+                {saving ? 'Saving...' : 'Save Category'}
               </button>
             </div>
           </form>
@@ -101,7 +189,8 @@ export default function CategoriesPage() {
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-6 py-4 font-semibold text-gray-600">Name</th>
+                <th className="px-6 py-4 font-semibold text-gray-600">Name (EN)</th>
+                <th className="px-6 py-4 font-semibold text-gray-600">Name (AR)</th>
                 <th className="px-6 py-4 font-semibold text-gray-600">Products</th>
                 <th className="px-6 py-4 font-semibold text-gray-600 text-right">Actions</th>
               </tr>
@@ -110,7 +199,8 @@ export default function CategoriesPage() {
               {categories.map((category) => (
                 <tr key={category.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 text-gray-800 font-medium">{category.name}</td>
-                  <td className="px-6 py-4 text-gray-600">{category.productsCount} products</td>
+                  <td className="px-6 py-4 text-gray-600" dir="rtl">{category.nameAr || '-'}</td>
+                  <td className="px-6 py-4 text-gray-600">{category._count?.products || 0} products</td>
                   <td className="px-6 py-4 text-right space-x-2">
                     <button
                       onClick={() => handleEdit(category)}
@@ -129,6 +219,11 @@ export default function CategoriesPage() {
               ))}
             </tbody>
           </table>
+          {categories.length === 0 && (
+            <div className="text-center py-12 text-gray-400">
+              <p className="text-lg">No categories found. Create your first category!</p>
+            </div>
+          )}
         </div>
       )}
     </div>

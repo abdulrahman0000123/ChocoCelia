@@ -7,6 +7,7 @@ import { CartProvider } from "./context/CartContext";
 import { CartDrawer } from "./components/CartDrawer";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { LanguageProvider } from "./context/LanguageContext";
+import ChocolatePreloader from "./components/ChocolatePreloader";
 
 const cairo = Cairo({
   subsets: ["latin", "arabic"],
@@ -36,6 +37,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <CartProvider>
+              <ChocolatePreloader />
               <Navbar />
               <CartDrawer />
               <main className="flex-grow pt-20">

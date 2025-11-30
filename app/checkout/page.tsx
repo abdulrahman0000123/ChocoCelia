@@ -9,20 +9,55 @@ import Link from 'next/link';
 export default function CheckoutPage() {
   const { items, total, clearCart } = useCart();
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
     email: '',
+    address: '',
     message: '',
     method: 'whatsapp'
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate order submission
-    console.log('Order submitted:', { ...formData, items, total });
-    setIsSubmitted(true);
-    clearCart();
+    setIsSubmitting(true);
+
+    try {
+      const orderData = {
+        customerName: formData.name,
+        customerPhone: formData.phone,
+        customerEmail: formData.email || null,
+        customerAddress: formData.address,
+        preferredContact: formData.method,
+        specialRequests: formData.message || null,
+        items: items.map(item => ({
+          productId: item.id,
+          quantity: item.quantity,
+          price: item.price
+        })),
+        total: total
+      };
+
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      });
+
+      if (res.ok) {
+        setIsSubmitted(true);
+        clearCart();
+      } else {
+        const error = await res.json();
+        alert(error.error || 'Failed to place order. Please try again.');
+      }
+    } catch (error) {
+      console.error('Order submission error:', error);
+      alert('Failed to place order. Please check your connection and try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isSubmitted) {
@@ -95,6 +130,34 @@ export default function CheckoutPage() {
                 </div>
               ))}
             </div>
+
+            {/* Shipping Info */}
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-xl p-4 mb-6">
+              <div className="flex items-start gap-3">
+                <div className="bg-amber-500 text-white rounded-full p-2 mt-0.5">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-chocolate-900 mb-2 text-base">Delivery Charges</h3>
+                  <div className="space-y-1.5 text-sm">
+                    <div className="flex items-center justify-between bg-white/70 px-3 py-2 rounded-lg">
+                      <span className="font-semibold text-chocolate-800">داخل بني سويف</span>
+                      <span className="font-bold text-amber-700">20 جنيه</span>
+                    </div>
+                    <div className="flex items-center justify-between bg-white/70 px-3 py-2 rounded-lg">
+                      <span className="font-semibold text-chocolate-800">شرق النيل</span>
+                      <span className="font-bold text-amber-700">35 جنيه</span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-chocolate-600 mt-2 italic">
+                    * سيتم إضافة رسوم التوصيل عند التأكيد
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div className="border-t border-chocolate-100 pt-4 flex justify-between items-center">
               <span className="text-lg font-bold text-chocolate-900">Total</span>
               <span className="text-2xl font-bold text-chocolate-900">{total.toFixed(2)} EGP</span>
@@ -138,6 +201,18 @@ export default function CheckoutPage() {
               </div>
 
               <div>
+                <label className="block text-sm font-medium text-chocolate-700 mb-1">Delivery Address</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Enter your full address"
+                  className="w-full px-4 py-2 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors"
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                />
+              </div>
+
+              <div>
                 <label className="block text-sm font-medium text-chocolate-700 mb-1">Preferred Contact Method</label>
                 <div className="flex gap-4">
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -177,9 +252,20 @@ export default function CheckoutPage() {
 
               <button
                 type="submit"
-                className="w-full bg-chocolate-600 text-white py-3 rounded-full font-bold hover:bg-chocolate-700 transition-all shadow-lg mt-4"
+                disabled={isSubmitting}
+                className="w-full bg-chocolate-600 text-white py-3 rounded-full font-bold hover:bg-chocolate-700 transition-all shadow-lg mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                Place Order
+                {isSubmitting ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Placing Order...
+                  </>
+                ) : (
+                  'Place Order'
+                )}
               </button>
             </form>
           </div>

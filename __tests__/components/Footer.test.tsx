@@ -24,15 +24,15 @@ describe('Footer Component', () => {
     render(<Footer />)
     
     expect(screen.getByText('Quick Links')).toBeInTheDocument()
-    expect(screen.getByText('Menu')).toBeInTheDocument()
-    expect(screen.getByText('About Us')).toBeInTheDocument()
-    expect(screen.getByText('Contact')).toBeInTheDocument()
+    expect(screen.getByText('→ Menu')).toBeInTheDocument()
+    expect(screen.getByText('→ About Us')).toBeInTheDocument()
+    expect(screen.getByText('→ Contact')).toBeInTheDocument()
   })
 
   test('should render social media section', () => {
     render(<Footer />)
     
-    expect(screen.getByText('Connect With Us')).toBeInTheDocument()
+    expect(screen.getByText('Follow Us')).toBeInTheDocument()
   })
 
   test('should render copyright text', () => {
@@ -58,8 +58,8 @@ describe('Footer Component', () => {
 
   test('should render social media icons', () => {
     render(<Footer />)
-    
+
     // Check if social media section exists
-    expect(screen.getByText('Connect With Us')).toBeInTheDocument()
+    expect(screen.getByText('Follow Us')).toBeInTheDocument()
   })
 })

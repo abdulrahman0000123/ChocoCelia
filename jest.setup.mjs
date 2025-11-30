@@ -19,13 +19,43 @@ jest.mock('next/navigation', () => ({
 }))
 
 // Mock framer-motion
-jest.mock('framer-motion', () => ({
-  motion: {
-    div: ({ children, ...props }) => <div {...props}>{children}</div>,
-    button: ({ children, ...props }) => <button {...props}>{children}</button>,
-    span: ({ children, ...props }) => <span {...props}>{children}</span>,
-  },
-  AnimatePresence: ({ children }) => <>{children}</>,
+jest.mock('framer-motion', () => {
+  const React = require('react')
+  return {
+    motion: new Proxy({}, {
+      get: (_, prop) => {
+        return React.forwardRef(({ children, ...props }, ref) => {
+          // Filter out framer-motion specific props
+          const { 
+            initial, animate, exit, variants, transition, 
+            whileHover, whileTap, whileFocus, whileInView,
+            viewport, drag, dragConstraints, dragElastic,
+            layoutId, layout, onAnimationStart, onAnimationComplete,
+            ...filteredProps 
+          } = props
+          return React.createElement(prop, { ...filteredProps, ref }, children)
+        })
+      }
+    }),
+    AnimatePresence: ({ children }) => <>{children}</>,
+    useAnimation: () => ({
+      start: jest.fn(),
+      set: jest.fn(),
+      stop: jest.fn(),
+    }),
+    useInView: () => true,
+  }
+})
+
+// Mock next-themes
+jest.mock('next-themes', () => ({
+  ThemeProvider: ({ children }) => <>{children}</>,
+  useTheme: () => ({
+    theme: 'light',
+    setTheme: jest.fn(),
+    systemTheme: 'light',
+    themes: ['light', 'dark'],
+  }),
 }))
 
 // Only mock window in jsdom environment

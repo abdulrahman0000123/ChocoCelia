@@ -5,16 +5,28 @@ import { ProductCard } from '../components/ProductCard';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 
-const CATEGORIES = ['All', 'Dark', 'Milk', 'White', 'Boxes', 'Mixes'];
-
 export default function MenuPage() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch('/api/categories');
+      if (res.ok) {
+        const data = await res.json();
+        setCategories(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch categories');
+    }
+  };
 
   const fetchProducts = async () => {
     try {
@@ -32,7 +44,7 @@ export default function MenuPage() {
 
   const filteredProducts = selectedCategory === 'All' 
     ? products 
-    : products.filter(p => p.category === selectedCategory);
+    : products.filter(p => p.category?.name === selectedCategory);
 
   if (loading) {
     return (
@@ -55,17 +67,27 @@ export default function MenuPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8">
         {/* Filters */}
         <div className="bg-white dark:bg-chocolate-900 p-4 rounded-xl shadow-lg border border-chocolate-100 dark:border-chocolate-800 mb-12 flex flex-wrap justify-center gap-4">
-          {CATEGORIES.map((category) => (
+          <button
+            onClick={() => setSelectedCategory('All')}
+            className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${
+              selectedCategory === 'All'
+                ? 'bg-chocolate-600 text-white shadow-md'
+                : 'bg-chocolate-50 text-chocolate-600 hover:bg-chocolate-100'
+            }`}
+          >
+            All
+          </button>
+          {categories.map((category) => (
             <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
+              key={category.id}
+              onClick={() => setSelectedCategory(category.name)}
               className={`px-6 py-2 rounded-full text-sm font-semibold transition-all ${
-                selectedCategory === category
+                selectedCategory === category.name
                   ? 'bg-chocolate-600 text-white shadow-md'
                   : 'bg-chocolate-50 text-chocolate-600 hover:bg-chocolate-100'
               }`}
             >
-              {category}
+              {category.name}
             </button>
           ))}
         </div>

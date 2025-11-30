@@ -1,16 +1,22 @@
 import { prisma } from '@/app/lib/db';
 import { NextResponse } from 'next/server';
+import bcrypt from 'bcryptjs';
 
 export async function GET() {
   try {
     console.log('Seeding admin user via API...');
     
+    // Hash the password
+    const hashedPassword = await bcrypt.hash('admin123', 10);
+    
     const admin = await prisma.user.upsert({
       where: { username: 'admin' },
-      update: {},
+      update: {
+        password: hashedPassword, // Update password with hashed version
+      },
       create: {
         username: 'admin',
-        password: 'admin123',
+        password: hashedPassword,
       },
     });
     
@@ -23,7 +29,7 @@ export async function GET() {
       });
     }
 
-    return NextResponse.json({ success: true, admin });
+    return NextResponse.json({ success: true, admin: { id: admin.id, username: admin.username } });
   } catch (error: any) {
     console.error('Seeding error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });

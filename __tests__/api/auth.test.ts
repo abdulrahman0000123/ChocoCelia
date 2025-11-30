@@ -2,10 +2,24 @@
  * @jest-environment node
  */
 
-import { login } from '@/app/lib/auth'
+// Mock Prisma first
+jest.mock('@/app/lib/db', () => ({
+  prisma: {
+    user: {
+      findUnique: jest.fn(),
+    },
+  },
+}))
 
+// Mock bcryptjs
+jest.mock('bcryptjs', () => ({
+  compare: jest.fn(),
+}))
+
+// Mock auth functions
 jest.mock('@/app/lib/auth', () => ({
   login: jest.fn(),
+  getSession: jest.fn(),
 }))
 
 jest.mock('next/server', () => ({
@@ -24,6 +38,19 @@ describe('Auth API', () => {
   })
 
   test('POST /api/auth/login should succeed with correct credentials', async () => {
+    const bcrypt = await import('bcryptjs')
+    const { prisma } = await import('@/app/lib/db')
+    const { login } = await import('@/app/lib/auth')
+
+    // Setup mocks
+    ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({
+      id: '1',
+      username: 'admin',
+      password: '$2a$10$hashedpassword',
+    })
+    ;(bcrypt.compare as jest.Mock).mockResolvedValue(true)
+    ;(login as jest.Mock).mockResolvedValue({ id: '1', username: 'admin' })
+
     const { POST } = await import('@/app/api/auth/login/route')
     
     const mockRequest = {
@@ -41,12 +68,23 @@ describe('Auth API', () => {
   })
 
   test('POST /api/auth/login should fail with incorrect credentials', async () => {
+    const bcrypt = await import('bcryptjs')
+    const { prisma } = await import('@/app/lib/db')
+
+    // Setup mocks for failed login
+    ;(prisma.user.findUnique as jest.Mock).mockResolvedValue({
+      id: '1',
+      username: 'admin',
+      password: '$2a$10$hashedpassword',
+    })
+    ;(bcrypt.compare as jest.Mock).mockResolvedValue(false)
+
     const { POST } = await import('@/app/api/auth/login/route')
     
     const mockRequest = {
       json: async () => ({
-        username: 'wrong',
-        password: 'wrong123',
+        username: 'admin',
+        password: 'wrongpassword',
       }),
     } as Request
 
@@ -57,21 +95,19 @@ describe('Auth API', () => {
     expect(response.status).toBe(401)
   })
 
-  test('should call login function with correct data', async () => {
+  test('should validate required fields', async () => {
     const { POST } = await import('@/app/api/auth/login/route')
     
     const mockRequest = {
       json: async () => ({
         username: 'admin',
-        password: 'admin123',
       }),
     } as Request
 
-    await POST(mockRequest)
+    const response = await POST(mockRequest)
+    const data = await response.json()
 
-    expect(login).toHaveBeenCalledWith({
-      id: 'admin-id',
-      username: 'admin',
-    })
+    expect(response.status).toBe(400)
+    expect(data).toHaveProperty('error')
   })
 })

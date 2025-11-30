@@ -1,8 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Upload, X } from 'lucide-react';
 import { compressImage } from '@/app/lib/imageUtils';
+
+interface Category {
+  id: string;
+  name: string;
+  nameAr: string;
+}
 
 interface ProductFormProps {
   initialData?: any;
@@ -11,19 +17,40 @@ interface ProductFormProps {
 }
 
 export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProps) {
+  const [categories, setCategories] = useState<Category[]>([]);
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
     nameAr: initialData?.nameAr || '',
     description: initialData?.description || '',
     descriptionAr: initialData?.descriptionAr || '',
     price: initialData?.price || '',
-    category: initialData?.category || 'Dark',
+    categoryId: initialData?.categoryId || '',
     image: initialData?.image || '',
     isAvailable: initialData?.isAvailable ?? true,
   });
 
   const [imagePreview, setImagePreview] = useState<string>(initialData?.image || '');
   const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch('/api/categories');
+      if (res.ok) {
+        const data = await res.json();
+        setCategories(data);
+        // Set first category as default if no initial data
+        if (!initialData && data.length > 0) {
+          setFormData(prev => ({ ...prev, categoryId: data[0].id }));
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch categories');
+    }
+  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -119,15 +146,17 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
           <select
+            required
             className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none"
-            value={formData.category}
-            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+            value={formData.categoryId}
+            onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
           >
-            <option value="Dark">Dark Chocolate</option>
-            <option value="Milk">Milk Chocolate</option>
-            <option value="White">White Chocolate</option>
-            <option value="Boxes">Gift Boxes</option>
-            <option value="Mixes">Mixes</option>
+            <option value="">Select a category</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
           </select>
         </div>
 

@@ -15,7 +15,11 @@ interface Product {
   descriptionAr?: string;
   price: number;
   image: string;
-  category: string;
+  category: {
+    id: string;
+    name: string;
+    nameAr?: string;
+  };
   tags?: string;
 }
 
@@ -82,7 +86,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
       <div className="p-6">
         <div className="text-xs text-chocolate-400 dark:text-chocolate-400 font-semibold uppercase tracking-wider mb-2">
-          {product.category}
+          {product.category?.name || 'Uncategorized'}
         </div>
         <h3 className="text-xl font-bold text-chocolate-900 dark:text-chocolate-50 mb-2 font-serif">
           {displayName}

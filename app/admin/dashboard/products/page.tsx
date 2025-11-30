@@ -35,15 +35,20 @@ export default function ProductsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
+      
+      const responseData = await res.json();
+      
       if (res.ok) {
         fetchProducts();
         setIsFormOpen(false);
+        alert('Product created successfully!');
       } else {
-        const errorData = await res.json();
-        console.error('Failed to create product:', errorData);
+        console.error('Failed to create product:', responseData);
+        alert(`Failed to create product: ${responseData.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Failed to create product:', error);
+      alert('Failed to create product. Please try again.');
     }
   };
 

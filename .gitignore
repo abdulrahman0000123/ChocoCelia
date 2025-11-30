@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+__tests__/
 
 # next.js
 /.next/
@@ -30,8 +31,11 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# env files
+.env
+.env*.local
+.env.development
+.env.test
 
 # vercel
 .vercel
@@ -40,4 +44,15 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# prisma
 /app/generated/prisma
+
+# database
+*.db
+*.db-journal
+/prisma/dev.db
+/prisma/dev.db-journal
+
+# documentation (optional)
+*.md
+!README.md

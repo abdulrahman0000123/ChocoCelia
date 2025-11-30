@@ -127,7 +127,7 @@ export default function ProductDetailsPage() {
             className="flex flex-col justify-center"
           >
             <div className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider mb-3 px-3 py-1.5 bg-chocolate-100 dark:bg-chocolate-800 text-chocolate-600 dark:text-gold-400 rounded-full w-fit">
-              {product.category} Chocolate
+              {product.category?.name || 'Chocolate'} Chocolate
             </div>
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-chocolate-900 to-chocolate-700 dark:from-chocolate-100 dark:to-gold-300 bg-clip-text text-transparent mb-6 font-serif leading-tight">
               {displayName}
