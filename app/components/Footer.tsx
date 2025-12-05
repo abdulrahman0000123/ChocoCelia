@@ -49,7 +49,7 @@ export function Footer() {
             className="md:col-span-2 text-center"
           >
             <div className="flex flex-col items-center mb-4">
-              <Heart className="w-8 h-8 text-gold-500 fill-gold-500 animate-pulse mb-3" />
+              <Heart className="w-8 h-8 text-gold-500 fill-gold-500 animate-pulse mb-1" />
               <h3 className="text-3xl font-bold font-serif bg-gradient-to-r from-gold-400 via-gold-300 to-gold-400 bg-clip-text text-transparent">
                 CHOCO-CELIA
               </h3>
