@@ -1,6 +1,7 @@
 'use client';
 
 import { Sidebar } from './components/Sidebar';
+import OrderNotification from './components/OrderNotification';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -43,6 +44,10 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen bg-gray-100 lg:flex">
       <Sidebar />
+      {/* Notification Bell - Fixed position on mobile, in header area */}
+      <div className="fixed top-4 right-4 z-50 lg:absolute lg:top-8 lg:right-8">
+        <OrderNotification />
+      </div>
       {/* Main content with top padding on mobile for the fixed header */}
       <main className="flex-1 p-4 lg:p-8 overflow-y-auto pt-20 lg:pt-8">
         {children}
