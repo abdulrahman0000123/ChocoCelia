@@ -168,18 +168,18 @@ export default function ProductsPage() {
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-6 py-4 font-semibold text-gray-600">Image</th>
-                <th className="px-6 py-4 font-semibold text-gray-600">Name</th>
-                <th className="px-6 py-4 font-semibold text-gray-600">Category</th>
-                <th className="px-6 py-4 font-semibold text-gray-600">Price</th>
-                <th className="px-6 py-4 font-semibold text-gray-600">Status</th>
-                <th className="px-6 py-4 font-semibold text-gray-600 text-right">Actions</th>
+                <th className="px-3 lg:px-6 py-4 font-semibold text-gray-600">Image</th>
+                <th className="px-3 lg:px-6 py-4 font-semibold text-gray-600">Name</th>
+                <th className="px-3 lg:px-6 py-4 font-semibold text-gray-600">Category</th>
+                <th className="px-3 lg:px-6 py-4 font-semibold text-gray-600 hidden lg:table-cell">Price</th>
+                <th className="px-3 lg:px-6 py-4 font-semibold text-gray-600 hidden lg:table-cell">Status</th>
+                <th className="px-3 lg:px-6 py-4 font-semibold text-gray-600 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {products.map((product) => (
                 <tr key={product.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
+                  <td className="px-3 lg:px-6 py-4">
                     {product.image ? (
                       <img 
                         src={product.image} 
@@ -192,10 +192,10 @@ export default function ProductsPage() {
                       </div>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-gray-800 font-medium">{product.name}</td>
-                  <td className="px-6 py-4 text-gray-600">{product.category?.name || product.categoryId}</td>
-                  <td className="px-6 py-4 text-gray-600">{Number(product.price).toFixed(2)} EGP</td>
-                  <td className="px-6 py-4">
+                  <td className="px-3 lg:px-6 py-4 text-gray-800 font-medium">{product.name}</td>
+                  <td className="px-3 lg:px-6 py-4 text-gray-600">{product.category?.name || product.categoryId}</td>
+                  <td className="px-3 lg:px-6 py-4 text-gray-600 hidden lg:table-cell">{Number(product.price).toFixed(2)} EGP</td>
+                  <td className="px-3 lg:px-6 py-4 hidden lg:table-cell">
                     <span className={`px-2 py-1 rounded-full text-xs font-bold ${
                       product.isAvailable 
                         ? 'bg-green-100 text-green-700' 
@@ -204,7 +204,7 @@ export default function ProductsPage() {
                       {product.isAvailable ? 'Available' : 'Out of Stock'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-right space-x-2">
+                  <td className="px-3 lg:px-6 py-4 text-right space-x-1 lg:space-x-2">
                     <button
                       onClick={() => {
                         setEditingProduct({
@@ -213,21 +213,21 @@ export default function ProductsPage() {
                         });
                         setIsFormOpen(true);
                       }}
-                      className="text-blue-600 hover:text-blue-800 p-2 lg:p-2 hover:bg-blue-50 rounded-lg transition-all"
+                      className="text-blue-600 hover:text-blue-800 p-1.5 lg:p-2 hover:bg-blue-50 rounded-lg transition-all inline-flex items-center justify-center"
                       title="Edit Product"
                     >
-                      <Edit className="w-6 h-6 lg:w-5 lg:h-5" />
+                      <Edit className="w-5 h-5 lg:w-5 lg:h-5" />
                     </button>
                     <button
                       onClick={() => handleDelete(product.id)}
                       disabled={deletingId === product.id}
-                      className="text-red-600 hover:text-red-800 p-2 lg:p-2 hover:bg-red-50 rounded-lg transition-all disabled:opacity-50"
+                      className="text-red-600 hover:text-red-800 p-1.5 lg:p-2 hover:bg-red-50 rounded-lg transition-all disabled:opacity-50 inline-flex items-center justify-center"
                       title="Delete Product"
                     >
                       {deletingId === product.id ? (
-                        <Loader2 className="w-6 h-6 lg:w-5 lg:h-5 animate-spin" />
+                        <Loader2 className="w-5 h-5 lg:w-5 lg:h-5 animate-spin" />
                       ) : (
-                        <Trash2 className="w-6 h-6 lg:w-5 lg:h-5" />
+                        <Trash2 className="w-5 h-5 lg:w-5 lg:h-5" />
                       )}
                     </button>
                   </td>
