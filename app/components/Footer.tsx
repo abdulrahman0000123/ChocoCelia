@@ -46,15 +46,15 @@ export function Footer() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="md:col-span-2"
+            className="md:col-span-2 text-center"
           >
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center justify-center gap-2 mb-4">
               <h3 className="text-3xl font-bold font-serif bg-gradient-to-r from-gold-400 via-gold-300 to-gold-400 bg-clip-text text-transparent">
                 CHOCO-CELIA
               </h3>
               <Heart className="w-6 h-6 text-gold-500 fill-gold-500 animate-pulse" />
             </div>
-            <p className="text-chocolate-300 text-base mb-6 leading-relaxed font-[family-name:var(--font-cairo)]" dir="rtl">
+            <p className="text-chocolate-300 text-base mb-6 leading-relaxed font-[family-name:var(--font-cairo)]">
               أهلا بيكم في عالم الشوكولاتة السعيد!
               <br />
               هتلاقوا هنا بارات شوكولاتة وميني شوكلت هاند ميد،
