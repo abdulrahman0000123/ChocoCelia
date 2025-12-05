@@ -1,40 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Facebook, Instagram, Twitter, Heart } from 'lucide-react';
+import { Facebook, Instagram, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+// Fixed social links - These are permanent and cannot be changed from admin
+const FIXED_SOCIAL_LINKS = {
+  facebook: 'https://www.facebook.com/profile.php?id=61582630209700',
+  instagram: 'https://www.instagram.com/chococelia2025/',
+  twitter: '', // Not used
+};
+
 export function Footer() {
-  const [settings, setSettings] = useState({
-    facebook: '',
-    instagram: '',
-    twitter: '',
-    email: '',
-    phone: '',
-  });
-
-  useEffect(() => {
-    fetchSettings();
-  }, []);
-
-  const fetchSettings = async () => {
-    try {
-      const res = await fetch('/api/settings');
-      if (res.ok) {
-        const data = await res.json();
-        setSettings({
-          facebook: data.facebook || '',
-          instagram: data.instagram || '',
-          twitter: data.twitter || '',
-          email: data.email || '',
-          phone: data.phone || '',
-        });
-      }
-    } catch (error) {
-      console.error('Failed to fetch settings');
-    }
-  };
+  const settings = FIXED_SOCIAL_LINKS;
 
   return (
     <footer className="relative bg-gradient-to-b from-chocolate-900 via-chocolate-950 to-black dark:from-chocolate-950 dark:via-black dark:to-black overflow-hidden">
@@ -102,45 +80,28 @@ export function Footer() {
               <div className="h-[2px] flex-1 bg-gradient-to-r from-gold-500 to-transparent" />
             </h4>
             <div className="flex gap-3">
-              {settings.instagram && (
-                <motion.a
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  whileTap={{ scale: 0.9 }}
-                  href={settings.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-3 bg-gradient-to-br from-chocolate-800 to-chocolate-900 hover:from-gold-500 hover:to-gold-600 rounded-xl transition-all shadow-lg hover:shadow-gold-500/50"
-                  aria-label="Instagram"
-                >
-                  <Instagram className="w-5 h-5 text-white" />
-                </motion.a>
-              )}
-              {settings.facebook && (
-                <motion.a
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  whileTap={{ scale: 0.9 }}
-                  href={settings.facebook}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-3 bg-gradient-to-br from-chocolate-800 to-chocolate-900 hover:from-gold-500 hover:to-gold-600 rounded-xl transition-all shadow-lg hover:shadow-gold-500/50"
-                  aria-label="Facebook"
-                >
-                  <Facebook className="w-5 h-5 text-white" />
-                </motion.a>
-              )}
-              {settings.twitter && (
-                <motion.a
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  whileTap={{ scale: 0.9 }}
-                  href={settings.twitter}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-3 bg-gradient-to-br from-chocolate-800 to-chocolate-900 hover:from-gold-500 hover:to-gold-600 rounded-xl transition-all shadow-lg hover:shadow-gold-500/50"
-                  aria-label="Twitter"
-                >
-                  <Twitter className="w-5 h-5 text-white" />
-                </motion.a>
-              )}
+              <motion.a
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                whileTap={{ scale: 0.9 }}
+                href={settings.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-3 bg-gradient-to-br from-chocolate-800 to-chocolate-900 hover:from-gold-500 hover:to-gold-600 rounded-xl transition-all shadow-lg hover:shadow-gold-500/50"
+                aria-label="Instagram"
+              >
+                <Instagram className="w-5 h-5 text-white" />
+              </motion.a>
+              <motion.a
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                whileTap={{ scale: 0.9 }}
+                href={settings.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-3 bg-gradient-to-br from-chocolate-800 to-chocolate-900 hover:from-gold-500 hover:to-gold-600 rounded-xl transition-all shadow-lg hover:shadow-gold-500/50"
+                aria-label="Facebook"
+              >
+                <Facebook className="w-5 h-5 text-white" />
+              </motion.a>
             </div>
             
             {/* Newsletter CTA */}
