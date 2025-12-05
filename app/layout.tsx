@@ -18,6 +18,11 @@ const cairo = Cairo({
 export const metadata: Metadata = {
   title: "CHOCO-CELIA | Premium Handmade Chocolates",
   description: "Where Every Bite Melts Your Heart. Discover our exquisite collection of handmade chocolates.",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({
