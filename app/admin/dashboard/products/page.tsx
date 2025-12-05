@@ -213,21 +213,21 @@ export default function ProductsPage() {
                         });
                         setIsFormOpen(true);
                       }}
-                      className="text-blue-600 hover:text-blue-800 p-2 hover:bg-blue-50 rounded-lg transition-all"
+                      className="text-blue-600 hover:text-blue-800 p-2 lg:p-2 hover:bg-blue-50 rounded-lg transition-all"
                       title="Edit Product"
                     >
-                      <Edit className="w-5 h-5" />
+                      <Edit className="w-6 h-6 lg:w-5 lg:h-5" />
                     </button>
                     <button
                       onClick={() => handleDelete(product.id)}
                       disabled={deletingId === product.id}
-                      className="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg transition-all disabled:opacity-50"
+                      className="text-red-600 hover:text-red-800 p-2 lg:p-2 hover:bg-red-50 rounded-lg transition-all disabled:opacity-50"
                       title="Delete Product"
                     >
                       {deletingId === product.id ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <Loader2 className="w-6 h-6 lg:w-5 lg:h-5 animate-spin" />
                       ) : (
-                        <Trash2 className="w-5 h-5" />
+                        <Trash2 className="w-6 h-6 lg:w-5 lg:h-5" />
                       )}
                     </button>
                   </td>
