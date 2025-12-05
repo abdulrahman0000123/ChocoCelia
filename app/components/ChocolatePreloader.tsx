@@ -6,19 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function ChocolatePreloader() {
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState(0);
-  const [windowSize, setWindowSize] = useState({ width: 1920, height: 1080 });
-  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    // Mark as mounted (client-side)
-    setIsMounted(true);
-    
-    // Set window size on client side
-    setWindowSize({
-      width: window.innerWidth,
-      height: window.innerHeight
-    });
-
     // Simulate loading progress
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
@@ -26,14 +15,14 @@ export default function ChocolatePreloader() {
           clearInterval(progressInterval);
           return 100;
         }
-        return prev + 2;
+        return prev + 4;
       });
-    }, 30);
+    }, 50);
 
-    // Hide preloader after 3 seconds
+    // Hide preloader after 2.5 seconds
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 3000);
+    }, 2500);
 
     return () => {
       clearInterval(progressInterval);
@@ -46,58 +35,152 @@ export default function ChocolatePreloader() {
       {isLoading && (
         <motion.div
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, scale: 1.1 }}
-          transition={{ duration: 0.6, ease: "easeInOut" }}
-          className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden"
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="fixed inset-0 z-50 flex items-center justify-center"
           style={{
-            background: 'linear-gradient(135deg, #78350f 0%, #92400e 25%, #b45309 50%, #d97706 75%, #f59e0b 100%)',
-            backgroundSize: '400% 400%',
-            animation: 'gradientShift 3s ease infinite'
+            background: 'linear-gradient(135deg, #3D1E0F 0%, #5D3A1A 50%, #78350f 100%)',
           }}
         >
-          {/* Animated background particles */}
+          {/* Subtle animated background circles */}
           <div className="absolute inset-0 overflow-hidden">
-            {isMounted && [...Array(20)].map((_, i) => (
-              <motion.div
-                key={i}
-                initial={{ 
-                  x: Math.random() * windowSize.width,
-                  y: -20,
-                  opacity: 0.3
-                }}
-                animate={{
-                  y: windowSize.height + 20,
-                  opacity: [0.3, 0.6, 0.3],
-                }}
-                transition={{
-                  duration: 3 + Math.random() * 2,
-                  repeat: Infinity,
-                  delay: Math.random() * 2,
-                  ease: "linear"
-                }}
-                className="absolute w-2 h-2 bg-amber-300 rounded-full blur-sm"
-              />
-            ))}
+            <motion.div
+              animate={{ 
+                scale: [1, 1.2, 1],
+                opacity: [0.1, 0.2, 0.1]
+              }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-1/4 -left-20 w-64 h-64 bg-amber-500 rounded-full blur-3xl"
+            />
+            <motion.div
+              animate={{ 
+                scale: [1.2, 1, 1.2],
+                opacity: [0.1, 0.15, 0.1]
+              }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute bottom-1/4 -right-20 w-64 h-64 bg-yellow-500 rounded-full blur-3xl"
+            />
           </div>
 
-          <div className="relative z-10 text-center">
-            {/* Main Chocolate Bar with realistic shadow */}
+          {/* Main content */}
+          <div className="relative z-10 flex flex-col items-center">
+            {/* Logo container with golden ring animation */}
             <motion.div
-              initial={{ scale: 0, rotateY: -180 }}
-              animate={{ 
-                scale: 1, 
-                rotateY: 0,
-              }}
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
               transition={{ 
-                duration: 0.8,
+                duration: 0.8, 
                 type: "spring",
-                stiffness: 100
+                stiffness: 100,
+                damping: 15
               }}
-              className="relative mb-8"
+              className="relative"
             >
-              {/* Chocolate wrapper with shine effect */}
-              <div className="relative w-64 h-80 mx-auto perspective-1000">
-                <motion.div
+              {/* Rotating golden ring */}
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                className="absolute -inset-3 rounded-full"
+                style={{
+                  background: 'conic-gradient(from 0deg, transparent, #D4AF37, #FFD700, #D4AF37, transparent)',
+                  padding: '3px',
+                }}
+              >
+                <div className="w-full h-full rounded-full bg-[#3D1E0F]" />
+              </motion.div>
+
+              {/* Logo image */}
+              <motion.div
+                animate={{ 
+                  scale: [1, 1.05, 1],
+                }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden shadow-2xl"
+                style={{
+                  boxShadow: '0 0 40px rgba(212, 175, 55, 0.4), 0 0 80px rgba(212, 175, 55, 0.2)'
+                }}
+              >
+                <img 
+                  src="/logo.png" 
+                  alt="Choco Celia"
+                  className="w-full h-full object-cover"
+                />
+              </motion.div>
+            </motion.div>
+
+            {/* Brand name with typewriter effect */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
+              className="mt-8 text-center"
+            >
+              <h1 className="text-2xl sm:text-3xl font-serif text-white font-bold tracking-wide">
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.6 }}
+                  className="text-amber-400"
+                >
+                  Choco
+                </motion.span>
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8 }}
+                  className="text-white"
+                >
+                  {' '}Celia
+                </motion.span>
+              </h1>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1 }}
+                className="text-amber-200/70 text-sm mt-1 font-light italic"
+              >
+                Your Daily Dose Of Happiness
+              </motion.p>
+            </motion.div>
+
+            {/* Progress bar */}
+            <motion.div
+              initial={{ opacity: 0, width: 0 }}
+              animate={{ opacity: 1, width: '160px' }}
+              transition={{ delay: 0.8, duration: 0.3 }}
+              className="mt-8 h-1 bg-white/20 rounded-full overflow-hidden"
+            >
+              <motion.div
+                initial={{ width: '0%' }}
+                animate={{ width: `${progress}%` }}
+                className="h-full rounded-full"
+                style={{
+                  background: 'linear-gradient(90deg, #D4AF37, #FFD700, #D4AF37)',
+                }}
+              />
+            </motion.div>
+
+            {/* Loading text */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1 }}
+              className="mt-3 text-amber-200/60 text-xs tracking-widest uppercase"
+            >
+              Loading
+              <motion.span
+                animate={{ opacity: [0, 1, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              >
+                ...
+              </motion.span>
+            </motion.p>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
                   animate={{
                     rotateY: [0, 5, -5, 0],
                     rotateX: [0, 2, -2, 0],
