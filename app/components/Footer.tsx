@@ -57,7 +57,7 @@ export function Footer() {
             <p className="text-chocolate-300 text-base mb-6 leading-relaxed font-[family-name:var(--font-cairo)]">
               أهلا بيكم في عالم الشوكولاتة السعيد!
               <br />
-              هتلاقوا هنا بارات شوكولاتة وميني شوكلت هاند ميد،
+              هتلاقوا هنا بارات شوكولاتة وميني شوكلت هاندميد،
               <br />
               بأشكال وأطعم مختلفة مخصّصة لكل لحظاتكم الحلوة ومناسباتكم الخاصة.
               <br />
