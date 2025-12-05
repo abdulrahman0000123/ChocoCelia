@@ -5,35 +5,60 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-// Fixed hero slides - These are permanent and cannot be changed from admin
-const FIXED_HERO_SLIDES = [
+// Default values (used if API fails or returns empty)
+const DEFAULT_HERO_SLIDES = [
   'https://cdn.pixabay.com/photo/2022/07/24/15/15/chocolate-7342021_1280.jpg',
   'https://cdn.pixabay.com/photo/2015/02/07/03/00/chocolate-627168_1280.jpg',
 ];
-
-// Fixed hero content
-const FIXED_HERO_TITLE = 'ChocoCelia';
-const FIXED_HERO_HIGHLIGHT = 'Your Daily Dose Of Happiness';
-const FIXED_HERO_SUBTITLE = 'Experience the finest handmade chocolates, crafted with passion and premium ingredients.';
+const DEFAULT_HERO_TITLE = 'ChocoCelia';
+const DEFAULT_HERO_HIGHLIGHT = 'Your Daily Dose Of Happiness';
+const DEFAULT_HERO_SUBTITLE = 'Experience the finest handmade chocolates, crafted with passion and premium ingredients.';
 
 export function Hero() {
+  const [settings, setSettings] = useState({
+    heroTitle: DEFAULT_HERO_TITLE,
+    heroHighlight: DEFAULT_HERO_HIGHLIGHT,
+    heroSubtitle: DEFAULT_HERO_SUBTITLE,
+    heroSlides: DEFAULT_HERO_SLIDES,
+  });
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
-    if (FIXED_HERO_SLIDES.length > 1) {
-      const timer = setInterval(() => {
-        setCurrentSlide((prev) => (prev + 1) % FIXED_HERO_SLIDES.length);
-      }, 5000); // Change slide every 5 seconds
-      return () => clearInterval(timer);
-    }
+    fetchSettings();
   }, []);
 
+  useEffect(() => {
+    if (settings.heroSlides.length > 1) {
+      const timer = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % settings.heroSlides.length);
+      }, 5000);
+      return () => clearInterval(timer);
+    }
+  }, [settings.heroSlides.length]);
+
+  const fetchSettings = async () => {
+    try {
+      const res = await fetch('/api/settings');
+      if (res.ok) {
+        const data = await res.json();
+        setSettings({
+          heroTitle: data.heroTitle || DEFAULT_HERO_TITLE,
+          heroHighlight: data.heroHighlight || DEFAULT_HERO_HIGHLIGHT,
+          heroSubtitle: data.heroSubtitle || DEFAULT_HERO_SUBTITLE,
+          heroSlides: (Array.isArray(data.heroSlides) && data.heroSlides.length > 0) ? data.heroSlides : DEFAULT_HERO_SLIDES,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch settings:', error);
+    }
+  };
+
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % FIXED_HERO_SLIDES.length);
+    setCurrentSlide((prev) => (prev + 1) % settings.heroSlides.length);
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + FIXED_HERO_SLIDES.length) % FIXED_HERO_SLIDES.length);
+    setCurrentSlide((prev) => (prev - 1 + settings.heroSlides.length) % settings.heroSlides.length);
   };
 
   return (
@@ -49,7 +74,7 @@ export function Hero() {
           className="absolute inset-0 z-0"
         >
           <img
-            src={FIXED_HERO_SLIDES[currentSlide]}
+            src={settings.heroSlides[currentSlide]}
             alt={`Slide ${currentSlide + 1}`}
             className="w-full h-full object-cover"
           />
@@ -58,7 +83,7 @@ export function Hero() {
       </AnimatePresence>
 
       {/* Gradient Overlay Elements - Hidden since we have slides */}
-      {false && (
+      {settings.heroSlides.length === 0 && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
@@ -76,7 +101,7 @@ export function Hero() {
       )}
 
       {/* Slider Controls */}
-      {FIXED_HERO_SLIDES.length > 1 && (
+      {settings.heroSlides.length > 1 && (
         <>
           <button
             onClick={prevSlide}
@@ -93,7 +118,7 @@ export function Hero() {
           
           {/* Dots Indicator */}
           <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex gap-2">
-            {FIXED_HERO_SLIDES.map((_, index) => (
+            {settings.heroSlides.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentSlide(index)}
@@ -131,7 +156,7 @@ export function Hero() {
               lineHeight: '1.2'
             }}
           >
-            {FIXED_HERO_TITLE}
+            {settings.heroTitle}
             <br />
             <motion.span 
               initial={{ opacity: 0, scale: 0.9 }}
@@ -142,7 +167,7 @@ export function Hero() {
                 filter: 'drop-shadow(0 2px 10px rgba(212,175,55,0.5))'
               }}
             >
-              {FIXED_HERO_HIGHLIGHT}
+              {settings.heroHighlight}
             </motion.span>
           </motion.h1>
 
@@ -154,7 +179,7 @@ export function Hero() {
           >
             <p className="text-base sm:text-lg md:text-2xl text-white/95 mb-12 max-w-3xl mx-auto leading-relaxed px-6"
                style={{ textShadow: '0 2px 10px rgba(0,0,0,0.7)' }}>
-              {FIXED_HERO_SUBTITLE}
+              {settings.heroSubtitle}
             </p>
             <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-32 h-0.5 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
           </motion.div>

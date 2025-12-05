@@ -1,18 +1,37 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Facebook, Instagram, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-// Fixed social links - These are permanent and cannot be changed from admin
-const FIXED_SOCIAL_LINKS = {
+// Default social links
+const DEFAULT_SOCIAL_LINKS = {
   facebook: 'https://www.facebook.com/profile.php?id=61582630209700',
   instagram: 'https://www.instagram.com/chococelia2025/',
-  twitter: '', // Not used
 };
 
 export function Footer() {
-  const settings = FIXED_SOCIAL_LINKS;
+  const [settings, setSettings] = useState(DEFAULT_SOCIAL_LINKS);
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const res = await fetch('/api/settings');
+      if (res.ok) {
+        const data = await res.json();
+        setSettings({
+          facebook: data.facebook || DEFAULT_SOCIAL_LINKS.facebook,
+          instagram: data.instagram || DEFAULT_SOCIAL_LINKS.instagram,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch settings');
+    }
+  };
 
   return (
     <footer className="relative bg-gradient-to-b from-chocolate-900 via-chocolate-950 to-black dark:from-chocolate-950 dark:via-black dark:to-black overflow-hidden">

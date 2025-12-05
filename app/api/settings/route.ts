@@ -7,9 +7,10 @@ let settings = {
   address: '123 Chocolate Lane',
   city: 'Sweet City, SC 12345',
   workingHours: 'Mon-Fri 9am-6pm',
-  facebook: 'https://facebook.com/chococelia',
-  instagram: 'https://instagram.com/chococelia',
-  twitter: 'https://twitter.com/chococelia',
+  // Social Links - Default values
+  facebook: 'https://www.facebook.com/profile.php?id=61582630209700',
+  instagram: 'https://www.instagram.com/chococelia2025/',
+  twitter: '',
   logo: '',
   // Our Story Section
   ourStoryTitle: 'Our Story',
@@ -18,11 +19,14 @@ let settings = {
   ourStoryBeginning: 'Founded with a passion for the art of chocolatiering, CHOCO-CELIA started as a small kitchen experiment. Our founder, driven by a love for pure, high-quality ingredients, sought to create chocolates that were not only delicious but also visually stunning.',
   ourStoryPhilosophyTitle: 'Our Philosophy',
   ourStoryPhilosophy: 'We believe in the power of handmade. Every piece of chocolate that leaves our workshop is crafted by hand, ensuring the perfect temper, snap, and shine. We source our cocoa beans from sustainable farms and pair them with the finest local ingredients to create unique flavor profiles.',
-  // Hero Section
-  heroTitle: 'Where Every Bite',
-  heroHighlight: 'Melts Your Heart',
+  // Hero Section - Default values
+  heroTitle: 'ChocoCelia',
+  heroHighlight: 'Your Daily Dose Of Happiness',
   heroSubtitle: 'Experience the finest handmade chocolates, crafted with passion and premium ingredients.',
-  heroSlides: [] as string[],
+  heroSlides: [
+    'https://cdn.pixabay.com/photo/2022/07/24/15/15/chocolate-7342021_1280.jpg',
+    'https://cdn.pixabay.com/photo/2015/02/07/03/00/chocolate-627168_1280.jpg',
+  ] as string[],
   // Feature Cards (Why Choose Us)
   featureCard1Icon: '🌿',
   featureCard1Title: 'Premium Ingredients',
