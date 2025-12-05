@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Facebook, Instagram, Twitter, Heart, Mail, Phone, MapPin } from 'lucide-react';
+import { Facebook, Instagram, Twitter, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export function Footer() {
@@ -60,26 +60,6 @@ export function Footer() {
             <p className="text-chocolate-300 text-lg mb-6 leading-relaxed">
               Where Every Bite Melts Your Heart. Premium handmade chocolates crafted with passion and the finest ingredients.
             </p>
-            
-            {/* Contact info with icons */}
-            <div className="space-y-3">
-              {settings.phone && (
-                <a href={`tel:${settings.phone}`} className="flex items-center gap-3 text-chocolate-300 hover:text-gold-400 transition-colors group">
-                  <div className="p-2 bg-chocolate-800/50 rounded-lg group-hover:bg-gold-500/20 transition-colors">
-                    <Phone className="w-4 h-4" />
-                  </div>
-                  <span>{settings.phone}</span>
-                </a>
-              )}
-              {settings.email && (
-                <a href={`mailto:${settings.email}`} className="flex items-center gap-3 text-chocolate-300 hover:text-gold-400 transition-colors group">
-                  <div className="p-2 bg-chocolate-800/50 rounded-lg group-hover:bg-gold-500/20 transition-colors">
-                    <Mail className="w-4 h-4" />
-                  </div>
-                  <span>{settings.email}</span>
-                </a>
-              )}
-            </div>
           </motion.div>
 
           {/* Quick Links */}

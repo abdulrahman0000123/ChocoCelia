@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Phone, Mail, MapPin, Instagram, Facebook, Twitter } from 'lucide-react';
+import { MapPin, Instagram, Facebook, Twitter } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function ContactPage() {
@@ -76,35 +76,12 @@ export default function ContactPage() {
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
                   <div className="bg-chocolate-50 dark:bg-chocolate-800 p-3 rounded-full text-chocolate-600 dark:text-chocolate-300">
-                    <Phone className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-chocolate-800 dark:text-chocolate-200">Phone</h4>
-                    <p className="text-chocolate-600 dark:text-chocolate-300">{settings.phone}</p>
-                    {settings.workingHours && (
-                      <p className="text-sm text-chocolate-400">{settings.workingHours}</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="bg-chocolate-50 dark:bg-chocolate-800 p-3 rounded-full text-chocolate-600 dark:text-chocolate-300">
-                    <Mail className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-chocolate-800 dark:text-chocolate-200">Email</h4>
-                    <p className="text-chocolate-600 dark:text-chocolate-300">{settings.email}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="bg-chocolate-50 dark:bg-chocolate-800 p-3 rounded-full text-chocolate-600 dark:text-chocolate-300">
                     <MapPin className="w-6 h-6" />
                   </div>
                   <div>
                     <h4 className="font-bold text-chocolate-800 dark:text-chocolate-200">Location</h4>
                     <p className="text-chocolate-600 dark:text-chocolate-300">
-                      {settings.address}<br />{settings.city}
+                      {settings.address || 'Cairo, Egypt'}<br />{settings.city}
                     </p>
                   </div>
                 </div>
