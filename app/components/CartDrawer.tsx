@@ -11,7 +11,10 @@ import Link from 'next/link';
 export function CartDrawer() {
   const { items, removeItem, updateQuantity, total, isOpen, toggleCart } = useCart();
   const { locale } = useLanguage();
-  const t = (key: string) => translations[locale][key] || key;
+  const t = (key: string) => {
+    const translation = translations[locale as keyof typeof translations];
+    return (translation as any)[key] || key;
+  };
   
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
