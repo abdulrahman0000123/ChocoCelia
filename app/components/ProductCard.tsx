@@ -32,7 +32,10 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
   const { locale } = useLanguage();
-  const t = (key: string) => translations[locale][key] || key;
+  const t = (key: string) => {
+    const translation = translations[locale as keyof typeof translations];
+    return (translation as any)[key] || key;
+  };
   const [isAdded, setIsAdded] = useState(false);
 
   const displayName = locale === 'ar' && product.nameAr ? product.nameAr : product.name;

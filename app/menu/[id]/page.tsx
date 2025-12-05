@@ -17,7 +17,10 @@ export default function ProductDetailsPage() {
   const [isAdded, setIsAdded] = useState(false);
   const { addItem } = useCart();
   const { locale } = useLanguage();
-  const t = (key: string) => translations[locale][key] || key;
+  const t = (key: string) => {
+    const translation = translations[locale as keyof typeof translations];
+    return (translation as any)[key] || key;
+  };
   
   useEffect(() => {
     fetchProduct();

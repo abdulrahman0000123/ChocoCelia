@@ -9,7 +9,10 @@ export default function ChocolatePreloader() {
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState(0);
   const { locale } = useLanguage();
-  const t = (key: string) => translations[locale][key] || key;
+  const t = (key: string) => {
+    const translation = translations[locale as keyof typeof translations];
+    return (translation as any)[key] || key;
+  };
 
   useEffect(() => {
     const progressInterval = setInterval(() => {
