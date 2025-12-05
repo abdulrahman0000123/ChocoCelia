@@ -196,29 +196,56 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center mt-8 px-4"
+            className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center mt-8 px-4"
           >
             <Link 
               href="/menu"
-              className="group relative px-8 sm:px-10 py-4 sm:py-5 bg-gradient-to-r from-chocolate-600 to-chocolate-700 text-white rounded-full font-bold text-base sm:text-lg overflow-hidden shadow-2xl hover:shadow-chocolate-600/50 transition-all duration-300 transform hover:scale-105 w-full sm:w-auto"
+              className="group relative px-8 sm:px-12 py-4 sm:py-5 overflow-hidden rounded-full font-bold text-base sm:text-lg w-full sm:w-auto"
             >
-              <span className="relative z-10 flex items-center justify-center gap-2">
+              {/* Gradient background with animation */}
+              <div className="absolute inset-0 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 transition-all duration-500 group-hover:scale-110" />
+              
+              {/* Shine effect */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+              </div>
+              
+              {/* Glow effect */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full blur-lg opacity-50 group-hover:opacity-75 transition-opacity duration-500 -z-10" />
+              
+              <span className="relative z-10 flex items-center justify-center gap-3 text-white drop-shadow-lg">
                 Explore Menu
-                <motion.span
+                <motion.svg
                   animate={{ x: [0, 5, 0] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  →
-                </motion.span>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </motion.svg>
               </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-chocolate-700 to-chocolate-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </Link>
             
             <Link 
               href="/about"
-              className="group relative px-8 sm:px-10 py-4 sm:py-5 bg-white/10 backdrop-blur-md text-white border-2 border-white/30 rounded-full font-bold text-base sm:text-lg hover:bg-white/20 hover:border-white/50 transition-all duration-300 transform hover:scale-105 shadow-xl w-full sm:w-auto"
+              className="group relative px-8 sm:px-12 py-4 sm:py-5 overflow-hidden rounded-full font-bold text-base sm:text-lg w-full sm:w-auto"
             >
-              <span className="flex items-center justify-center gap-2">
+              {/* Glass background */}
+              <div className="absolute inset-0 bg-white/10 backdrop-blur-md border-2 border-white/20 rounded-full transition-all duration-500 group-hover:bg-white/20 group-hover:border-white/40" />
+              
+              {/* Gradient border animation */}
+              <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-gold-400/50 via-white/30 to-gold-400/50 animate-pulse" style={{ padding: '2px' }}>
+                  <div className="w-full h-full rounded-full bg-transparent" />
+                </div>
+              </div>
+              
+              <span className="relative z-10 flex items-center justify-center gap-3 text-white drop-shadow-lg">
+                <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
                 Our Story
               </span>
             </Link>
