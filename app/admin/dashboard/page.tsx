@@ -87,13 +87,14 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Dashboard</h1>
         
         <button
           onClick={handleExport}
           disabled={exporting}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base w-full sm:w-auto justify-center"
         >
           {exporting ? (
             <>
@@ -110,40 +111,42 @@ export default function DashboardPage() {
       </div>
 
       {/* Date Filter */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
-        <div className="flex items-center gap-4 flex-wrap">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-gray-500" />
-            <span className="font-medium text-gray-700">Filter by Date:</span>
-          </div>
-          
-          <div className="flex items-center gap-2">
+      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
+        <div className="flex items-center gap-2 mb-3">
+          <Calendar className="w-5 h-5 text-gray-500" />
+          <span className="font-medium text-gray-700 text-sm sm:text-base">Filter by Date:</span>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="flex flex-col gap-1">
             <label className="text-sm text-gray-600">From:</label>
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-black"
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-black w-full"
             />
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-1">
             <label className="text-sm text-gray-600">To:</label>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-black"
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-black w-full"
             />
           </div>
           
           {(startDate || endDate) && (
-            <button
-              onClick={clearDateFilter}
-              className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Clear Filter
-            </button>
+            <div className="flex items-end">
+              <button
+                onClick={clearDateFilter}
+                className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors w-full sm:w-auto"
+              >
+                Clear Filter
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -155,57 +158,57 @@ export default function DashboardPage() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-6 rounded-xl shadow-sm border border-orange-200">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
+            <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-4 sm:p-6 rounded-xl shadow-sm border border-orange-200">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-gray-600 text-sm font-medium uppercase">Total Orders</h3>
-                <ShoppingCart className="w-8 h-8 text-orange-600" />
+                <h3 className="text-gray-600 text-xs sm:text-sm font-medium uppercase">Total Orders</h3>
+                <ShoppingCart className="w-6 h-6 sm:w-8 sm:h-8 text-orange-600" />
               </div>
-              <p className="text-4xl font-bold text-gray-900">{stats.totalOrders}</p>
+              <p className="text-2xl sm:text-4xl font-bold text-gray-900">{stats.totalOrders}</p>
             </div>
             
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl shadow-sm border border-green-200">
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 sm:p-6 rounded-xl shadow-sm border border-green-200">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-gray-600 text-sm font-medium uppercase">Total Revenue</h3>
-                <TrendingUp className="w-8 h-8 text-green-600" />
+                <h3 className="text-gray-600 text-xs sm:text-sm font-medium uppercase">Total Revenue</h3>
+                <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 text-green-600" />
               </div>
-              <p className="text-4xl font-bold text-gray-900">{stats.totalRevenue.toFixed(2)} EGP</p>
+              <p className="text-2xl sm:text-4xl font-bold text-gray-900">{stats.totalRevenue.toFixed(2)} EGP</p>
             </div>
             
-            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-xl shadow-sm border border-blue-200">
+            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-4 sm:p-6 rounded-xl shadow-sm border border-blue-200 sm:col-span-2 lg:col-span-1">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-gray-600 text-sm font-medium uppercase">Total Products</h3>
-                <Package className="w-8 h-8 text-blue-600" />
+                <h3 className="text-gray-600 text-xs sm:text-sm font-medium uppercase">Total Products</h3>
+                <Package className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
               </div>
-              <p className="text-4xl font-bold text-gray-900">{stats.totalProducts}</p>
+              <p className="text-2xl sm:text-4xl font-bold text-gray-900">{stats.totalProducts}</p>
             </div>
           </div>
 
           {/* Order Status Breakdown */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Order Status Breakdown</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex items-center gap-3 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                <Clock className="w-6 h-6 text-yellow-600" />
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-4">Order Status Breakdown</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+              <div className="flex items-center gap-3 p-3 sm:p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600 flex-shrink-0" />
                 <div>
-                  <p className="text-sm text-gray-600">Pending</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.pendingOrders}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">Pending</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.pendingOrders}</p>
                 </div>
               </div>
               
-              <div className="flex items-center gap-3 p-4 bg-green-50 rounded-lg border border-green-200">
-                <CheckCircle className="w-6 h-6 text-green-600" />
+              <div className="flex items-center gap-3 p-3 sm:p-4 bg-green-50 rounded-lg border border-green-200">
+                <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 flex-shrink-0" />
                 <div>
-                  <p className="text-sm text-gray-600">Completed</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.completedOrders}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">Completed</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.completedOrders}</p>
                 </div>
               </div>
               
-              <div className="flex items-center gap-3 p-4 bg-red-50 rounded-lg border border-red-200">
-                <XCircle className="w-6 h-6 text-red-600" />
+              <div className="flex items-center gap-3 p-3 sm:p-4 bg-red-50 rounded-lg border border-red-200">
+                <XCircle className="w-5 h-5 sm:w-6 sm:h-6 text-red-600 flex-shrink-0" />
                 <div>
-                  <p className="text-sm text-gray-600">Cancelled</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.cancelledOrders}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">Cancelled</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.cancelledOrders}</p>
                 </div>
               </div>
             </div>

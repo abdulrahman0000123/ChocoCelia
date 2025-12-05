@@ -41,9 +41,10 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
+    <div className="min-h-screen bg-gray-100 lg:flex">
       <Sidebar />
-      <main className="flex-1 p-8 overflow-y-auto">
+      {/* Main content with top padding on mobile for the fixed header */}
+      <main className="flex-1 p-4 lg:p-8 overflow-y-auto pt-20 lg:pt-8">
         {children}
       </main>
     </div>
