@@ -12,7 +12,6 @@ export default function ChocolatePreloader() {
   const t = (key: string) => translations[locale][key] || key;
 
   useEffect(() => {
-    // Simulate loading progress
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
@@ -23,7 +22,6 @@ export default function ChocolatePreloader() {
       });
     }, 50);
 
-    // Hide preloader after 2.5 seconds
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 2500);
@@ -46,10 +44,9 @@ export default function ChocolatePreloader() {
             background: 'linear-gradient(135deg, #3D1E0F 0%, #5D3A1A 50%, #78350f 100%)',
           }}
         >
-          {/* Subtle animated background circles */}
           <div className="absolute inset-0 overflow-hidden">
             <motion.div
-              animate={{ 
+              animate={{
                 scale: [1, 1.2, 1],
                 opacity: [0.1, 0.2, 0.1]
               }}
@@ -57,7 +54,7 @@ export default function ChocolatePreloader() {
               className="absolute top-1/4 -left-20 w-64 h-64 bg-amber-500 rounded-full blur-3xl"
             />
             <motion.div
-              animate={{ 
+              animate={{
                 scale: [1.2, 1, 1.2],
                 opacity: [0.1, 0.15, 0.1]
               }}
@@ -66,21 +63,18 @@ export default function ChocolatePreloader() {
             />
           </div>
 
-          {/* Main content */}
           <div className="relative z-10 flex flex-col items-center">
-            {/* Logo container with golden ring animation */}
             <motion.div
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
-              transition={{ 
-                duration: 0.8, 
+              transition={{
+                duration: 0.8,
                 type: "spring",
                 stiffness: 100,
                 damping: 15
               }}
               className="relative"
             >
-              {/* Rotating golden ring */}
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
@@ -93,9 +87,8 @@ export default function ChocolatePreloader() {
                 <div className="w-full h-full rounded-full bg-[#3D1E0F]" />
               </motion.div>
 
-              {/* Logo image */}
               <motion.div
-                animate={{ 
+                animate={{
                   scale: [1, 1.05, 1],
                 }}
                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
@@ -104,15 +97,14 @@ export default function ChocolatePreloader() {
                   boxShadow: '0 0 40px rgba(212, 175, 55, 0.4), 0 0 80px rgba(212, 175, 55, 0.2)'
                 }}
               >
-                <img 
-                  src="/logo.png" 
+                <img
+                  src="/logo.png"
                   alt="Choco Celia"
                   className="w-full h-full object-cover"
                 />
               </motion.div>
             </motion.div>
 
-            {/* Brand name with typewriter effect */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -147,7 +139,6 @@ export default function ChocolatePreloader() {
               </motion.p>
             </motion.div>
 
-            {/* Progress bar */}
             <motion.div
               initial={{ opacity: 0, width: 0 }}
               animate={{ opacity: 1, width: '160px' }}
@@ -164,7 +155,6 @@ export default function ChocolatePreloader() {
               />
             </motion.div>
 
-            {/* Loading text */}
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
