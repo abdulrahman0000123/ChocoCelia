@@ -49,8 +49,8 @@ export function Footer() {
             className="md:col-span-2 text-center"
           >
             <div className="flex flex-col items-center mb-4">
-              <Heart className="w-8 h-8 text-gold-500 fill-gold-500 animate-pulse mb-1" />
-              <h3 className="text-3xl font-bold font-serif bg-gradient-to-r from-gold-400 via-gold-300 to-gold-400 bg-clip-text text-transparent">
+              <Heart className="w-8 h-8 text-gold-500 fill-gold-500 animate-pulse mb-0.5" />
+              <h3 className="text-4xl font-bold font-serif bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(234,179,8,0.6)]">
                 CHOCO-CELIA
               </h3>
             </div>
