@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import { ProductCard } from '../components/ProductCard';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function MenuPage() {
+  const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
@@ -58,9 +60,9 @@ export default function MenuPage() {
     <div className="min-h-screen bg-chocolate-50/30 pb-20">
       {/* Header */}
       <div className="bg-chocolate-900 text-white py-20 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold font-serif mb-4">Our Menu</h1>
+        <h1 className="text-4xl md:text-5xl font-bold font-cairo mb-4">{t('ourMenu')}</h1>
         <p className="text-chocolate-200 text-lg max-w-2xl mx-auto px-4">
-          Discover our handcrafted collection of premium chocolates.
+          {t('discoverHandcraftedCollection')}
         </p>
       </div>
 

@@ -52,7 +52,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...currentItems, newItem];
     });
-    setIsOpen(true);
+    // Don't open cart automatically
   };
 
   const removeItem = (id: string) => {

@@ -3,6 +3,8 @@
 import { motion } from 'framer-motion';
 import { MapPin, Instagram, Facebook, Twitter } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../lib/translations';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -21,6 +23,9 @@ export default function ContactPage() {
     instagram: '',
     twitter: '',
   });
+
+  const { locale } = useLanguage();
+  const t = (key: string) => translations[locale][key] || key;
 
   useEffect(() => {
     fetchSettings();
@@ -42,7 +47,7 @@ export default function ContactPage() {
     e.preventDefault();
     // Simulate form submission
     console.log('Contact form submitted:', formData);
-    alert('Message sent! We will get back to you soon.');
+    alert(t('messageSentSuccess'));
     setFormData({ name: '', email: '', message: '' });
   };
 
@@ -53,12 +58,12 @@ export default function ContactPage() {
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl font-bold font-serif text-chocolate-900 mb-4"
+            className="text-4xl md:text-5xl font-bold font-cairo text-chocolate-900 mb-4"
           >
-            Get in Touch
+            {t('getInTouch')}
           </motion.h1>
-          <p className="text-chocolate-600 text-lg max-w-2xl mx-auto">
-            Have a question or want to place a custom order? We'd love to hear from you.
+          <p className="text-gold-600 dark:text-gold-500 text-lg max-w-2xl mx-auto font-cairo">
+            {t('contactSubtitle')}
           </p>
         </div>
 
@@ -71,7 +76,7 @@ export default function ContactPage() {
             className="space-y-8"
           >
             <div className="bg-white dark:bg-chocolate-900 p-8 rounded-2xl shadow-sm border border-chocolate-100 dark:border-chocolate-800">
-              <h3 className="text-2xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-6 font-serif">Contact Information</h3>
+              <h3 className="text-2xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-6 font-cairo">{t('contactInfo')}</h3>
               
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
@@ -79,7 +84,7 @@ export default function ContactPage() {
                     <MapPin className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-chocolate-800 dark:text-chocolate-200">Location</h4>
+                    <h4 className="font-bold text-chocolate-800 dark:text-chocolate-200">{t('location')}</h4>
                     <p className="text-chocolate-600 dark:text-chocolate-300">
                       {settings.address || 'Cairo, Egypt'}<br />{settings.city}
                     </p>
@@ -88,7 +93,7 @@ export default function ContactPage() {
               </div>
 
               <div className="mt-8 pt-8 border-t border-chocolate-100 dark:border-chocolate-800">
-                <h4 className="font-bold text-chocolate-800 dark:text-chocolate-200 mb-4">Follow Us</h4>
+                <h4 className="font-bold text-chocolate-800 dark:text-chocolate-200 mb-4">{t('followUs')}</h4>
                 <div className="flex gap-4">
                   {settings.instagram && (
                     <a 
@@ -135,10 +140,10 @@ export default function ContactPage() {
             transition={{ delay: 0.4 }}
             className="bg-white dark:bg-chocolate-900 p-8 rounded-2xl shadow-sm border border-chocolate-100 dark:border-chocolate-800"
           >
-            <h3 className="text-2xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-6 font-serif">Send us a Message</h3>
+            <h3 className="text-2xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-6 font-cairo">{t('sendUsMessage')}</h3>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-chocolate-700 dark:text-chocolate-300 mb-1">Name</label>
+                <label className="block text-sm font-medium text-chocolate-700 dark:text-chocolate-300 mb-1">{t('name')}</label>
                 <input
                   type="text"
                   required
@@ -149,7 +154,7 @@ export default function ContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-chocolate-700 dark:text-chocolate-300 mb-1">Email</label>
+                <label className="block text-sm font-medium text-chocolate-700 dark:text-chocolate-300 mb-1">{t('email')}</label>
                 <input
                   type="email"
                   required
@@ -160,7 +165,7 @@ export default function ContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-chocolate-700 dark:text-chocolate-300 mb-1">Message</label>
+                <label className="block text-sm font-medium text-chocolate-700 dark:text-chocolate-300 mb-1">{t('message')}</label>
                 <textarea
                   required
                   rows={5}
@@ -174,7 +179,7 @@ export default function ContactPage() {
                 type="submit"
                 className="w-full bg-chocolate-600 dark:bg-chocolate-700 text-white py-4 rounded-full font-bold hover:bg-chocolate-700 dark:hover:bg-chocolate-600 transition-all shadow-lg"
               >
-                Send Message
+                {t('sendMessage')}
               </button>
             </form>
           </motion.div>

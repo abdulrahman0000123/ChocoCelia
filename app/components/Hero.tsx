@@ -151,7 +151,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold font-serif text-white mb-6 px-4"
+            className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold font-cairo text-white mb-6 px-4"
             style={{ 
               textShadow: '0 4px 20px rgba(0,0,0,0.5), 0 0 40px rgba(212,175,55,0.3)',
               lineHeight: '1.2'

@@ -34,7 +34,7 @@ export function Sidebar() {
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-chocolate-900 text-white px-4 py-3 flex items-center justify-between shadow-lg">
         <div>
-          <h1 className="text-lg font-bold font-serif text-gold-500">CHOCO-CELIA</h1>
+          <h1 className="text-lg font-bold font-cairo text-gold-500">CHOCO-CELIA</h1>
           <p className="text-[10px] text-chocolate-400">Admin Panel</p>
         </div>
         <div className="flex items-center gap-2">
@@ -67,7 +67,7 @@ export function Sidebar() {
       `}>
         {/* Desktop Header */}
         <div className="hidden lg:block p-6 border-b border-chocolate-800">
-          <h1 className="text-xl font-bold font-serif text-gold-500">CHOCO-CELIA</h1>
+          <h1 className="text-xl font-bold font-cairo text-gold-500">CHOCO-CELIA</h1>
           <p className="text-xs text-chocolate-400">Admin Panel</p>
         </div>
 

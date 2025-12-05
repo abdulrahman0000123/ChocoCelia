@@ -37,7 +37,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/logo.png" />
       </head>
       <body
-        className={`${cairo.variable} antialiased min-h-screen flex flex-col font-sans`}
+        className={`${cairo.variable} antialiased min-h-screen flex flex-col font-cairo`}
       >
         <LanguageProvider>
           <ThemeProvider

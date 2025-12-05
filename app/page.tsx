@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ShoppingBag, Star, Sparkles } from 'lucide-react';
+import { useLanguage } from './context/LanguageContext';
 
 interface Product {
   id: string;
@@ -35,18 +36,22 @@ interface Settings {
 }
 
 export default function Home() {
+  const { t } = useLanguage();
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [featureCards, setFeatureCards] = useState<FeatureCard[]>([
-    { icon: '🌿', title: 'Premium Ingredients', description: 'Only the finest cocoa and fresh ingredients' },
-    { icon: '🤎', title: 'Handmade with Love', description: 'Crafted in small batches for perfection' },
-    { icon: '✨', title: 'Unique Flavors', description: 'Innovative combinations that delight' },
-  ]);
+  const [featureCards, setFeatureCards] = useState<FeatureCard[]>([]);
 
   useEffect(() => {
+    // Set default feature cards from translations
+    setFeatureCards([
+      { icon: '🌿', title: t('premiumIngredients'), description: t('finestIngredients') },
+      { icon: '🤎', title: t('handmadeWithLove'), description: t('craftedInSmallBatches') },
+      { icon: '✨', title: t('uniqueFlavors'), description: t('innovativeCombinations') },
+    ]);
+
     fetchFeaturedProducts();
     fetchSettings();
-  }, []);
+  }, [t]);
 
   const fetchSettings = async () => {
     try {
@@ -57,18 +62,18 @@ export default function Home() {
           setFeatureCards([
             {
               icon: data.featureCard1Icon || '🌿',
-              title: data.featureCard1Title || 'Premium Ingredients',
-              description: data.featureCard1Description || 'Only the finest cocoa and fresh ingredients',
+              title: data.featureCard1Title || t('premiumIngredients'),
+              description: data.featureCard1Description || t('finestIngredients'),
             },
             {
               icon: data.featureCard2Icon || '🤎',
-              title: data.featureCard2Title || 'Handmade with Love',
-              description: data.featureCard2Description || 'Crafted in small batches for perfection',
+              title: data.featureCard2Title || t('handmadeWithLove'),
+              description: data.featureCard2Description || t('craftedInSmallBatches'),
             },
             {
               icon: data.featureCard3Icon || '✨',
-              title: data.featureCard3Title || 'Unique Flavors',
-              description: data.featureCard3Description || 'Innovative combinations that delight',
+              title: data.featureCard3Title || t('uniqueFlavors'),
+              description: data.featureCard3Description || t('innovativeCombinations'),
             },
           ]);
         }
@@ -117,11 +122,11 @@ export default function Home() {
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl sm:text-4xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-4 font-serif">
-            Our Favorites
+          <h2 className="text-3xl sm:text-4xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-4 font-cairo">
+            {t('ourFavorites')}
           </h2>
           <p className="text-chocolate-600 dark:text-chocolate-400 max-w-2xl mx-auto">
-            Discover our most loved chocolates, handcrafted with care
+            {t('discoverHandcrafted')}
           </p>
         </motion.div>
 
@@ -170,7 +175,7 @@ export default function Home() {
                       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0">
                         <span className="px-6 py-2 bg-white text-chocolate-900 rounded-full font-semibold text-sm shadow-lg flex items-center gap-2">
                           <ShoppingBag className="w-4 h-4" />
-                          View Details
+                          {t('viewDetails')}
                         </span>
                       </div>
                     </div>
@@ -226,9 +231,9 @@ export default function Home() {
           >
             <Link
               href="/menu"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-chocolate-800 to-chocolate-900 text-white rounded-full font-semibold hover:from-chocolate-700 hover:to-chocolate-800 transition-all shadow-lg hover:shadow-xl"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-chocolate-600 dark:bg-chocolate-700 text-white rounded-full font-bold hover:bg-chocolate-700 dark:hover:bg-chocolate-600 transition-all hover:gap-3 shadow-lg"
             >
-              View All Products
+              {t('viewAllProducts')}
               <span className="text-gold-400">→</span>
             </Link>
           </motion.div>
@@ -243,11 +248,11 @@ export default function Home() {
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl sm:text-4xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-4 font-serif">
-            Why Choose Us
+          <h2 className="text-3xl sm:text-4xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-4 font-cairo">
+            {t('whyChooseUs')}
           </h2>
           <p className="text-chocolate-600 dark:text-chocolate-400 max-w-2xl mx-auto">
-            What makes our chocolates special
+            {t('whatMakesSpecial')}
           </p>
         </motion.div>
 

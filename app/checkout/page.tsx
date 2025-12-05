@@ -5,9 +5,11 @@ import { useCart } from '../context/CartContext';
 import { motion } from 'framer-motion';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function CheckoutPage() {
   const { items, total, clearCart } = useCart();
+  const { t } = useLanguage();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -71,15 +73,15 @@ export default function CheckoutPage() {
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-10 h-10 text-green-600" />
           </div>
-          <h2 className="text-3xl font-bold text-chocolate-900 mb-4 font-serif">Order Received!</h2>
+          <h2 className="text-3xl font-bold text-chocolate-900 mb-4 font-cairo">{t('orderReceived')}</h2>
           <p className="text-chocolate-600 mb-8">
-            Thank you for your order, {formData.name}. We will contact you shortly to confirm the details.
+            {t('thankYouOrder')}, {formData.name}. {t('continueShoppingMsg')}
           </p>
           <Link 
             href="/menu"
-            className="block w-full bg-chocolate-600 text-white py-3 rounded-full font-bold hover:bg-chocolate-700 transition-colors"
+            className="block w-full bg-chocolate-600 text-white py-3 rounded-full font-bold hover:bg-chocolate-700 transition-colors font-cairo"
           >
-            Continue Shopping
+            <span className="text-gold-500">{t('continueShopping')}</span>
           </Link>
         </motion.div>
       </div>
@@ -89,12 +91,12 @@ export default function CheckoutPage() {
   if (items.length === 0) {
     return (
       <div className="min-h-screen bg-white dark:bg-chocolate-950 flex flex-col items-center justify-center px-4">
-        <h2 className="text-2xl font-bold text-chocolate-900 mb-4">Your cart is empty</h2>
+        <h2 className="text-2xl font-bold text-chocolate-900 mb-4">{t('yourCartIsEmpty')}</h2>
         <Link 
           href="/menu"
           className="text-chocolate-600 hover:text-chocolate-800 underline"
         >
-          Browse Menu
+          {t('browseMenu')}
         </Link>
       </div>
     );
@@ -108,13 +110,13 @@ export default function CheckoutPage() {
           className="inline-flex items-center text-chocolate-600 hover:text-chocolate-800 mb-8 transition-colors"
         >
           <ArrowLeft className="w-5 h-5 mr-2" />
-          Back to Menu
+          {t('backToMenu')}
         </Link>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Order Summary */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-chocolate-100 h-fit">
-            <h2 className="text-xl font-bold text-chocolate-900 mb-6 font-serif">Order Summary</h2>
+            <h2 className="text-xl font-bold text-chocolate-900 mb-6 font-cairo">{t('orderSummary')}</h2>
             <div className="space-y-4 mb-6">
               {items.map((item) => (
                 <div key={item.id} className="flex justify-between items-center">
@@ -140,7 +142,7 @@ export default function CheckoutPage() {
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-bold text-chocolate-900 mb-2 text-base">Delivery Charges</h3>
+                  <h3 className="font-bold text-chocolate-900 mb-2 text-base">{t('deliveryCharges')}</h3>
                   <div className="space-y-1.5 text-sm">
                     <div className="flex items-center justify-between bg-white/70 px-3 py-2 rounded-lg">
                       <span className="font-semibold text-chocolate-800">داخل بني سويف</span>
@@ -159,17 +161,17 @@ export default function CheckoutPage() {
             </div>
 
             <div className="border-t border-chocolate-100 pt-4 flex justify-between items-center">
-              <span className="text-lg font-bold text-chocolate-900">Total</span>
+              <span className="text-lg font-bold text-chocolate-900">{t('total')}</span>
               <span className="text-2xl font-bold text-chocolate-900">{total.toFixed(2)} EGP</span>
             </div>
           </div>
 
           {/* Contact Form */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-chocolate-100">
-            <h2 className="text-xl font-bold text-chocolate-900 mb-6 font-serif">Contact Details</h2>
+            <h2 className="text-xl font-bold text-chocolate-900 mb-6 font-cairo">{t('contactDetails')}</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-chocolate-700 mb-1">Name</label>
+                <label className="block text-sm font-medium text-chocolate-700 mb-1">{t('name')}</label>
                 <input
                   type="text"
                   required
@@ -180,7 +182,7 @@ export default function CheckoutPage() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-chocolate-700 mb-1">Phone Number</label>
+                <label className="block text-sm font-medium text-chocolate-700 mb-1">{t('phoneNumber')}</label>
                 <input
                   type="tel"
                   required
@@ -191,7 +193,7 @@ export default function CheckoutPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-chocolate-700 mb-1">Email (Optional)</label>
+                <label className="block text-sm font-medium text-chocolate-700 mb-1">{t('emailOptional')}</label>
                 <input
                   type="email"
                   className="w-full px-4 py-2 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors text-black"
@@ -201,11 +203,11 @@ export default function CheckoutPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-chocolate-700 mb-1">Delivery Address</label>
+                <label className="block text-sm font-medium text-chocolate-700 mb-1">{t('deliveryAddress')}</label>
                 <input
                   type="text"
                   required
-                  placeholder="Enter your full address"
+                  placeholder={t('enterFullAddress')}
                   className="w-full px-4 py-2 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors text-black"
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
@@ -213,7 +215,7 @@ export default function CheckoutPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-chocolate-700 mb-1">Preferred Contact Method</label>
+                <label className="block text-sm font-medium text-chocolate-700 mb-1">{t('preferredContactMethod')}</label>
                 <div className="flex gap-4">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -224,7 +226,7 @@ export default function CheckoutPage() {
                       onChange={(e) => setFormData({ ...formData, method: e.target.value })}
                       className="text-chocolate-600 focus:ring-chocolate-500"
                     />
-                    <span className="text-chocolate-700">WhatsApp</span>
+                    <span className="text-chocolate-700">{t('whatsapp')}</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -235,13 +237,13 @@ export default function CheckoutPage() {
                       onChange={(e) => setFormData({ ...formData, method: e.target.value })}
                       className="text-chocolate-600 focus:ring-chocolate-500"
                     />
-                    <span className="text-chocolate-700">Phone Call</span>
+                    <span className="text-chocolate-700">{t('phoneCall')}</span>
                   </label>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-chocolate-700 mb-1">Message / Special Requests</label>
+                <label className="block text-sm font-medium text-chocolate-700 mb-1">{t('messageSpecialRequests')}</label>
                 <textarea
                   rows={3}
                   className="w-full px-4 py-2 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors text-black"
@@ -261,10 +263,10 @@ export default function CheckoutPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Placing Order...
+                    {t('placingOrder')}
                   </>
                 ) : (
-                  'Place Order'
+                  t('placeOrder')
                 )}
               </button>
             </form>

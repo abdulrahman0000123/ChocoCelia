@@ -73,7 +73,7 @@ export function Navbar() {
                 />
               </motion.div>
             ) : (
-              <span className="text-2xl font-bold bg-gradient-to-r from-amber-800 via-orange-600 to-amber-800 bg-clip-text text-transparent font-serif relative drop-shadow-md">
+              <span className="text-2xl font-bold bg-gradient-to-r from-amber-800 via-orange-600 to-amber-800 bg-clip-text text-transparent font-cairo relative drop-shadow-md">
                 CHOCO-CELIA
                 <Sparkles className="absolute -top-1 -right-6 w-4 h-4 text-orange-500 animate-pulse" />
               </span>

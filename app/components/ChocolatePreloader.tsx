@@ -2,10 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../lib/translations';
 
 export default function ChocolatePreloader() {
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState(0);
+  const { locale } = useLanguage();
+  const t = (key: string) => translations[locale][key] || key;
 
   useEffect(() => {
     // Simulate loading progress
@@ -115,7 +119,7 @@ export default function ChocolatePreloader() {
               transition={{ delay: 0.5, duration: 0.5 }}
               className="mt-8 text-center"
             >
-              <h1 className="text-2xl sm:text-3xl font-serif text-white font-bold tracking-wide">
+              <h1 className="text-2xl sm:text-3xl font-cairo text-white font-bold tracking-wide">
                 <motion.span
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -167,7 +171,7 @@ export default function ChocolatePreloader() {
               transition={{ delay: 1 }}
               className="mt-3 text-amber-200/60 text-xs tracking-widest uppercase"
             >
-              Loading
+              {t('loading')}
               <motion.span
                 animate={{ opacity: [0, 1, 0] }}
                 transition={{ duration: 1.5, repeat: Infinity }}

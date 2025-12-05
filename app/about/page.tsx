@@ -85,7 +85,7 @@ export default function AboutPage() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <h1 className="text-6xl md:text-8xl font-bold font-serif mb-6 bg-gradient-to-r from-gold-400 via-gold-300 to-gold-500 bg-clip-text text-transparent drop-shadow-2xl">
+            <h1 className="text-6xl md:text-8xl font-bold font-cairo mb-6 bg-gradient-to-r from-gold-400 via-gold-300 to-gold-500 bg-clip-text text-transparent drop-shadow-2xl">
               {settings.ourStoryTitle}
             </h1>
           </motion.div>
@@ -125,7 +125,7 @@ export default function AboutPage() {
         >
           <div className="text-center">
             <div className="text-6xl text-gold-500 mb-4">"</div>
-            <p className="text-2xl md:text-3xl text-chocolate-800 dark:text-chocolate-100 font-serif italic leading-relaxed">
+            <p className="text-2xl md:text-3xl text-chocolate-800 dark:text-chocolate-100 font-cairo italic leading-relaxed">
               At CHOCO-CELIA, we believe that chocolate is not just a treat, but an experience that speaks to the soul.
             </p>
             <div className="text-6xl text-gold-500 mt-4 rotate-180">"</div>

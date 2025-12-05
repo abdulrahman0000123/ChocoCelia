@@ -2,19 +2,22 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ShoppingCart, Minus, Plus, ArrowLeft, Loader2 } from 'lucide-react';
+import { ShoppingCart, Minus, Plus, ArrowLeft, Loader2, Check } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useCart } from '../../context/CartContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { translations } from '../../lib/translations';
 
 export default function ProductDetailsPage() {
   const params = useParams();
   const [quantity, setQuantity] = useState(1);
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdded, setIsAdded] = useState(false);
   const { addItem } = useCart();
   const { locale } = useLanguage();
+  const t = (key: string) => translations[locale][key] || key;
   
   useEffect(() => {
     fetchProduct();
@@ -54,6 +57,10 @@ export default function ProductDetailsPage() {
         image: product.image,
         quantity: quantity
       });
+      
+      // Show animation
+      setIsAdded(true);
+      setTimeout(() => setIsAdded(false), 2000);
     }
   };
 
@@ -72,9 +79,9 @@ export default function ProductDetailsPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-chocolate-50 dark:bg-chocolate-950">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-4">Product not found</h1>
+          <h1 className="text-2xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-4">{t('productNotFound')}</h1>
           <Link href="/menu" className="text-chocolate-600 dark:text-gold-500 hover:text-chocolate-800 dark:hover:text-gold-400">
-            Return to menu
+            {t('returnToMenu')}
           </Link>
         </div>
       </div>
@@ -89,7 +96,7 @@ export default function ProductDetailsPage() {
           className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 dark:bg-chocolate-800/80 backdrop-blur-sm text-chocolate-700 dark:text-chocolate-200 hover:bg-white dark:hover:bg-chocolate-800 hover:text-chocolate-900 dark:hover:text-white transition-all shadow-md hover:shadow-lg"
         >
           <ArrowLeft className="w-5 h-5" />
-          <span className="font-medium">Back to Menu</span>
+          <span className="font-medium">{t('backToMenu')}</span>
         </Link>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 mt-8">
@@ -127,9 +134,9 @@ export default function ProductDetailsPage() {
             className="flex flex-col justify-center"
           >
             <div className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider mb-3 px-3 py-1.5 bg-chocolate-100 dark:bg-chocolate-800 text-chocolate-600 dark:text-gold-400 rounded-full w-fit">
-              {product.category?.name || 'Chocolate'} Chocolate
+              {product.category?.name || t('chocolate')} {t('chocolate')}
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-chocolate-900 to-chocolate-700 dark:from-chocolate-100 dark:to-gold-300 bg-clip-text text-transparent mb-6 font-serif leading-tight">
+            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-chocolate-900 to-chocolate-700 dark:from-chocolate-100 dark:to-gold-300 bg-clip-text text-transparent mb-6 font-cairo leading-tight">
               {displayName}
             </h1>
             <p className="text-lg text-chocolate-700 dark:text-chocolate-200 mb-8 leading-relaxed">
@@ -140,13 +147,13 @@ export default function ProductDetailsPage() {
               <div className="border-y border-chocolate-200 dark:border-chocolate-700 py-6 mb-8 space-y-4 bg-chocolate-50/50 dark:bg-chocolate-800/30 px-4 rounded-lg">
                 {product.weight && (
                   <div className="flex justify-between text-chocolate-900 dark:text-chocolate-100">
-                    <span className="font-bold">Weight:</span>
+                    <span className="font-bold">{t('weight')}:</span>
                     <span className="text-chocolate-700 dark:text-chocolate-300">{product.weight}</span>
                   </div>
                 )}
                 {product.ingredients && (
                   <div className="flex justify-between text-chocolate-900 dark:text-chocolate-100">
-                    <span className="font-bold">Ingredients:</span>
+                    <span className="font-bold">{t('ingredients')}:</span>
                     <span className="text-right max-w-[60%] text-chocolate-700 dark:text-chocolate-300">{product.ingredients}</span>
                   </div>
                 )}
@@ -155,7 +162,7 @@ export default function ProductDetailsPage() {
 
             <div className="flex items-center justify-between mb-8 bg-white/80 dark:bg-chocolate-800/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg">
               <div>
-                <div className="text-sm text-chocolate-600 dark:text-chocolate-300 mb-1">Total Price</div>
+                <div className="text-sm text-chocolate-600 dark:text-chocolate-300 mb-1">{t('totalPrice')}</div>
                 <div className="text-3xl font-bold text-chocolate-900 dark:text-white">
                   {(Number(product.price) * quantity).toFixed(2)} EGP
                 </div>
@@ -178,13 +185,27 @@ export default function ProductDetailsPage() {
               </div>
             </div>
 
-            <button 
+            <motion.button 
               onClick={handleAddToCart}
-              className="w-full bg-gradient-to-r from-chocolate-600 to-chocolate-700 dark:from-gold-600 dark:to-gold-500 text-white py-5 rounded-2xl font-bold text-lg hover:shadow-2xl hover:shadow-chocolate-600/50 dark:hover:shadow-gold-500/50 transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-xl flex items-center justify-center gap-3"
+              animate={isAdded ? { scale: [1, 1.05, 1] } : {}}
+              className={`w-full py-5 rounded-2xl font-bold text-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-xl flex items-center justify-center gap-3 ${
+                isAdded
+                  ? 'bg-green-500 text-white'
+                  : 'bg-gradient-to-r from-chocolate-600 to-chocolate-700 dark:from-gold-600 dark:to-gold-500 text-white hover:shadow-2xl hover:shadow-chocolate-600/50 dark:hover:shadow-gold-500/50'
+              }`}
             >
-              <ShoppingCart className="w-6 h-6" />
-              Add to Cart
-            </button>
+              {isAdded ? (
+                <>
+                  <Check className="w-6 h-6" />
+                  {t('addedToCart')}
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="w-6 h-6" />
+                  {t('addToCart')}
+                </>
+              )}
+            </motion.button>
           </motion.div>
         </div>
       </div>
