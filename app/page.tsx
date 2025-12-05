@@ -4,7 +4,7 @@ import { Hero } from "./components/Hero";
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ShoppingBag, Star } from 'lucide-react';
+import { ShoppingBag, Star, Sparkles } from 'lucide-react';
 
 interface Product {
   id: string;
@@ -16,13 +16,67 @@ interface Product {
   tags?: string;
 }
 
+interface FeatureCard {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+interface Settings {
+  featureCard1Icon: string;
+  featureCard1Title: string;
+  featureCard1Description: string;
+  featureCard2Icon: string;
+  featureCard2Title: string;
+  featureCard2Description: string;
+  featureCard3Icon: string;
+  featureCard3Title: string;
+  featureCard3Description: string;
+}
+
 export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [featureCards, setFeatureCards] = useState<FeatureCard[]>([
+    { icon: '🌿', title: 'Premium Ingredients', description: 'Only the finest cocoa and fresh ingredients' },
+    { icon: '🤎', title: 'Handmade with Love', description: 'Crafted in small batches for perfection' },
+    { icon: '✨', title: 'Unique Flavors', description: 'Innovative combinations that delight' },
+  ]);
 
   useEffect(() => {
     fetchFeaturedProducts();
+    fetchSettings();
   }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const res = await fetch('/api/settings');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.featureCard1Title || data.featureCard2Title || data.featureCard3Title) {
+          setFeatureCards([
+            {
+              icon: data.featureCard1Icon || '🌿',
+              title: data.featureCard1Title || 'Premium Ingredients',
+              description: data.featureCard1Description || 'Only the finest cocoa and fresh ingredients',
+            },
+            {
+              icon: data.featureCard2Icon || '🤎',
+              title: data.featureCard2Title || 'Handmade with Love',
+              description: data.featureCard2Description || 'Crafted in small batches for perfection',
+            },
+            {
+              icon: data.featureCard3Icon || '✨',
+              title: data.featureCard3Title || 'Unique Flavors',
+              description: data.featureCard3Description || 'Innovative combinations that delight',
+            },
+          ]);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch settings');
+    }
+  };
 
   const fetchFeaturedProducts = async () => {
     try {
@@ -179,6 +233,59 @@ export default function Home() {
             </Link>
           </motion.div>
         )}
+      </section>
+
+      {/* Feature Cards Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-12"
+        >
+          <h2 className="text-3xl sm:text-4xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-4 font-serif">
+            Why Choose Us
+          </h2>
+          <p className="text-chocolate-600 dark:text-chocolate-400 max-w-2xl mx-auto">
+            What makes our chocolates special
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {featureCards.map((card, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="group relative bg-gradient-to-br from-chocolate-800 to-chocolate-900 rounded-2xl p-8 text-center overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300"
+            >
+              {/* Background decoration */}
+              <div className="absolute inset-0 bg-gradient-to-br from-gold-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              
+              {/* Icon */}
+              <motion.div
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                className="relative z-10 text-5xl mb-6"
+              >
+                {card.icon}
+              </motion.div>
+
+              {/* Title */}
+              <h3 className="relative z-10 text-xl font-bold text-white mb-3 group-hover:text-gold-400 transition-colors">
+                {card.title}
+              </h3>
+
+              {/* Description */}
+              <p className="relative z-10 text-chocolate-300 text-sm leading-relaxed">
+                {card.description}
+              </p>
+
+              {/* Bottom accent */}
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </motion.div>
+          ))}
+        </div>
       </section>
     </div>
   );

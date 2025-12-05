@@ -32,19 +32,16 @@ export default function SettingsPage() {
     heroHighlight: '',
     heroSubtitle: '',
     heroSlides: [] as string[],
-    // Placeholders
-    placeholder1Image: '',
-    placeholder1Title: '',
-    placeholder1Description: '',
-    placeholder1Icon: '',
-    placeholder2Image: '',
-    placeholder2Title: '',
-    placeholder2Description: '',
-    placeholder2Icon: '',
-    placeholder3Image: '',
-    placeholder3Title: '',
-    placeholder3Description: '',
-    placeholder3Icon: '',
+    // Feature Cards
+    featureCard1Icon: '',
+    featureCard1Title: '',
+    featureCard1Description: '',
+    featureCard2Icon: '',
+    featureCard2Title: '',
+    featureCard2Description: '',
+    featureCard3Icon: '',
+    featureCard3Title: '',
+    featureCard3Description: '',
   });
   const [message, setMessage] = useState('');
 
@@ -79,19 +76,16 @@ export default function SettingsPage() {
           heroHighlight: data.heroHighlight || '',
           heroSubtitle: data.heroSubtitle || '',
           heroSlides: data.heroSlides || [],
-          // Placeholders
-          placeholder1Image: data.placeholder1Image || '',
-          placeholder1Title: data.placeholder1Title || '',
-          placeholder1Description: data.placeholder1Description || '',
-          placeholder1Icon: data.placeholder1Icon || '',
-          placeholder2Image: data.placeholder2Image || '',
-          placeholder2Title: data.placeholder2Title || '',
-          placeholder2Description: data.placeholder2Description || '',
-          placeholder2Icon: data.placeholder2Icon || '',
-          placeholder3Image: data.placeholder3Image || '',
-          placeholder3Title: data.placeholder3Title || '',
-          placeholder3Description: data.placeholder3Description || '',
-          placeholder3Icon: data.placeholder3Icon || '',
+          // Feature Cards
+          featureCard1Icon: data.featureCard1Icon || '🌿',
+          featureCard1Title: data.featureCard1Title || 'Premium Ingredients',
+          featureCard1Description: data.featureCard1Description || 'Only the finest cocoa and fresh ingredients',
+          featureCard2Icon: data.featureCard2Icon || '🤎',
+          featureCard2Title: data.featureCard2Title || 'Handmade with Love',
+          featureCard2Description: data.featureCard2Description || 'Crafted in small batches for perfection',
+          featureCard3Icon: data.featureCard3Icon || '✨',
+          featureCard3Title: data.featureCard3Title || 'Unique Flavors',
+          featureCard3Description: data.featureCard3Description || 'Innovative combinations that delight',
         });
       }
     } catch (error) {
@@ -528,8 +522,8 @@ export default function SettingsPage() {
                   </label>
                   <input
                     type="text"
-                    value={formData.placeholder1Icon}
-                    onChange={(e) => setFormData({ ...formData, placeholder1Icon: e.target.value })}
+                    value={formData.featureCard1Icon}
+                    onChange={(e) => setFormData({ ...formData, featureCard1Icon: e.target.value })}
                     className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-chocolate-700 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none transition-all bg-white dark:bg-chocolate-800 text-gray-900 dark:text-gray-100"
                     placeholder="🌿"
                   />
@@ -540,8 +534,8 @@ export default function SettingsPage() {
                   </label>
                   <input
                     type="text"
-                    value={formData.placeholder1Title}
-                    onChange={(e) => setFormData({ ...formData, placeholder1Title: e.target.value })}
+                    value={formData.featureCard1Title}
+                    onChange={(e) => setFormData({ ...formData, featureCard1Title: e.target.value })}
                     className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-chocolate-700 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none transition-all bg-white dark:bg-chocolate-800 text-gray-900 dark:text-gray-100"
                     placeholder="Premium Ingredients"
                   />
@@ -552,8 +546,8 @@ export default function SettingsPage() {
                   </label>
                   <input
                     type="text"
-                    value={formData.placeholder1Description}
-                    onChange={(e) => setFormData({ ...formData, placeholder1Description: e.target.value })}
+                    value={formData.featureCard1Description}
+                    onChange={(e) => setFormData({ ...formData, featureCard1Description: e.target.value })}
                     className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-chocolate-700 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none transition-all bg-white dark:bg-chocolate-800 text-gray-900 dark:text-gray-100"
                     placeholder="Only the finest cocoa..."
                   />
@@ -575,8 +569,8 @@ export default function SettingsPage() {
                   </label>
                   <input
                     type="text"
-                    value={formData.placeholder2Icon}
-                    onChange={(e) => setFormData({ ...formData, placeholder2Icon: e.target.value })}
+                    value={formData.featureCard2Icon}
+                    onChange={(e) => setFormData({ ...formData, featureCard2Icon: e.target.value })}
                     className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-chocolate-700 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none transition-all bg-white dark:bg-chocolate-800 text-gray-900 dark:text-gray-100"
                     placeholder="🖐️"
                   />
@@ -587,8 +581,8 @@ export default function SettingsPage() {
                   </label>
                   <input
                     type="text"
-                    value={formData.placeholder2Title}
-                    onChange={(e) => setFormData({ ...formData, placeholder2Title: e.target.value })}
+                    value={formData.featureCard2Title}
+                    onChange={(e) => setFormData({ ...formData, featureCard2Title: e.target.value })}
                     className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-chocolate-700 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none transition-all bg-white dark:bg-chocolate-800 text-gray-900 dark:text-gray-100"
                     placeholder="Handmade with Love"
                   />
@@ -599,8 +593,8 @@ export default function SettingsPage() {
                   </label>
                   <input
                     type="text"
-                    value={formData.placeholder2Description}
-                    onChange={(e) => setFormData({ ...formData, placeholder2Description: e.target.value })}
+                    value={formData.featureCard2Description}
+                    onChange={(e) => setFormData({ ...formData, featureCard2Description: e.target.value })}
                     className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-chocolate-700 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none transition-all bg-white dark:bg-chocolate-800 text-gray-900 dark:text-gray-100"
                     placeholder="Crafted in small batches..."
                   />
@@ -622,8 +616,8 @@ export default function SettingsPage() {
                   </label>
                   <input
                     type="text"
-                    value={formData.placeholder3Icon}
-                    onChange={(e) => setFormData({ ...formData, placeholder3Icon: e.target.value })}
+                    value={formData.featureCard3Icon}
+                    onChange={(e) => setFormData({ ...formData, featureCard3Icon: e.target.value })}
                     className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-chocolate-700 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none transition-all bg-white dark:bg-chocolate-800 text-gray-900 dark:text-gray-100"
                     placeholder="✨"
                   />
@@ -634,8 +628,8 @@ export default function SettingsPage() {
                   </label>
                   <input
                     type="text"
-                    value={formData.placeholder3Title}
-                    onChange={(e) => setFormData({ ...formData, placeholder3Title: e.target.value })}
+                    value={formData.featureCard3Title}
+                    onChange={(e) => setFormData({ ...formData, featureCard3Title: e.target.value })}
                     className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-chocolate-700 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none transition-all bg-white dark:bg-chocolate-800 text-gray-900 dark:text-gray-100"
                     placeholder="Unique Flavors"
                   />
@@ -646,8 +640,8 @@ export default function SettingsPage() {
                   </label>
                   <input
                     type="text"
-                    value={formData.placeholder3Description}
-                    onChange={(e) => setFormData({ ...formData, placeholder3Description: e.target.value })}
+                    value={formData.featureCard3Description}
+                    onChange={(e) => setFormData({ ...formData, featureCard3Description: e.target.value })}
                     className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-chocolate-700 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none transition-all bg-white dark:bg-chocolate-800 text-gray-900 dark:text-gray-100"
                     placeholder="Innovative combinations..."
                   />
