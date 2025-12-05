@@ -37,12 +37,16 @@ export function Sidebar() {
           <h1 className="text-lg font-bold font-serif text-gold-500">CHOCO-CELIA</h1>
           <p className="text-[10px] text-chocolate-400">Admin Panel</p>
         </div>
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="p-2 rounded-lg hover:bg-chocolate-800 transition-colors"
-        >
-          {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Notification bell slot - will be filled by portal */}
+          <div id="mobile-notification-slot"></div>
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="p-2 rounded-lg hover:bg-chocolate-800 transition-colors"
+          >
+            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Overlay */}

@@ -177,7 +177,7 @@ export default function OrderNotification() {
       {/* Notification Bell Button */}
       <button
         onClick={handleBellClick}
-        className="relative p-2 rounded-xl bg-white dark:bg-chocolate-800 shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-chocolate-700"
+        className="relative p-1.5 lg:p-2 rounded-lg lg:rounded-xl bg-white/90 lg:bg-white dark:bg-chocolate-800 shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-chocolate-700"
       >
         <AnimatePresence mode="wait">
           {pendingOrders.length > 0 ? (
@@ -187,10 +187,10 @@ export default function OrderNotification() {
               animate={{ rotate: [0, 15, -15, 10, -10, 5, -5, 0] }}
               transition={{ duration: 0.5, repeat: newOrdersCount > 0 ? Infinity : 0, repeatDelay: 2 }}
             >
-              <BellRing className="w-6 h-6 text-orange-500" />
+              <BellRing className="w-5 h-5 lg:w-6 lg:h-6 text-orange-500" />
             </motion.div>
           ) : (
-            <Bell className="w-6 h-6 text-gray-500 dark:text-gray-400" />
+            <Bell className="w-5 h-5 lg:w-6 lg:h-6 text-gray-500 dark:text-gray-400" />
           )}
         </AnimatePresence>
         
@@ -199,7 +199,7 @@ export default function OrderNotification() {
           <motion.span
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1"
+            className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] lg:text-xs font-bold rounded-full min-w-[16px] lg:min-w-[20px] h-4 lg:h-5 flex items-center justify-center px-1"
           >
             {pendingOrders.length}
           </motion.span>
@@ -211,7 +211,7 @@ export default function OrderNotification() {
             initial={{ scale: 0 }}
             animate={{ scale: [1, 1.2, 1] }}
             transition={{ repeat: Infinity, duration: 1 }}
-            className="absolute -bottom-1 -right-1 bg-green-500 w-3 h-3 rounded-full"
+            className="absolute -bottom-1 -right-1 bg-green-500 w-2 h-2 lg:w-3 lg:h-3 rounded-full"
           />
         )}
       </button>
