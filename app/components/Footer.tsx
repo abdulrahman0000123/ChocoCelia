@@ -54,8 +54,14 @@ export function Footer() {
               </h3>
               <Heart className="w-6 h-6 text-gold-500 fill-gold-500 animate-pulse" />
             </div>
-            <p className="text-chocolate-300 text-lg mb-6 leading-relaxed">
-              Where Every Bite Melts Your Heart. Premium handmade chocolates crafted with passion and the finest ingredients.
+            <p className="text-chocolate-300 text-base mb-6 leading-relaxed font-[family-name:var(--font-cairo)]" dir="rtl">
+              أهلا بيكم في عالم الشوكولاتة السعيد!
+              <br />
+              هتلاقوا هنا بارات شوكولاتة وميني شوكلت هاند ميد،
+              <br />
+              بأشكال وأطعم مختلفة مخصّصة لكل لحظاتكم الحلوة ومناسباتكم الخاصة.
+              <br />
+              كل قطعة معمولة بحب ومتغلفة بشياكة. 🍫♥️
             </p>
           </motion.div>
 
