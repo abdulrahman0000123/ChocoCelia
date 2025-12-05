@@ -7,8 +7,9 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 // Default values (used if API fails or returns empty)
 const DEFAULT_HERO_SLIDES = [
-  'https://cdn.pixabay.com/photo/2022/07/24/15/15/chocolate-7342021_1280.jpg',
-  'https://cdn.pixabay.com/photo/2015/02/07/03/00/chocolate-627168_1280.jpg',
+  'https://cdn.pixabay.com/photo/2016/04/06/19/05/chocolate-1312524_960_720.jpg',
+  'https://cdn.pixabay.com/photo/2019/09/06/07/59/chocolate-4455840_960_720.jpg',
+  'https://cdn.pixabay.com/photo/2020/12/04/19/24/dessert-5804153_960_720.jpg',
 ];
 const DEFAULT_HERO_TITLE = 'ChocoCelia';
 const DEFAULT_HERO_HIGHLIGHT = 'Your Daily Dose Of Happiness';
