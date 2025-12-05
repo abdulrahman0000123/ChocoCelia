@@ -8,6 +8,7 @@ import { CartDrawer } from "./components/CartDrawer";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { LanguageProvider } from "./context/LanguageContext";
 import ChocolatePreloader from "./components/ChocolatePreloader";
+import { Toaster } from "react-hot-toast";
 
 const cairo = Cairo({
   subsets: ["latin", "arabic"],
@@ -37,6 +38,30 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <CartProvider>
+              <Toaster 
+                position="top-center"
+                toastOptions={{
+                  duration: 3000,
+                  style: {
+                    background: '#4A3728',
+                    color: '#fff',
+                    borderRadius: '12px',
+                    padding: '16px',
+                  },
+                  success: {
+                    iconTheme: {
+                      primary: '#10B981',
+                      secondary: '#fff',
+                    },
+                  },
+                  error: {
+                    iconTheme: {
+                      primary: '#EF4444',
+                      secondary: '#fff',
+                    },
+                  },
+                }}
+              />
               <ChocolatePreloader />
               <Navbar />
               <CartDrawer />

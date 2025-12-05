@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Eye, CheckCircle, XCircle, Clock, Loader2, Phone, Mail, MapPin, MessageSquare } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -21,13 +22,14 @@ export default function OrdersPage() {
       }
     } catch (error) {
       console.error('Failed to fetch orders:', error);
-      alert('Failed to load orders');
+      toast.error('Failed to load orders');
     } finally {
       setLoading(false);
     }
   };
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    const loadingToast = toast.loading('Updating order status...');
     try {
       const res = await fetch(`/api/orders/${orderId}`, {
         method: 'PUT',
@@ -41,13 +43,14 @@ export default function OrdersPage() {
         if (selectedOrder?.id === orderId) {
           setSelectedOrder(updatedOrder);
         }
-        alert('Order status updated successfully!');
+        const statusEmoji = newStatus === 'COMPLETED' ? '✅' : newStatus === 'CANCELLED' ? '❌' : '⏳';
+        toast.success(`Order status updated to ${newStatus}! ${statusEmoji}`, { id: loadingToast });
       } else {
-        alert('Failed to update order status');
+        toast.error('Failed to update order status', { id: loadingToast });
       }
     } catch (error) {
       console.error('Failed to update order:', error);
-      alert('Failed to update order status');
+      toast.error('Failed to update order status', { id: loadingToast });
     }
   };
 

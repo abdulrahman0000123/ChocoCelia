@@ -165,7 +165,7 @@ export default function ContactPage() {
                 <input
                   type="text"
                   required
-                  className="w-full px-4 py-3 rounded-lg border border-chocolate-200 dark:border-chocolate-700 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors bg-chocolate-50/30 dark:bg-chocolate-800/30 text-chocolate-900 dark:text-chocolate-100"
+                  className="w-full px-4 py-3 rounded-lg border border-chocolate-200 dark:border-chocolate-700 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors bg-chocolate-50/30 dark:bg-chocolate-800/30 text-black dark:text-chocolate-100"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
@@ -176,7 +176,7 @@ export default function ContactPage() {
                 <input
                   type="email"
                   required
-                  className="w-full px-4 py-3 rounded-lg border border-chocolate-200 dark:border-chocolate-700 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors bg-chocolate-50/30 dark:bg-chocolate-800/30 text-chocolate-900 dark:text-chocolate-100"
+                  className="w-full px-4 py-3 rounded-lg border border-chocolate-200 dark:border-chocolate-700 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors bg-chocolate-50/30 dark:bg-chocolate-800/30 text-black dark:text-chocolate-100"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
@@ -187,7 +187,7 @@ export default function ContactPage() {
                 <textarea
                   required
                   rows={5}
-                  className="w-full px-4 py-3 rounded-lg border border-chocolate-200 dark:border-chocolate-700 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors bg-chocolate-50/30 dark:bg-chocolate-800/30 text-chocolate-900 dark:text-chocolate-100"
+                  className="w-full px-4 py-3 rounded-lg border border-chocolate-200 dark:border-chocolate-700 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors bg-chocolate-50/30 dark:bg-chocolate-800/30 text-black dark:text-chocolate-100"
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 />

@@ -55,7 +55,8 @@ export default function AdminLoginPage() {
             <input
               type="text"
               required
-              className="w-full px-4 py-3 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors"
+              className="w-full px-4 py-3 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors text-gray-900 placeholder-gray-400"
+              placeholder="admin"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
@@ -66,7 +67,8 @@ export default function AdminLoginPage() {
             <input
               type="password"
               required
-              className="w-full px-4 py-3 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors"
+              className="w-full px-4 py-3 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors text-gray-900 placeholder-gray-400"
+              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />

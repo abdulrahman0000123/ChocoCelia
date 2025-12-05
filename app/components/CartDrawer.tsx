@@ -58,8 +58,16 @@ export function CartDrawer() {
               ) : (
                 items.map((item) => (
                   <div key={item.id} className="flex gap-4">
-                    <div className="w-20 h-20 bg-chocolate-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <span className="text-2xl">🍫</span>
+                    <div className="w-20 h-20 bg-chocolate-50 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                      {item.image ? (
+                        <img 
+                          src={item.image} 
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-2xl">🍫</span>
+                      )}
                     </div>
                     <div className="flex-1">
                       <h3 className="font-bold text-chocolate-900">{item.name}</h3>

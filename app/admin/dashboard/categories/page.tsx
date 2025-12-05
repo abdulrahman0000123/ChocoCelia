@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<any[]>([]);
@@ -10,6 +11,7 @@ export default function CategoriesPage() {
   const [formData, setFormData] = useState({ name: '', nameAr: '' });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchCategories();
@@ -24,7 +26,7 @@ export default function CategoriesPage() {
       }
     } catch (error) {
       console.error('Failed to fetch categories:', error);
-      alert('Failed to load categories');
+      toast.error('Failed to load categories');
     } finally {
       setLoading(false);
     }
@@ -37,29 +39,62 @@ export default function CategoriesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this category?')) return;
-    
-    try {
-      const res = await fetch(`/api/categories/${id}`, {
-        method: 'DELETE',
-      });
+    toast((t) => (
+      <div className="flex flex-col gap-3">
+        <p className="font-medium">Are you sure you want to delete this category?</p>
+        <p className="text-sm text-gray-500">Products in this category will be affected.</p>
+        <div className="flex gap-2">
+          <button
+            onClick={async () => {
+              toast.dismiss(t.id);
+              setDeletingId(id);
+              const loadingToast = toast.loading('Deleting category...');
+              try {
+                const res = await fetch(`/api/categories/${id}`, {
+                  method: 'DELETE',
+                });
 
-      if (res.ok) {
-        setCategories(categories.filter(c => c.id !== id));
-        alert('Category deleted successfully!');
-      } else {
-        const error = await res.json();
-        alert(error.error || 'Failed to delete category');
-      }
-    } catch (error) {
-      console.error('Delete error:', error);
-      alert('Failed to delete category');
-    }
+                if (res.ok) {
+                  setCategories(categories.filter(c => c.id !== id));
+                  toast.success('Category deleted successfully! 🗑️', { id: loadingToast });
+                } else {
+                  const error = await res.json();
+                  toast.error(error.error || 'Failed to delete category', { id: loadingToast });
+                }
+              } catch (error) {
+                console.error('Delete error:', error);
+                toast.error('Failed to delete category', { id: loadingToast });
+              } finally {
+                setDeletingId(null);
+              }
+            }}
+            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+          >
+            Delete
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    ), {
+      duration: 10000,
+      style: {
+        background: '#fff',
+        color: '#1f2937',
+        maxWidth: '400px',
+      },
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+
+    const loadingToast = toast.loading(editingCategory ? 'Updating category...' : 'Creating category...');
 
     try {
       if (editingCategory) {
@@ -75,10 +110,10 @@ export default function CategoriesPage() {
           setCategories(categories.map(c => 
             c.id === editingCategory.id ? updatedCategory : c
           ));
-          alert('Category updated successfully!');
+          toast.success('Category updated successfully! ✨', { id: loadingToast });
         } else {
           const error = await res.json();
-          alert(error.error || 'Failed to update category');
+          toast.error(error.error || 'Failed to update category', { id: loadingToast });
           setSaving(false);
           return;
         }
@@ -93,10 +128,10 @@ export default function CategoriesPage() {
         if (res.ok) {
           const newCategory = await res.json();
           setCategories([newCategory, ...categories]);
-          alert('Category created successfully!');
+          toast.success('Category created successfully! 🎉', { id: loadingToast });
         } else {
           const error = await res.json();
-          alert(error.error || 'Failed to create category');
+          toast.error(error.error || 'Failed to create category', { id: loadingToast });
           setSaving(false);
           return;
         }
@@ -107,7 +142,7 @@ export default function CategoriesPage() {
       setFormData({ name: '', nameAr: '' });
     } catch (error) {
       console.error('Save error:', error);
-      alert('Failed to save category');
+      toast.error('Failed to save category', { id: loadingToast });
     } finally {
       setSaving(false);
     }
@@ -149,7 +184,7 @@ export default function CategoriesPage() {
               <input
                 type="text"
                 required
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none text-black"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
@@ -158,7 +193,7 @@ export default function CategoriesPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Name (Arabic)</label>
               <input
                 type="text"
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none text-black"
                 value={formData.nameAr}
                 onChange={(e) => setFormData({ ...formData, nameAr: e.target.value })}
                 dir="rtl"
@@ -204,15 +239,22 @@ export default function CategoriesPage() {
                   <td className="px-6 py-4 text-right space-x-2">
                     <button
                       onClick={() => handleEdit(category)}
-                      className="text-blue-600 hover:text-blue-800 p-1"
+                      className="text-blue-600 hover:text-blue-800 p-2 hover:bg-blue-50 rounded-lg transition-all"
+                      title="Edit Category"
                     >
-                      <Edit className="w-4 h-4" />
+                      <Edit className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => handleDelete(category.id)}
-                      className="text-red-600 hover:text-red-800 p-1"
+                      disabled={deletingId === category.id}
+                      className="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg transition-all disabled:opacity-50"
+                      title="Delete Category"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      {deletingId === category.id ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-5 h-5" />
+                      )}
                     </button>
                   </td>
                 </tr>

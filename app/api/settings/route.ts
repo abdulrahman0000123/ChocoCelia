@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getSession } from '@/app/lib/auth';
 
 let settings = {
   phone: '+1 (555) 123-4567',
@@ -42,6 +43,15 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    // Check authentication
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     
     // Validate required fields only if they are being changed

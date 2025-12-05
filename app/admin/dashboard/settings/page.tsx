@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Save, Loader2, Upload, X } from 'lucide-react';
 import { compressImage } from '@/app/lib/imageUtils';
+import toast from 'react-hot-toast';
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
@@ -105,6 +106,8 @@ export default function SettingsPage() {
     setSaving(true);
     setMessage('');
 
+    const loadingToast = toast.loading('Saving settings...');
+
     try {
       const res = await fetch('/api/settings', {
         method: 'POST',
@@ -114,15 +117,18 @@ export default function SettingsPage() {
 
       if (res.ok) {
         setMessage('Settings updated successfully!');
+        toast.success('Settings saved successfully! 🎉', { id: loadingToast });
         // Reload after 1 second to show updated logo across the site
         setTimeout(() => {
           window.location.reload();
         }, 1000);
       } else {
         setMessage('Failed to update settings.');
+        toast.error('Failed to update settings', { id: loadingToast });
       }
     } catch (error) {
       setMessage('An error occurred.');
+      toast.error('An error occurred', { id: loadingToast });
     } finally {
       setSaving(false);
     }

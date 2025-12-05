@@ -135,7 +135,10 @@ export async function DELETE(
 
     // Check if product exists
     const product = await prisma.product.findUnique({
-      where: { id }
+      where: { id },
+      include: {
+        OrderItems: true
+      }
     });
 
     if (!product) {
@@ -145,14 +148,30 @@ export async function DELETE(
       );
     }
 
+    // Delete related order items first
+    if (product.OrderItems && product.OrderItems.length > 0) {
+      await prisma.orderItem.deleteMany({
+        where: { productId: id }
+      });
+    }
+
     // Delete product
     await prisma.product.delete({
       where: { id },
     });
 
     return NextResponse.json({ success: true, message: 'Product deleted successfully' });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to delete product:', error);
+    
+    // Handle foreign key constraint error
+    if (error.code === 'P2003') {
+      return NextResponse.json(
+        { error: 'Cannot delete product. It is linked to existing orders.' },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Failed to delete product' },
       { status: 500 }

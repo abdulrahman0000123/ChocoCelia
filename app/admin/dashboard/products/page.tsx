@@ -3,12 +3,14 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Loader2, Image as ImageIcon } from 'lucide-react';
 import { ProductForm } from '../components/ProductForm';
+import toast from 'react-hot-toast';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProducts();
@@ -23,12 +25,14 @@ export default function ProductsPage() {
       }
     } catch (error) {
       console.error('Failed to fetch products');
+      toast.error('Failed to load products');
     } finally {
       setLoading(false);
     }
   };
 
   const handleCreate = async (data: any) => {
+    const loadingToast = toast.loading('Creating product...');
     try {
       const res = await fetch('/api/products', {
         method: 'POST',
@@ -41,18 +45,19 @@ export default function ProductsPage() {
       if (res.ok) {
         fetchProducts();
         setIsFormOpen(false);
-        alert('Product created successfully!');
+        toast.success('Product created successfully! 🍫', { id: loadingToast });
       } else {
         console.error('Failed to create product:', responseData);
-        alert(`Failed to create product: ${responseData.error || 'Unknown error'}`);
+        toast.error(`Failed to create product: ${responseData.error || 'Unknown error'}`, { id: loadingToast });
       }
     } catch (error) {
       console.error('Failed to create product:', error);
-      alert('Failed to create product. Please try again.');
+      toast.error('Failed to create product. Please try again.', { id: loadingToast });
     }
   };
 
   const handleUpdate = async (data: any) => {
+    const loadingToast = toast.loading('Updating product...');
     try {
       const res = await fetch(`/api/products/${editingProduct.id}`, {
         method: 'PUT',
@@ -63,25 +68,64 @@ export default function ProductsPage() {
         fetchProducts();
         setIsFormOpen(false);
         setEditingProduct(null);
+        toast.success('Product updated successfully! ✨', { id: loadingToast });
+      } else {
+        toast.error('Failed to update product', { id: loadingToast });
       }
     } catch (error) {
       console.error('Failed to update product');
+      toast.error('Failed to update product', { id: loadingToast });
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this product?')) {
-      try {
-        const res = await fetch(`/api/products/${id}`, {
-          method: 'DELETE',
-        });
-        if (res.ok) {
-          fetchProducts();
-        }
-      } catch (error) {
-        console.error('Failed to delete product');
-      }
-    }
+    toast((t) => (
+      <div className="flex flex-col gap-3">
+        <p className="font-medium">Are you sure you want to delete this product?</p>
+        <div className="flex gap-2">
+          <button
+            onClick={async () => {
+              toast.dismiss(t.id);
+              setDeletingId(id);
+              const loadingToast = toast.loading('Deleting product...');
+              try {
+                const res = await fetch(`/api/products/${id}`, {
+                  method: 'DELETE',
+                });
+                if (res.ok) {
+                  setProducts(products.filter(p => p.id !== id));
+                  toast.success('Product deleted successfully! 🗑️', { id: loadingToast });
+                } else {
+                  const data = await res.json();
+                  toast.error(data.error || 'Failed to delete product', { id: loadingToast });
+                }
+              } catch (error) {
+                console.error('Failed to delete product:', error);
+                toast.error('Failed to delete product', { id: loadingToast });
+              } finally {
+                setDeletingId(null);
+              }
+            }}
+            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+          >
+            Delete
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    ), {
+      duration: 10000,
+      style: {
+        background: '#fff',
+        color: '#1f2937',
+        maxWidth: '400px',
+      },
+    });
   };
 
   if (loading) {
@@ -169,15 +213,22 @@ export default function ProductsPage() {
                         });
                         setIsFormOpen(true);
                       }}
-                      className="text-blue-600 hover:text-blue-800 p-1"
+                      className="text-blue-600 hover:text-blue-800 p-2 hover:bg-blue-50 rounded-lg transition-all"
+                      title="Edit Product"
                     >
-                      <Edit className="w-4 h-4" />
+                      <Edit className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => handleDelete(product.id)}
-                      className="text-red-600 hover:text-red-800 p-1"
+                      disabled={deletingId === product.id}
+                      className="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg transition-all disabled:opacity-50"
+                      title="Delete Product"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      {deletingId === product.id ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-5 h-5" />
+                      )}
                     </button>
                   </td>
                 </tr>

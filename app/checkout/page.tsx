@@ -173,7 +173,7 @@ export default function CheckoutPage() {
                 <input
                   type="text"
                   required
-                  className="w-full px-4 py-2 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors"
+                  className="w-full px-4 py-2 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors text-black"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
@@ -184,7 +184,7 @@ export default function CheckoutPage() {
                 <input
                   type="tel"
                   required
-                  className="w-full px-4 py-2 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors"
+                  className="w-full px-4 py-2 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors text-black"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 />
@@ -194,7 +194,7 @@ export default function CheckoutPage() {
                 <label className="block text-sm font-medium text-chocolate-700 mb-1">Email (Optional)</label>
                 <input
                   type="email"
-                  className="w-full px-4 py-2 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors"
+                  className="w-full px-4 py-2 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors text-black"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
@@ -206,7 +206,7 @@ export default function CheckoutPage() {
                   type="text"
                   required
                   placeholder="Enter your full address"
-                  className="w-full px-4 py-2 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors"
+                  className="w-full px-4 py-2 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors text-black"
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 />
@@ -244,7 +244,7 @@ export default function CheckoutPage() {
                 <label className="block text-sm font-medium text-chocolate-700 mb-1">Message / Special Requests</label>
                 <textarea
                   rows={3}
-                  className="w-full px-4 py-2 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors"
+                  className="w-full px-4 py-2 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors text-black"
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 />

@@ -32,14 +32,17 @@ export async function GET(request: Request) {
       where: dateFilter
     });
 
-    // Get total revenue
-    const ordersWithTotal = await prisma.order.findMany({
-      where: dateFilter,
+    // Get total revenue (only from COMPLETED orders)
+    const completedOrdersWithTotal = await prisma.order.findMany({
+      where: {
+        ...dateFilter,
+        status: 'COMPLETED'
+      },
       select: {
         total: true
       }
     });
-    const totalRevenue = ordersWithTotal.reduce((sum, order) => sum + order.total, 0);
+    const totalRevenue = completedOrdersWithTotal.reduce((sum, order) => sum + order.total, 0);
 
     // Get total products count (not filtered by date)
     const totalProducts = await prisma.product.count();
