@@ -9,6 +9,7 @@ import { ThemeProvider } from "./components/ThemeProvider";
 import { LanguageProvider } from "./context/LanguageContext";
 import ChocolatePreloader from "./components/ChocolatePreloader";
 import { Toaster } from "react-hot-toast";
+import { Analytics } from "@vercel/analytics/next";
 
 const cairo = Cairo({
   subsets: ["latin", "arabic"],
@@ -78,6 +79,7 @@ export default function RootLayout({
                 {children}
               </main>
               <Footer />
+              <Analytics />
             </CartProvider>
           </ThemeProvider>
         </LanguageProvider>
