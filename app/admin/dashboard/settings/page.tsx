@@ -279,7 +279,7 @@ export default function SettingsPage() {
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                   className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-chocolate-700 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none transition-all bg-white dark:bg-chocolate-800 text-gray-900 dark:text-gray-100"
-                  placeholder="123 Chocolate Lane"
+                  placeholder="Egypt"
                 />
               </div>
 
@@ -293,7 +293,7 @@ export default function SettingsPage() {
                   value={formData.city}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                   className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-chocolate-700 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none transition-all bg-white dark:bg-chocolate-800 text-gray-900 dark:text-gray-100"
-                  placeholder="Sweet City, SC 12345"
+                  placeholder="Beni-Suef"
                 />
               </div>
 

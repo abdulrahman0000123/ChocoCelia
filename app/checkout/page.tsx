@@ -208,7 +208,7 @@ export default function CheckoutPage() {
                 <input
                   type="text"
                   required
-                  placeholder="123 Chocolate Lane"
+                  placeholder="Egypt"
                   className="w-full px-4 py-2 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors text-black"
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
@@ -220,7 +220,7 @@ export default function CheckoutPage() {
                 <input
                   type="text"
                   required
-                  placeholder="Sweet City, SC 12345"
+                  placeholder="Beni-Suef"
                   className="w-full px-4 py-2 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors text-black"
                   value={formData.city}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
