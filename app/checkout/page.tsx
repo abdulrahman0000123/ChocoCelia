@@ -151,7 +151,7 @@ export default function CheckoutPage() {
                     </div>
                     <div className="flex items-center justify-between bg-white/70 px-3 py-2 rounded-lg">
                       <span className="font-semibold text-chocolate-800">شرق النيل</span>
-                      <span className="font-bold text-amber-700">35 جنيه</span>
+                      <span className="font-bold text-amber-700">40 جنيه</span>
                     </div>
                   </div>
                   <p className="text-xs text-chocolate-600 mt-2 italic">
