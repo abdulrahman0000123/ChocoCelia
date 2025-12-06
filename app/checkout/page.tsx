@@ -16,7 +16,7 @@ export default function CheckoutPage() {
     name: '',
     phone: '',
     email: '',
-    address: '',
+    address: 'Egypt, Beni-Suef',
     message: '',
     method: 'whatsapp'
   });

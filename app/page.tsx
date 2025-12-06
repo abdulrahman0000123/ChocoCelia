@@ -36,7 +36,7 @@ interface Settings {
 }
 
 export default function Home() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [featureCards, setFeatureCards] = useState<FeatureCard[]>([]);
@@ -51,32 +51,31 @@ export default function Home() {
 
     fetchFeaturedProducts();
     fetchSettings();
-  }, [t]);
+  }, [t, locale]);
 
   const fetchSettings = async () => {
     try {
       const res = await fetch('/api/settings');
       if (res.ok) {
         const data = await res.json();
-        if (data.featureCard1Title || data.featureCard2Title || data.featureCard3Title) {
-          setFeatureCards([
-            {
-              icon: data.featureCard1Icon || '🌿',
-              title: data.featureCard1Title || t('premiumIngredients'),
-              description: data.featureCard1Description || t('finestIngredients'),
-            },
-            {
-              icon: data.featureCard2Icon || '🤎',
-              title: data.featureCard2Title || t('handmadeWithLove'),
-              description: data.featureCard2Description || t('craftedInSmallBatches'),
-            },
-            {
-              icon: data.featureCard3Icon || '✨',
-              title: data.featureCard3Title || t('uniqueFlavors'),
-              description: data.featureCard3Description || t('innovativeCombinations'),
-            },
-          ]);
-        }
+        // Always use translations, don't use settings values
+        setFeatureCards([
+          {
+            icon: data.featureCard1Icon || '🌿',
+            title: t('premiumIngredients'),
+            description: t('finestIngredients'),
+          },
+          {
+            icon: data.featureCard2Icon || '🤎',
+            title: t('handmadeWithLove'),
+            description: t('craftedInSmallBatches'),
+          },
+          {
+            icon: data.featureCard3Icon || '✨',
+            title: t('uniqueFlavors'),
+            description: t('innovativeCombinations'),
+          },
+        ]);
       }
     } catch (error) {
       console.error('Failed to fetch settings');
