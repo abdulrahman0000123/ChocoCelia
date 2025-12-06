@@ -197,9 +197,6 @@ export default function Home() {
                         <span className="text-xl font-bold text-gold-600">
                           {product.price.toFixed(2)} EGP
                         </span>
-                        <span className="text-xs text-chocolate-400 dark:text-chocolate-500">
-                          Free Delivery
-                        </span>
                       </div>
                     </div>
                   </div>
