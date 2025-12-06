@@ -1,6 +1,7 @@
 import { prisma } from '@/app/lib/db';
 import { NextResponse } from 'next/server';
 import { getSession } from '@/app/lib/auth';
+import { validateOrderInput } from '@/app/lib/validation';
 
 // GET all orders (Admin only)
 export async function GET(request: Request) {
@@ -50,9 +51,11 @@ export async function POST(request: Request) {
     } = body;
 
     // Validate input
-    if (!customerName || !customerPhone || !customerAddress || !items || items.length === 0) {
+    try {
+      validateOrderInput(body);
+    } catch (error: any) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: error.message },
         { status: 400 }
       );
     }

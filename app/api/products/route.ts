@@ -1,6 +1,7 @@
 import { prisma } from '@/app/lib/db';
 import { NextResponse } from 'next/server';
 import { getSession } from '@/app/lib/auth';
+import { validateProductInput } from '@/app/lib/validation';
 
 // GET all products
 export async function GET(request: Request) {
@@ -53,10 +54,12 @@ export async function POST(request: Request) {
       tags
     } = body;
 
-    // Validate required fields
-    if (!name || !description || !price || !categoryId || !image) {
+    // Validate input
+    try {
+      validateProductInput(body);
+    } catch (error: any) {
       return NextResponse.json(
-        { error: 'Name, description, price, category, and image are required' },
+        { error: error.message },
         { status: 400 }
       );
     }

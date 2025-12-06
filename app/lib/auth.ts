@@ -33,9 +33,21 @@ export async function login(userData: any) {
   const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
   const session = await encrypt({ user: userData, expires });
 
-  (await cookies()).set('session', session, { expires, httpOnly: true });
+  (await cookies()).set('session', session, { 
+    expires, 
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/'
+  });
 }
 
 export async function logout() {
-  (await cookies()).set('session', '', { expires: new Date(0) });
+  (await cookies()).set('session', '', { 
+    expires: new Date(0),
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/'
+  });
 }

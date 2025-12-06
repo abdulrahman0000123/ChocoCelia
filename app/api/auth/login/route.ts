@@ -2,6 +2,7 @@ import { prisma } from '@/app/lib/db';
 import { NextResponse } from 'next/server';
 import { login } from '@/app/lib/auth';
 import bcrypt from 'bcryptjs';
+import { rateLimit } from '@/app/lib/rateLimit';
 
 export async function POST(request: Request) {
   try {
@@ -13,6 +14,16 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: 'Username and password are required' },
         { status: 400 }
+      );
+    }
+
+    // Rate limiting - 5 attempts per 15 minutes per username
+    const rateLimitResult = rateLimit(`login:${username}`, 5, 15 * 60 * 1000);
+    if (rateLimitResult.limited) {
+      const remainingMinutes = Math.ceil((rateLimitResult.resetTime - Date.now()) / 60000);
+      return NextResponse.json(
+        { error: `Too many login attempts. Please try again in ${remainingMinutes} minutes.` },
+        { status: 429 }
       );
     }
 
