@@ -88,26 +88,26 @@ export default function OrdersPage() {
         <table className="w-full text-left">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              <th className="px-6 py-4 font-semibold text-gray-600">Order ID</th>
+              <th className="px-6 py-4 font-semibold text-gray-600 hidden md:table-cell">Order ID</th>
               <th className="px-6 py-4 font-semibold text-gray-600">Customer</th>
               <th className="px-6 py-4 font-semibold text-gray-600">Phone</th>
-              <th className="px-6 py-4 font-semibold text-gray-600">Date</th>
-              <th className="px-6 py-4 font-semibold text-gray-600">Items</th>
-              <th className="px-6 py-4 font-semibold text-gray-600">Total</th>
-              <th className="px-6 py-4 font-semibold text-gray-600">Status</th>
+              <th className="px-6 py-4 font-semibold text-gray-600 hidden md:table-cell">Date</th>
+              <th className="px-6 py-4 font-semibold text-gray-600 hidden md:table-cell">Items</th>
+              <th className="px-6 py-4 font-semibold text-gray-600 hidden md:table-cell">Total</th>
+              <th className="px-6 py-4 font-semibold text-gray-600 hidden md:table-cell">Status</th>
               <th className="px-6 py-4 font-semibold text-gray-600 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {orders.map((order) => (
               <tr key={order.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 text-gray-800 font-medium">#{order.id.slice(0, 8)}</td>
+                <td className="px-6 py-4 text-gray-800 font-medium hidden md:table-cell">#{order.id.slice(0, 8)}</td>
                 <td className="px-6 py-4 text-gray-600">{order.customerName}</td>
                 <td className="px-6 py-4 text-gray-600">{order.customerPhone}</td>
-                <td className="px-6 py-4 text-gray-600">{new Date(order.createdAt).toLocaleDateString()}</td>
-                <td className="px-6 py-4 text-gray-600">{order.items?.length || 0}</td>
-                <td className="px-6 py-4 text-gray-800 font-bold">{order.total.toFixed(2)} EGP</td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 text-gray-600 hidden md:table-cell">{new Date(order.createdAt).toLocaleDateString()}</td>
+                <td className="px-6 py-4 text-gray-600 hidden md:table-cell">{order.items?.length || 0}</td>
+                <td className="px-6 py-4 text-gray-800 font-bold hidden md:table-cell">{order.total.toFixed(2)} EGP</td>
+                <td className="px-6 py-4 hidden md:table-cell">
                   <span className={`px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1 w-fit ${getStatusColor(order.status)}`}>
                     {getStatusIcon(order.status)}
                     {order.status}

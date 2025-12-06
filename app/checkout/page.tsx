@@ -16,7 +16,8 @@ export default function CheckoutPage() {
     name: '',
     phone: '',
     email: '',
-    address: 'Egypt, Beni-Suef',
+    address: 'Egypt',
+    city: 'Beni-Suef',
     message: '',
     method: 'whatsapp'
   });
@@ -30,7 +31,7 @@ export default function CheckoutPage() {
         customerName: formData.name,
         customerPhone: formData.phone,
         customerEmail: formData.email || null,
-        customerAddress: formData.address,
+        customerAddress: `${formData.address}, ${formData.city}`,
         preferredContact: formData.method,
         specialRequests: formData.message || null,
         items: items.map(item => ({
@@ -203,14 +204,26 @@ export default function CheckoutPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-chocolate-700 mb-1">{t('deliveryAddress')}</label>
+                <label className="block text-sm font-medium text-chocolate-700 mb-1">Address *</label>
                 <input
                   type="text"
                   required
-                  placeholder={t('enterFullAddress')}
+                  placeholder="123 Chocolate Lane"
                   className="w-full px-4 py-2 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors text-black"
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-chocolate-700 mb-1">City *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Sweet City, SC 12345"
+                  className="w-full px-4 py-2 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors text-black"
+                  value={formData.city}
+                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                 />
               </div>
 
