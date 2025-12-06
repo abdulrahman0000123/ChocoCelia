@@ -83,6 +83,7 @@ export default function RootLayout({
             </CartProvider>
           </ThemeProvider>
         </LanguageProvider>
+        <Analytics />
       </body>
     </html>
   );
