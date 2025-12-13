@@ -54,9 +54,23 @@ export async function POST(request: Request) {
       tags
     } = body;
 
+    // Convert price to number before validation
+    const parsedPrice = parseFloat(price);
+    
+    // Check if price is a valid number
+    if (isNaN(parsedPrice)) {
+      return NextResponse.json(
+        { error: 'Invalid price value' },
+        { status: 400 }
+      );
+    }
+    
     // Validate input
     try {
-      validateProductInput(body);
+      validateProductInput({
+        ...body,
+        price: parsedPrice
+      });
     } catch (error: any) {
       return NextResponse.json(
         { error: error.message },
@@ -83,7 +97,7 @@ export async function POST(request: Request) {
         nameAr: nameAr || null,
         description,
         descriptionAr: descriptionAr || null,
-        price: parseFloat(price),
+        price: parsedPrice,
         image,
         categoryId,
         isAvailable: isAvailable !== undefined ? isAvailable : true,
