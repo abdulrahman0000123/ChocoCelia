@@ -15,7 +15,7 @@ export function validatePhone(phone: string): boolean {
 }
 
 export function validatePrice(price: number): boolean {
-  return typeof price === 'number' && price >= 0 && price <= 999999;
+  return typeof price === 'number' && price >= 0;
 }
 
 export function validateUrl(url: string): boolean {
