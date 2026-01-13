@@ -204,7 +204,7 @@ export default function CheckoutPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-chocolate-700 mb-1">Address *</label>
+                <label className="block text-sm font-medium text-chocolate-700 mb-1">{t('address')} *</label>
                 <input
                   type="text"
                   required
@@ -216,7 +216,7 @@ export default function CheckoutPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-chocolate-700 mb-1">City *</label>
+                <label className="block text-sm font-medium text-chocolate-700 mb-1">{t('city')} *</label>
                 <input
                   type="text"
                   required

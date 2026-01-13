@@ -102,6 +102,8 @@ export const translations = {
     viewDetails: 'View Details',
     loading: 'Loading',
     addedToCart: 'Added to cart',
+    address: 'Address in Detail',
+    city: 'City',
   },
   ar: {
     home: 'الرئيسية',
@@ -204,5 +206,7 @@ export const translations = {
     viewDetails: 'عرض التفاصيل',
     loading: 'جاري التحميل',
     addedToCart: 'تم الإضافة للسلة',
+    address: 'العنوان بالتفصيل',
+    city: 'المدينة',
   }
 };
