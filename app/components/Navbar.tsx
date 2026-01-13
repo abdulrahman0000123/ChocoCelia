@@ -36,7 +36,7 @@ export function Navbar() {
             : 'bg-white/80 backdrop-blur-lg shadow-xl shadow-amber-900/10'
         }`}
       >
-        <div className="px-6 sm:px-8 lg:px-10 flex items-center h-20">
+        <div className="px-6 sm:px-8 lg:px-10 flex justify-between items-center h-20">
           {/* Logo with glow effect */}
           <Link href="/" className="relative flex items-center gap-3 group">
             <motion.div
@@ -155,35 +155,36 @@ function NavLink({ href, label }: { href: string; label: string }) {
       whileHover={{ scale: 1.05, y: -2 }}
       whileTap={{ scale: 0.95 }}
       transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      className="relative"
     >
       <Link 
         href={href} 
-        className="relative block px-7 py-3.5 text-lg font-bold text-amber-900 transition-all duration-300 rounded-full group overflow-hidden"
+        className="relative block px-7 py-3.5 text-lg font-bold text-amber-900 transition-all duration-300 rounded-full group"
       >
-        {/* Gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-100 via-orange-50 to-amber-100 opacity-60 group-hover:opacity-100 transition-all duration-300" />
-        
-        {/* Animated gradient overlay */}
+        {/* Rotating gradient border on hover */}
         <motion.div 
-          className="absolute inset-0 bg-gradient-to-r from-orange-400/40 via-amber-400/40 to-orange-400/40 opacity-0 group-hover:opacity-100"
-          initial={{ x: '-100%' }}
-          whileHover={{ x: '100%' }}
-          transition={{ duration: 0.6, ease: "easeInOut" }}
-        />
-        
-        {/* Glow effect */}
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent blur-sm" />
-        </div>
+          className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100"
+          style={{
+            background: 'conic-gradient(from 0deg, #f97316, #fb923c, #fbbf24, #fb923c, #f97316)',
+            padding: '2px',
+          }}
+          animate={{
+            rotate: 360,
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        >
+          <div className="w-full h-full bg-white/95 rounded-full" />
+        </motion.div>
         
         {/* Text */}
-        <span className="relative z-10 drop-shadow-sm group-hover:text-orange-700 transition-colors duration-300">{label}</span>
+        <span className="relative z-10 drop-shadow-sm group-hover:text-orange-600 transition-colors duration-300">{label}</span>
         
-        {/* Border glow */}
-        <div className="absolute inset-0 rounded-full border-2 border-transparent group-hover:border-orange-300/50 transition-all duration-300" />
-        
-        {/* Shadow effect */}
-        <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 to-amber-400 opacity-0 group-hover:opacity-20 blur-lg -z-10 transition-all duration-300" />
+        {/* Glow effect */}
+        <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 via-amber-400 to-orange-400 opacity-0 group-hover:opacity-30 blur-xl -z-10 transition-all duration-500 rounded-full" />
       </Link>
     </motion.div>
   );
