@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { motion } from 'framer-motion';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
@@ -12,6 +12,10 @@ export default function CheckoutPage() {
   const { t } = useLanguage();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deliveryFees, setDeliveryFees] = useState({
+    beniSuef: '20',
+    eastNile: '40'
+  });
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -21,6 +25,25 @@ export default function CheckoutPage() {
     message: '',
     method: 'whatsapp'
   });
+
+  useEffect(() => {
+    fetchDeliveryFees();
+  }, []);
+
+  const fetchDeliveryFees = async () => {
+    try {
+      const res = await fetch('/api/settings');
+      if (res.ok) {
+        const data = await res.json();
+        setDeliveryFees({
+          beniSuef: data.deliveryFeeBeniSuef || '20',
+          eastNile: data.deliveryFeeEastNile || '40'
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch delivery fees');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,11 +170,11 @@ export default function CheckoutPage() {
                   <div className="space-y-1.5 text-sm">
                     <div className="flex items-center justify-between bg-white/70 px-3 py-2 rounded-lg">
                       <span className="font-semibold text-chocolate-800">داخل بني سويف</span>
-                      <span className="font-bold text-amber-700">20 جنيه</span>
+                      <span className="font-bold text-amber-700">{deliveryFees.beniSuef} جنيه</span>
                     </div>
                     <div className="flex items-center justify-between bg-white/70 px-3 py-2 rounded-lg">
                       <span className="font-semibold text-chocolate-800">شرق النيل</span>
-                      <span className="font-bold text-amber-700">40 جنيه</span>
+                      <span className="font-bold text-amber-700">{deliveryFees.eastNile} جنيه</span>
                     </div>
                   </div>
                   <p className="text-xs text-chocolate-600 mt-2 italic">

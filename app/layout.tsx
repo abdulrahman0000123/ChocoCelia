@@ -1,3 +1,5 @@
+'use client';
+
 import type { Metadata } from "next";
 import { Cairo } from "next/font/google";
 import "./globals.css";
@@ -12,6 +14,7 @@ import { Toaster } from "react-hot-toast";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import ConditionalLayout from "./components/ConditionalLayout";
+import { useState } from "react";
 
 const cairo = Cairo({
   subsets: ["latin", "arabic"],
@@ -33,6 +36,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [isPreloaderComplete, setIsPreloaderComplete] = useState(false);
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
