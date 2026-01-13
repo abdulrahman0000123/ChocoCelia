@@ -24,7 +24,7 @@ async function exportData() {
     console.log(`✅ Found ${users.length} users`);
 
     // Get all settings
-    const settings = await prisma.settings.findMany();
+    const settings = await prisma.siteSettings.findMany();
     console.log(`✅ Found ${settings.length} settings\n`);
 
     const exportData = {
