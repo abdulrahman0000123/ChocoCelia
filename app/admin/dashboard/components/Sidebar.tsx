@@ -32,17 +32,21 @@ export function Sidebar() {
   return (
     <>
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-chocolate-900 text-white px-4 py-3 flex items-center justify-between shadow-lg">
-        <div>
-          <h1 className="text-lg font-bold font-cairo text-gold-500">CHOCO-CELIA</h1>
-          <p className="text-[10px] text-chocolate-400">Admin Panel</p>
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-amber-50 px-4 py-3 flex items-center justify-between shadow-lg border-b border-amber-200">
+        <div className="flex items-center gap-2">
+          <img 
+            src="/logo.svg" 
+            alt="CHOCO-CELIA" 
+            className="h-10 w-auto object-contain"
+          />
+          <p className="text-[10px] text-chocolate-700 font-medium">Admin Panel</p>
         </div>
         <div className="flex items-center gap-2">
           {/* Notification bell slot - will be filled by portal */}
           <div id="mobile-notification-slot"></div>
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="p-2 rounded-lg hover:bg-chocolate-800 transition-colors"
+            className="p-2 rounded-lg hover:bg-amber-100 transition-colors text-chocolate-700"
           >
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -66,9 +70,13 @@ export function Sidebar() {
         lg:transform-none
       `}>
         {/* Desktop Header */}
-        <div className="hidden lg:block p-6 border-b border-chocolate-800">
-          <h1 className="text-xl font-bold font-cairo text-gold-500">CHOCO-CELIA</h1>
-          <p className="text-xs text-chocolate-400">Admin Panel</p>
+        <div className="hidden lg:block p-6 border-b border-amber-200 bg-amber-50">
+          <img 
+            src="/logo.svg" 
+            alt="CHOCO-CELIA" 
+            className="h-16 w-auto object-contain mb-2"
+          />
+          <p className="text-xs text-chocolate-700 font-medium">Admin Panel</p>
         </div>
 
         {/* Mobile spacer */}

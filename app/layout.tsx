@@ -11,6 +11,7 @@ import ChocolatePreloader from "./components/ChocolatePreloader";
 import { Toaster } from "react-hot-toast";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import ConditionalLayout from "./components/ConditionalLayout";
 
 const cairo = Cairo({
   subsets: ["latin", "arabic"],
@@ -74,12 +75,9 @@ export default function RootLayout({
                 }}
               />
               <ChocolatePreloader />
-              <Navbar />
-              <CartDrawer />
-              <main className="flex-grow">
+              <ConditionalLayout>
                 {children}
-              </main>
-              <Footer />
+              </ConditionalLayout>
               <Analytics />
               <SpeedInsights />
             </CartProvider>
