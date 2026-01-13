@@ -44,16 +44,16 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen bg-gray-100 lg:flex">
       <Sidebar />
-      {/* Notification Bell - Hidden on mobile (shown in Sidebar header), visible on desktop */}
-      <div className="hidden lg:block lg:absolute lg:top-8 lg:right-8 z-50">
+      {/* Notification Bell for Desktop - Top right corner of main content area */}
+      <div className="hidden lg:block lg:fixed lg:top-4 lg:right-4 z-50">
         <OrderNotification />
       </div>
-      {/* Mobile Notification Bell - In the header area */}
-      <div className="lg:hidden fixed top-2 right-14 z-[60]">
+      {/* Mobile Notification Bell - Bottom right corner, floating */}
+      <div className="lg:hidden fixed bottom-6 right-6 z-[60]">
         <OrderNotification />
       </div>
       {/* Main content with top padding on mobile for the fixed header */}
-      <main className="flex-1 p-4 lg:p-8 overflow-y-auto pt-20 lg:pt-8">
+      <main className="flex-1 p-4 lg:p-8 overflow-y-auto pt-16 lg:pt-8 pb-24 lg:pb-8">
         {children}
       </main>
     </div>

@@ -32,18 +32,16 @@ export function Sidebar() {
   return (
     <>
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-amber-50 px-4 py-4 shadow-lg border-b border-amber-200">
-        <div className="flex flex-col items-center justify-center gap-1">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-amber-50 px-4 py-2 shadow-lg border-b border-amber-200">
+        <div className="flex items-center justify-center gap-2">
           <img 
             src="/logo.svg" 
             alt="CHOCO-CELIA" 
-            className="h-16 w-auto object-contain"
+            className="h-10 w-auto object-contain"
           />
-          <p className="text-sm text-chocolate-700 font-semibold">Admin Panel</p>
+          <p className="text-xs text-chocolate-700 font-semibold">Admin Panel</p>
         </div>
-        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-          {/* Notification bell slot - will be filled by portal */}
-          <div id="mobile-notification-slot"></div>
+        <div className="absolute right-4 top-1/2 -translate-y-1/2">
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="p-2 rounded-lg hover:bg-amber-100 transition-colors text-chocolate-700"
