@@ -17,9 +17,9 @@ export default function ClientLayout({
   const [isMounted, setIsMounted] = useState(false);
 
   // Ensure component is mounted on client
-  useState(() => {
+  useEffect(() => {
     setIsMounted(true);
-  });
+  }, []);
 
   // Don't render children until preloader is complete
   if (!isMounted) {

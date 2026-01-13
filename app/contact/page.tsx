@@ -14,11 +14,6 @@ export default function ContactPage() {
   });
 
   const [settings, setSettings] = useState({
-    phone: '',
-    email: '',
-    address: '',
-    city: '',
-    workingHours: '',
     facebook: '',
     instagram: '',
     twitter: '',

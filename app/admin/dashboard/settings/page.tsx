@@ -11,11 +11,6 @@ export default function SettingsPage() {
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [newSlideUrl, setNewSlideUrl] = useState('');
   const [formData, setFormData] = useState({
-    phone: '',
-    email: '',
-    address: '',
-    city: '',
-    workingHours: '',
     facebook: '',
     instagram: '',
     twitter: '',
@@ -58,11 +53,6 @@ export default function SettingsPage() {
       if (res.ok) {
         const data = await res.json();
         setFormData({
-          phone: data.phone || '',
-          email: data.email || '',
-          address: data.address || '',
-          city: data.city || '',
-          workingHours: data.workingHours || '',
           facebook: data.facebook || '',
           instagram: data.instagram || '',
           twitter: data.twitter || '',
