@@ -16,7 +16,7 @@ export default function CheckoutPage() {
     name: '',
     phone: '',
     email: '',
-    address: 'Egypt',
+    address: '',
     city: 'Beni-Suef',
     message: '',
     method: 'whatsapp'
@@ -205,11 +205,11 @@ export default function CheckoutPage() {
 
               <div>
                 <label className="block text-sm font-medium text-chocolate-700 mb-1">{t('address')} *</label>
-                <input
-                  type="text"
+                <textarea
                   required
-                  placeholder="Egypt"
-                  className="w-full px-4 py-2 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors text-black"
+                  rows={3}
+                  placeholder={t('addressPlaceholder')}
+                  className="w-full px-4 py-2 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors text-black resize-none"
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 />

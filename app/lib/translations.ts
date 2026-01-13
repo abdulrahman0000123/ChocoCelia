@@ -104,6 +104,7 @@ export const translations = {
     addedToCart: 'Added to cart',
     address: 'Address in Detail',
     city: 'City',
+    addressPlaceholder: 'Your Address in Detail',
   },
   ar: {
     home: 'الرئيسية',
@@ -208,5 +209,6 @@ export const translations = {
     addedToCart: 'تم الإضافة للسلة',
     address: 'العنوان بالتفصيل',
     city: 'المدينة',
+    addressPlaceholder: 'عنوانك بالتفصيل',
   }
 };
