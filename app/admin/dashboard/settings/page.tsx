@@ -2,19 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { Save, Loader2, Upload, X } from 'lucide-react';
-import { compressImage } from '@/app/lib/imageUtils';
 import toast from 'react-hot-toast';
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [newSlideUrl, setNewSlideUrl] = useState('');
   const [formData, setFormData] = useState({
     facebook: '',
     instagram: '',
     twitter: '',
-    logo: '',
     // Delivery Fees
     deliveryFeeBeniSuef: '20',
     deliveryFeeEastNile: '40',
@@ -56,7 +53,6 @@ export default function SettingsPage() {
           facebook: data.facebook || '',
           instagram: data.instagram || '',
           twitter: data.twitter || '',
-          logo: data.logo || '',
           // Delivery Fees
           deliveryFeeBeniSuef: data.deliveryFeeBeniSuef || '20',
           deliveryFeeEastNile: data.deliveryFeeEastNile || '40',
@@ -124,36 +120,7 @@ export default function SettingsPage() {
     }
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      alert('Please upload an image file');
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Image size should be less than 5MB');
-      return;
-    }
-
-    if (field === 'logo') setUploadingLogo(true);
-
-    try {
-      const compressedImage = await compressImage(file, 1000, 1000, 0.95);
-      setFormData({ ...formData, [field]: compressedImage });
-      setMessage('Logo uploaded! Click "Save Changes" to apply.');
-    } catch (error) {
-      alert('Failed to process image');
-    } finally {
-      if (field === 'logo') setUploadingLogo(false);
-    }
-  };
-
-  const removeImage = (field: string) => {
-    setFormData({ ...formData, [field]: '' });
-  };
 
   const addSlideUrl = () => {
     if (!newSlideUrl.trim()) {
@@ -188,50 +155,6 @@ export default function SettingsPage() {
 
       <div className="bg-white dark:bg-chocolate-900 rounded-xl shadow-sm border border-gray-200 dark:border-chocolate-800 p-6">
         <form onSubmit={handleSubmit} className="space-y-8">
-          
-          {/* Logo Section */}
-          <div>
-            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 pb-2 border-b border-gray-200 dark:border-chocolate-800">
-              Logo & Branding
-            </h2>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Site Logo
-              </label>
-              {formData.logo ? (
-                <div className="relative inline-block">
-                  <img 
-                    src={formData.logo} 
-                    alt="Logo preview" 
-                    className="h-24 w-auto object-contain border border-gray-300 dark:border-chocolate-700 rounded-lg bg-white dark:bg-chocolate-800 p-2"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeImage('logo')}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ) : (
-                <label className="cursor-pointer block w-full max-w-md border-2 border-dashed border-gray-300 dark:border-chocolate-700 rounded-lg p-6 text-center hover:border-chocolate-500 transition-colors">
-                  <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                  <span className="text-sm text-gray-600 dark:text-gray-300">
-                    {uploadingLogo ? 'Uploading...' : 'Click to upload logo'}
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageUpload(e, 'logo')}
-                    className="hidden"
-                    disabled={uploadingLogo}
-                  />
-                </label>
-              )}
-            </div>
-          </div>
-
-
 
           {/* Delivery Fees Section */}
           <div>
