@@ -72,13 +72,14 @@ model OrderItem {
 }
 
 model SiteSettings {
-  id                    String   @id @default(cuid())
+  id                    Int      @id @default(autoincrement())
   phone                 String?
   facebook              String?
   instagram             String?
   deliveryFeeBeniSuef   Float    @default(20) @map("deliveryfeebenisue")
   deliveryFeeEastNile   Float    @default(40) @map("deliveryfeeastnile")
-  updatedAt             DateTime @updatedAt
+  createdAt             DateTime @default(now()) @map("createdat")
+  updatedAt             DateTime @updatedAt @map("updatedat")
   
   @@map("sitesettings")
 }
