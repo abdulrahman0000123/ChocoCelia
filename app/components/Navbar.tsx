@@ -90,7 +90,6 @@ export function Navbar() {
                 )}
               </motion.button>
             </div>
-          </div>
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center gap-2">
