@@ -9,7 +9,6 @@ import { useLanguage } from '../context/LanguageContext';
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [logo, setLogo] = useState('');
   const [scrolled, setScrolled] = useState(false);
   const { toggleCart, items } = useCart();
   const { locale, setLocale, t } = useLanguage();
@@ -17,8 +16,6 @@ export function Navbar() {
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   useEffect(() => {
-    fetchLogo();
-    
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
@@ -27,57 +24,34 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const fetchLogo = async () => {
-    try {
-      const res = await fetch('/api/settings');
-      if (res.ok) {
-        const data = await res.json();
-        console.log('Logo fetched:', data.logo ? 'Logo exists (length: ' + data.logo.length + ')' : 'No logo');
-        setLogo(data.logo || '');
-      }
-    } catch (error) {
-      console.error('Failed to fetch logo');
-    }
-  };
-
   return (
-    <motion.nav 
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.5, ease: 'easeOut' }}
-      className={`fixed w-full z-50 transition-all duration-300 ${
-        scrolled 
-          ? 'bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 backdrop-blur-xl shadow-xl shadow-amber-900/10' 
-          : 'bg-gradient-to-r from-amber-100/90 via-orange-100/90 to-amber-100/90 backdrop-blur-md'
-      }`}
-    >
-      {/* Decorative gradient line at bottom */}
-      <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-amber-400 via-orange-500 to-amber-400" />
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+    <div className="fixed w-full z-50 pt-4 px-4 sm:px-6 lg:px-8">
+      <motion.nav 
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className={`max-w-7xl mx-auto transition-all duration-300 rounded-full ${
+          scrolled 
+            ? 'bg-white/70 backdrop-blur-xl shadow-2xl shadow-amber-900/20' 
+            : 'bg-white/80 backdrop-blur-lg shadow-xl shadow-amber-900/10'
+        }`}
+      >
+        <div className="px-6 sm:px-8 lg:px-10 flex justify-between items-center h-20">
           {/* Logo with glow effect */}
           <Link href="/" className="relative flex items-center gap-3 group">
-            {logo ? (
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.2 }}
-                className="relative"
-              >
-                <div className="absolute inset-0 bg-orange-400/20 blur-xl group-hover:bg-orange-500/30 transition-all rounded-full" />
-                <img 
-                  src={logo} 
-                  alt="CHOCO-CELIA" 
-                  className="relative h-20 w-auto max-w-xs object-contain drop-shadow-xl"
-                  style={{ minHeight: '64px', maxHeight: '80px' }}
-                />
-              </motion.div>
-            ) : (
-              <span className="text-2xl font-bold bg-gradient-to-r from-amber-800 via-orange-600 to-amber-800 bg-clip-text text-transparent font-cairo relative drop-shadow-md">
-                CHOCO-CELIA
-                <Sparkles className="absolute -top-1 -right-6 w-4 h-4 text-orange-500 animate-pulse" />
-              </span>
-            )}
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.2 }}
+              className="relative"
+            >
+              <div className="absolute inset-0 bg-orange-400/20 blur-xl group-hover:bg-orange-500/30 transition-all rounded-full" />
+              <img 
+                src="/logo.svg" 
+                alt="CHOCO-CELIA" 
+                className="relative h-20 w-auto max-w-xs object-contain drop-shadow-xl"
+                style={{ minHeight: '64px', maxHeight: '80px' }}
+              />
+            </motion.div>
           </Link>
 
           {/* Desktop Menu with modern gradient styling */}
@@ -152,16 +126,16 @@ export function Navbar() {
             </motion.button>
           </div>
         </div>
-      </div>
+      </motion.nav>
 
       {/* Mobile Menu with glass effect */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-gradient-to-br from-white via-amber-50 to-orange-50 backdrop-blur-xl border-t-2 border-orange-300 overflow-hidden shadow-2xl"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="md:hidden mt-2 bg-white/80 backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl shadow-amber-900/20 border border-amber-200/50"
           >
             <div className="px-4 pt-2 pb-4 space-y-1">
               <MobileNavLink href="/" label={t('home')} onClick={() => setIsOpen(false)} />
@@ -172,7 +146,7 @@ export function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.nav>
+    </div>
   );
 }
 
