@@ -5,13 +5,12 @@ const prisma = new PrismaClient();
 async function main() {
   // Update site settings
   const settings = await prisma.siteSettings.upsert({
-    where: { id: 'default' },
+    where: { id: 1 },
     update: {
       facebook: 'https://www.facebook.com/profile.php?id=61582630209700',
       instagram: 'https://www.instagram.com/chococelia2025/',
     },
     create: {
-      id: 'default',
       phone: '+20',
       facebook: 'https://www.facebook.com/profile.php?id=61582630209700',
       instagram: 'https://www.instagram.com/chococelia2025/',
