@@ -32,16 +32,16 @@ export function Sidebar() {
   return (
     <>
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-amber-50 px-4 py-3 flex items-center justify-between shadow-lg border-b border-amber-200">
-        <div className="flex items-center gap-2">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-amber-50 px-4 py-4 shadow-lg border-b border-amber-200">
+        <div className="flex flex-col items-center justify-center gap-1">
           <img 
             src="/logo.svg" 
             alt="CHOCO-CELIA" 
-            className="h-10 w-auto object-contain"
+            className="h-16 w-auto object-contain"
           />
-          <p className="text-[10px] text-chocolate-700 font-medium">Admin Panel</p>
+          <p className="text-sm text-chocolate-700 font-semibold">Admin Panel</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
           {/* Notification bell slot - will be filled by portal */}
           <div id="mobile-notification-slot"></div>
           <button
@@ -70,13 +70,13 @@ export function Sidebar() {
         lg:transform-none
       `}>
         {/* Desktop Header */}
-        <div className="hidden lg:block p-6 border-b border-amber-200 bg-amber-50">
+        <div className="hidden lg:flex lg:flex-col lg:items-center lg:justify-center p-6 border-b border-amber-200 bg-amber-50">
           <img 
             src="/logo.svg" 
             alt="CHOCO-CELIA" 
-            className="h-16 w-auto object-contain mb-2"
+            className="h-20 w-auto object-contain mb-3"
           />
-          <p className="text-xs text-chocolate-700 font-medium">Admin Panel</p>
+          <p className="text-sm text-chocolate-700 font-semibold">Admin Panel</p>
         </div>
 
         {/* Mobile spacer */}
