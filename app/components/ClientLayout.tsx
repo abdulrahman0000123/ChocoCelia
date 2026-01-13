@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CartProvider } from "../context/CartContext";
 import { ThemeProvider } from "./ThemeProvider";
 import { LanguageProvider } from "../context/LanguageContext";
@@ -14,6 +14,17 @@ export default function ClientLayout({
   children: React.ReactNode;
 }) {
   const [isPreloaderComplete, setIsPreloaderComplete] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Ensure component is mounted on client
+  useState(() => {
+    setIsMounted(true);
+  });
+
+  // Don't render children until preloader is complete
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <LanguageProvider>

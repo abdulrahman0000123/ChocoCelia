@@ -88,8 +88,8 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h4 className="font-bold text-chocolate-800 dark:text-chocolate-200">{t('location')}</h4>
-                    <p className="text-chocolate-600 dark:text-chocolate-300">
-                      {settings.address || 'Cairo, Egypt'}<br />{settings.city}
+                    <p className="text-chocolate-600 dark:text-chocolate-300" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+                      {locale === 'ar' ? 'محافظة بني سويف' : 'Beni-Suef Gov'}
                     </p>
                   </div>
                 </div>

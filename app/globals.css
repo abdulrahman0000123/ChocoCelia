@@ -41,10 +41,17 @@ body {
   font-family: var(--font-cairo), 'Cairo', sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
   overflow-x: hidden;
+  margin: 0;
+  padding: 0;
 }
 
 * {
   font-family: var(--font-cairo), 'Cairo', sans-serif;
+}
+
+/* Critical: Prevent ANY content flash before preloader completes */
+body {
+  background: linear-gradient(135deg, #3D1E0F 0%, #5D3A1A 50%, #78350f 100%);
 }
 
 /* Prevent content flash before preloader */
@@ -57,4 +64,9 @@ body > div {
   position: fixed;
   inset: 0;
   z-index: 9999;
+}
+
+/* Hide scrollbar during preload */
+body.preloading {
+  overflow: hidden !important;
 }

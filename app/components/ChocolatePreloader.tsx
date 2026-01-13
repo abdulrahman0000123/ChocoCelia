@@ -19,6 +19,9 @@ export default function ChocolatePreloader({ onComplete }: ChocolatePreloaderPro
   };
 
   useEffect(() => {
+    // Add class to body during preloading
+    document.body.classList.add('preloading');
+    
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
@@ -31,6 +34,7 @@ export default function ChocolatePreloader({ onComplete }: ChocolatePreloaderPro
 
     const timer = setTimeout(() => {
       setIsLoading(false);
+      document.body.classList.remove('preloading');
       if (onComplete) {
         // Call onComplete after a short delay to allow exit animation
         setTimeout(() => {
@@ -42,6 +46,7 @@ export default function ChocolatePreloader({ onComplete }: ChocolatePreloaderPro
     return () => {
       clearInterval(progressInterval);
       clearTimeout(timer);
+      document.body.classList.remove('preloading');
     };
   }, [onComplete]);
 
