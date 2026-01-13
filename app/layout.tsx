@@ -1,20 +1,9 @@
-'use client';
-
 import type { Metadata } from "next";
 import { Cairo } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "./components/Navbar";
-import { Footer } from "./components/Footer";
-import { CartProvider } from "./context/CartContext";
-import { CartDrawer } from "./components/CartDrawer";
-import { ThemeProvider } from "./components/ThemeProvider";
-import { LanguageProvider } from "./context/LanguageContext";
-import ChocolatePreloader from "./components/ChocolatePreloader";
-import { Toaster } from "react-hot-toast";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import ConditionalLayout from "./components/ConditionalLayout";
-import { useState } from "react";
+import ClientLayout from "./components/ClientLayout";
 
 const cairo = Cairo({
   subsets: ["latin", "arabic"],
@@ -36,8 +25,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [isPreloaderComplete, setIsPreloaderComplete] = useState(false);
-
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -47,53 +34,11 @@ export default function RootLayout({
       <body
         className={`${cairo.variable} antialiased min-h-screen flex flex-col font-cairo`}
       >
-        <LanguageProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <CartProvider>
-              <Toaster 
-                position="top-center"
-                toastOptions={{
-                  duration: 3000,
-                  style: {
-                    background: '#4A3728',
-                    color: '#fff',
-                    borderRadius: '12px',
-                    padding: '16px',
-                  },
-                  success: {
-                    iconTheme: {
-                      primary: '#10B981',
-                      secondary: '#fff',
-                    },
-                  },
-                  error: {
-                    iconTheme: {
-                      primary: '#EF4444',
-                      secondary: '#fff',
-                    },
-                  },
-                }}
-              />
-              <ChocolatePreloader onComplete={() => setIsPreloaderComplete(true)} />
-              <div style={{ 
-                opacity: isPreloaderComplete ? 1 : 0,
-                visibility: isPreloaderComplete ? 'visible' : 'hidden',
-                transition: 'opacity 0.3s ease-in-out'
-              }}>
-                <ConditionalLayout>
-                  {children}
-                </ConditionalLayout>
-              </div>
-              <Analytics />
-              <SpeedInsights />
-            </CartProvider>
-          </ThemeProvider>
-        </LanguageProvider>
+        <ClientLayout>
+          {children}
+        </ClientLayout>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
