@@ -151,42 +151,12 @@ export function Navbar() {
 // Desktop nav link component
 function NavLink({ href, label }: { href: string; label: string }) {
   return (
-    <motion.div
-      whileHover={{ scale: 1.05, y: -2 }}
-      whileTap={{ scale: 0.95 }}
-      transition={{ type: "spring", stiffness: 400, damping: 17 }}
-      className="relative"
+    <Link 
+      href={href} 
+      className="px-6 py-2.5 text-base font-semibold text-amber-900 hover:text-orange-600 transition-colors duration-200 rounded-full"
     >
-      <Link 
-        href={href} 
-        className="relative block px-7 py-3.5 text-lg font-bold text-amber-900 transition-all duration-300 rounded-full group"
-      >
-        {/* Rotating gradient border on hover */}
-        <motion.div 
-          className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100"
-          style={{
-            background: 'conic-gradient(from 0deg, #f97316, #fb923c, #fbbf24, #fb923c, #f97316)',
-            padding: '2px',
-          }}
-          animate={{
-            rotate: 360,
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-        >
-          <div className="w-full h-full bg-white/95 rounded-full" />
-        </motion.div>
-        
-        {/* Text */}
-        <span className="relative z-10 drop-shadow-sm group-hover:text-orange-600 transition-colors duration-300">{label}</span>
-        
-        {/* Glow effect */}
-        <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 via-amber-400 to-orange-400 opacity-0 group-hover:opacity-30 blur-xl -z-10 transition-all duration-500 rounded-full" />
-      </Link>
-    </motion.div>
+      {label}
+    </Link>
   );
 }
 
