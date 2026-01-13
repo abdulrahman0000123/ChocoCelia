@@ -5,7 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../lib/translations';
 
-export default function ChocolatePreloader() {
+interface ChocolatePreloaderProps {
+  onComplete?: () => void;
+}
+
+export default function ChocolatePreloader({ onComplete }: ChocolatePreloaderProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState(0);
   const { locale } = useLanguage();
@@ -27,13 +31,19 @@ export default function ChocolatePreloader() {
 
     const timer = setTimeout(() => {
       setIsLoading(false);
+      if (onComplete) {
+        // Call onComplete after a short delay to allow exit animation
+        setTimeout(() => {
+          onComplete();
+        }, 500);
+      }
     }, 2500);
 
     return () => {
       clearInterval(progressInterval);
       clearTimeout(timer);
     };
-  }, []);
+  }, [onComplete]);
 
   return (
     <AnimatePresence>

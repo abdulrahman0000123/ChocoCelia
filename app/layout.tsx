@@ -79,10 +79,16 @@ export default function RootLayout({
                   },
                 }}
               />
-              <ChocolatePreloader />
-              <ConditionalLayout>
-                {children}
-              </ConditionalLayout>
+              <ChocolatePreloader onComplete={() => setIsPreloaderComplete(true)} />
+              <div style={{ 
+                opacity: isPreloaderComplete ? 1 : 0,
+                visibility: isPreloaderComplete ? 'visible' : 'hidden',
+                transition: 'opacity 0.3s ease-in-out'
+              }}>
+                <ConditionalLayout>
+                  {children}
+                </ConditionalLayout>
+              </div>
               <Analytics />
               <SpeedInsights />
             </CartProvider>

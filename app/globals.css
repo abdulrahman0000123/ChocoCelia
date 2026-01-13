@@ -40,8 +40,21 @@ body {
   color: var(--foreground);
   font-family: var(--font-cairo), 'Cairo', sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
 }
 
 * {
   font-family: var(--font-cairo), 'Cairo', sans-serif;
+}
+
+/* Prevent content flash before preloader */
+body > div {
+  min-height: 100vh;
+}
+
+/* Ensure smooth preloader transition */
+.preloader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
 }
