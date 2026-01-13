@@ -70,7 +70,11 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Settings fetch error:', error);
-    return NextResponse.json({ error: 'Failed to fetch settings' }, { status: 500 });
+    console.error('Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    return NextResponse.json({ 
+      error: 'Failed to fetch settings',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 }
 
@@ -125,6 +129,10 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error('Settings update error:', error);
-    return NextResponse.json({ error: 'Failed to update settings' }, { status: 500 });
+    console.error('Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    return NextResponse.json({ 
+      error: 'Failed to update settings',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 }
