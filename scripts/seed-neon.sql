@@ -79,8 +79,11 @@ CREATE TABLE IF NOT EXISTS "OrderItem" (
 -- SiteSettings Table
 CREATE TABLE IF NOT EXISTS "SiteSettings" (
     "id" TEXT PRIMARY KEY,
-    "key" TEXT NOT NULL UNIQUE,
-    "value" TEXT NOT NULL,
+    "phone" TEXT,
+    "facebook" TEXT,
+    "instagram" TEXT,
+    "deliveryFeeBeniSuef" DOUBLE PRECISION DEFAULT 20,
+    "deliveryFeeEastNile" DOUBLE PRECISION DEFAULT 40,
     "updatedAt" TIMESTAMP(3) NOT NULL
 );
 

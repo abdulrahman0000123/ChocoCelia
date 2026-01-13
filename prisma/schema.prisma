@@ -72,9 +72,11 @@ model OrderItem {
 }
 
 model SiteSettings {
-  id          String   @id @default(cuid())
-  phone       String?
-  facebook    String?
-  instagram   String?
-  updatedAt   DateTime @updatedAt
+  id                    String   @id @default(cuid())
+  phone                 String?
+  facebook              String?
+  instagram             String?
+  deliveryFeeBeniSuef   Float    @default(20)
+  deliveryFeeEastNile   Float    @default(40)
+  updatedAt             DateTime @updatedAt
 }

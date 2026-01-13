@@ -88,6 +88,8 @@ CREATE TABLE "SiteSettings" (
     "contactEmail" TEXT,
     "contactPhone" TEXT,
     "socialMedia" JSONB,
+    "deliveryFeeBeniSuef" DOUBLE PRECISION DEFAULT 20,
+    "deliveryFeeEastNile" DOUBLE PRECISION DEFAULT 40,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL
 );
