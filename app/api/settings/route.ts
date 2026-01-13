@@ -65,8 +65,8 @@ export async function GET() {
       phone: dbSettings.phone,
       facebook: dbSettings.facebook || 'https://www.facebook.com/profile.php?id=61582630209700',
       instagram: dbSettings.instagram || 'https://www.instagram.com/chococelia2025/',
-      deliveryFeeBeniSuef: dbSettings.deliveryFeeBeniSuef,
-      deliveryFeeEastNile: dbSettings.deliveryFeeEastNile,
+      deliveryFeeBeniSuef: dbSettings.deliveryFeeBeniSuef ?? 20,
+      deliveryFeeEastNile: dbSettings.deliveryFeeEastNile ?? 40,
     });
   } catch (error) {
     console.error('Settings fetch error:', error);
@@ -120,8 +120,8 @@ export async function POST(request: Request) {
       phone: dbSettings.phone,
       facebook: dbSettings.facebook,
       instagram: dbSettings.instagram,
-      deliveryFeeBeniSuef: dbSettings.deliveryFeeBeniSuef,
-      deliveryFeeEastNile: dbSettings.deliveryFeeEastNile,
+      deliveryFeeBeniSuef: dbSettings.deliveryFeeBeniSuef ?? 20,
+      deliveryFeeEastNile: dbSettings.deliveryFeeEastNile ?? 40,
     });
   } catch (error) {
     console.error('Settings update error:', error);

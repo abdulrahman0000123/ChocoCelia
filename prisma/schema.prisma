@@ -76,7 +76,9 @@ model SiteSettings {
   phone                 String?
   facebook              String?
   instagram             String?
-  deliveryFeeBeniSuef   Float    @default(20)
-  deliveryFeeEastNile   Float    @default(40)
+  deliveryFeeBeniSuef   Float    @default(20) @map("deliveryfeebenisue")
+  deliveryFeeEastNile   Float    @default(40) @map("deliveryfeeeastnile")
   updatedAt             DateTime @updatedAt
+  
+  @@map("sitesettings")
 }
