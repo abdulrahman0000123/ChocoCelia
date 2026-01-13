@@ -20,6 +20,9 @@ export default function SettingsPage() {
     instagram: '',
     twitter: '',
     logo: '',
+    // Delivery Fees
+    deliveryFeeBeniSuef: '20',
+    deliveryFeeEastNile: '40',
     // Our Story
     ourStoryTitle: '',
     ourStorySubtitle: '',
@@ -64,6 +67,9 @@ export default function SettingsPage() {
           instagram: data.instagram || '',
           twitter: data.twitter || '',
           logo: data.logo || '',
+          // Delivery Fees
+          deliveryFeeBeniSuef: data.deliveryFeeBeniSuef || '20',
+          deliveryFeeEastNile: data.deliveryFeeEastNile || '40',
           // Our Story
           ourStoryTitle: data.ourStoryTitle || '',
           ourStorySubtitle: data.ourStorySubtitle || '',
@@ -307,6 +313,42 @@ export default function SettingsPage() {
                   onChange={(e) => setFormData({ ...formData, workingHours: e.target.value })}
                   className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-chocolate-700 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none transition-all bg-white dark:bg-chocolate-800 text-gray-900 dark:text-gray-100"
                   placeholder="Mon-Fri 9am-6pm"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Delivery Fees Section */}
+          <div>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 pb-2 border-b border-gray-200 dark:border-chocolate-800">
+              Delivery Fees (رسوم التوصيل)
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Beni Suef (داخل بني سويف) - EGP
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={formData.deliveryFeeBeniSuef}
+                  onChange={(e) => setFormData({ ...formData, deliveryFeeBeniSuef: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-chocolate-700 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none transition-all bg-white dark:bg-chocolate-800 text-gray-900 dark:text-gray-100"
+                  placeholder="20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  East Nile (شرق النيل) - EGP
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={formData.deliveryFeeEastNile}
+                  onChange={(e) => setFormData({ ...formData, deliveryFeeEastNile: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-chocolate-700 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none transition-all bg-white dark:bg-chocolate-800 text-gray-900 dark:text-gray-100"
+                  placeholder="40"
                 />
               </div>
             </div>
