@@ -46,15 +46,16 @@ export default function ChocolatePreloader({ onComplete }: ChocolatePreloaderPro
   }, [onComplete]);
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {isLoading && (
         <motion.div
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="fixed inset-0 z-50 flex items-center justify-center"
+          className="fixed inset-0 flex items-center justify-center"
           style={{
             background: 'linear-gradient(135deg, #3D1E0F 0%, #5D3A1A 50%, #78350f 100%)',
+            zIndex: 9999,
           }}
         >
           <div className="absolute inset-0 overflow-hidden">

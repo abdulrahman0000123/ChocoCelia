@@ -30,6 +30,19 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/logo.png" type="image/png" />
         <link rel="apple-touch-icon" href="/logo.png" />
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            body { 
+              margin: 0; 
+              padding: 0; 
+              overflow-x: hidden;
+            }
+            /* Prevent content flash - hide everything initially */
+            body > div:not([class*="preloader"]) {
+              opacity: 0;
+            }
+          `
+        }} />
       </head>
       <body
         className={`${cairo.variable} antialiased min-h-screen flex flex-col font-cairo`}
