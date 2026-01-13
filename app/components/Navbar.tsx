@@ -151,16 +151,41 @@ export function Navbar() {
 // Desktop nav link component
 function NavLink({ href, label }: { href: string; label: string }) {
   return (
-    <Link 
-      href={href} 
-      className="relative px-6 py-3 text-lg font-bold text-amber-900 hover:text-orange-600 transition-all rounded-full group"
+    <motion.div
+      whileHover={{ scale: 1.05, y: -2 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ type: "spring", stiffness: 400, damping: 17 }}
     >
-      <span className="relative z-10">{label}</span>
-      <motion.div 
-        className="absolute inset-0 bg-gradient-to-r from-orange-400/30 to-amber-400/30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-        layoutId="navHover"
-      />
-    </Link>
+      <Link 
+        href={href} 
+        className="relative block px-7 py-3.5 text-lg font-bold text-amber-900 transition-all duration-300 rounded-full group overflow-hidden"
+      >
+        {/* Gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-100 via-orange-50 to-amber-100 opacity-60 group-hover:opacity-100 transition-all duration-300" />
+        
+        {/* Animated gradient overlay */}
+        <motion.div 
+          className="absolute inset-0 bg-gradient-to-r from-orange-400/40 via-amber-400/40 to-orange-400/40 opacity-0 group-hover:opacity-100"
+          initial={{ x: '-100%' }}
+          whileHover={{ x: '100%' }}
+          transition={{ duration: 0.6, ease: "easeInOut" }}
+        />
+        
+        {/* Glow effect */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent blur-sm" />
+        </div>
+        
+        {/* Text */}
+        <span className="relative z-10 drop-shadow-sm group-hover:text-orange-700 transition-colors duration-300">{label}</span>
+        
+        {/* Border glow */}
+        <div className="absolute inset-0 rounded-full border-2 border-transparent group-hover:border-orange-300/50 transition-all duration-300" />
+        
+        {/* Shadow effect */}
+        <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 to-amber-400 opacity-0 group-hover:opacity-20 blur-lg -z-10 transition-all duration-300" />
+      </Link>
+    </motion.div>
   );
 }
 
