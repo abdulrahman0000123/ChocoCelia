@@ -223,7 +223,7 @@ export default function OrderNotification() {
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-chocolate-900 rounded-xl shadow-2xl border border-gray-200 dark:border-chocolate-700 overflow-hidden z-50"
+            className="absolute right-0 lg:top-full lg:mt-2 bottom-full mb-2 lg:bottom-auto lg:mb-0 w-80 bg-white dark:bg-chocolate-900 rounded-xl shadow-2xl border border-gray-200 dark:border-chocolate-700 overflow-hidden z-50"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-chocolate-600 to-chocolate-700 text-white p-4 flex items-center justify-between">
