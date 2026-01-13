@@ -36,7 +36,7 @@ export function Navbar() {
             : 'bg-white/80 backdrop-blur-lg shadow-xl shadow-amber-900/10'
         }`}
       >
-        <div className="px-6 sm:px-8 lg:px-10 flex justify-between items-center h-20">
+        <div className="px-6 sm:px-8 lg:px-10 flex items-center h-20">
           {/* Logo with glow effect */}
           <Link href="/" className="relative flex items-center gap-3 group">
             <motion.div
@@ -54,16 +54,15 @@ export function Navbar() {
             </motion.div>
           </Link>
 
-          {/* Desktop Menu with modern gradient styling */}
-          <div className="hidden md:flex items-center gap-2">
-            <div className="flex items-center gap-1 px-3 py-2 bg-white/60 backdrop-blur-md rounded-full shadow-lg border border-amber-200/50">
-              <NavLink href="/" label={t('home')} />
-              <NavLink href="/menu" label={t('menu')} />
-              <NavLink href="/about" label={t('about')} />
-              <NavLink href="/contact" label={t('contact')} />
-            </div>
+          {/* Desktop Menu in center */}
+          <div className="hidden md:flex items-center gap-4 flex-1 justify-center">
+            <NavLink href="/" label={t('home')} />
+            <NavLink href="/menu" label={t('menu')} />
+            <NavLink href="/about" label={t('about')} />
+            <NavLink href="/contact" label={t('contact')} />
+          </div>
             
-            <div className="flex items-center gap-2 ml-2">
+          <div className="hidden md:flex items-center gap-2">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -155,11 +154,11 @@ function NavLink({ href, label }: { href: string; label: string }) {
   return (
     <Link 
       href={href} 
-      className="relative px-4 py-2 text-sm font-bold text-amber-800 hover:text-orange-600 transition-colors rounded-full group"
+      className="relative px-6 py-3 text-lg font-bold text-amber-900 hover:text-orange-600 transition-all rounded-full group"
     >
       <span className="relative z-10">{label}</span>
       <motion.div 
-        className="absolute inset-0 bg-gradient-to-r from-orange-400/20 to-amber-400/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute inset-0 bg-gradient-to-r from-orange-400/30 to-amber-400/30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
         layoutId="navHover"
       />
     </Link>

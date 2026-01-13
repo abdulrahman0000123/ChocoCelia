@@ -76,7 +76,7 @@ export default function RootLayout({
               <ChocolatePreloader />
               <Navbar />
               <CartDrawer />
-              <main className="flex-grow pt-20">
+              <main className="flex-grow">
                 {children}
               </main>
               <Footer />
