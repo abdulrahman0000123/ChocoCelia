@@ -85,5 +85,5 @@ model SiteSettings {
   
   @@map("sitesettings")
     
-    
+  
 }
