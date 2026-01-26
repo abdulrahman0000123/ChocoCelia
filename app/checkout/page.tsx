@@ -15,6 +15,7 @@ export default function CheckoutPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderComplete, setOrderComplete] = useState<any>(null);
+  const [savedOrderData, setSavedOrderData] = useState<any>(null);
   const [deliveryFees, setDeliveryFees] = useState({
     beniSuef: 20,
     eastNile: 40
@@ -104,6 +105,15 @@ export default function CheckoutPage() {
 
       if (res.ok) {
         const orderResult = await res.json();
+        
+        // حفظ بيانات الطلب قبل مسح السلة
+        const orderDataForConfirmation = {
+          customerName: formData.name,
+          subtotal: total,
+          grandTotal: grandTotal,
+          deliveryFee: deliveryFee
+        };
+        
         clearCart();
         
         // Check payment method to determine next step
@@ -113,13 +123,14 @@ export default function CheckoutPage() {
             customerName: formData.name,
             customerPhone: formData.phone,
             orderId: orderResult.id,
-            subtotal: total,
-            grandTotal: grandTotal,
-            deliveryFee: deliveryFee,
+            subtotal: orderDataForConfirmation.subtotal,
+            grandTotal: orderDataForConfirmation.grandTotal,
+            deliveryFee: orderDataForConfirmation.deliveryFee,
             paymentMethod: formData.paymentMethod
           });
         } else {
-          // For online payment, show payment confirmation page
+          // For online payment, save data and show payment confirmation page
+          setSavedOrderData(orderDataForConfirmation);
           setIsSubmitted(true);
         }
       } else {
@@ -145,7 +156,7 @@ export default function CheckoutPage() {
   if (isSubmitted) {
     return (
       <PaymentConfirmation 
-        orderData={{
+        orderData={savedOrderData || {
           customerName: formData.name,
           subtotal: total,
           grandTotal: grandTotal,

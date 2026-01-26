@@ -14,9 +14,12 @@ export default function ConditionalLayout({
   
   // Check if we're in admin routes
   const isAdminRoute = pathname?.startsWith('/admin');
+  
+  // Check if we're in checkout route
+  const isCheckoutRoute = pathname === '/checkout';
 
-  if (isAdminRoute) {
-    // Admin layout: no navbar, no footer, no cart
+  if (isAdminRoute || isCheckoutRoute) {
+    // Admin layout or checkout: no navbar, no footer, no cart
     return <>{children}</>;
   }
 
