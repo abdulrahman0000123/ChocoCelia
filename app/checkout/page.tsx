@@ -7,12 +7,14 @@ import { ArrowLeft, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '../context/LanguageContext';
 import { PaymentConfirmation } from '../components/PaymentConfirmation';
+import { OrderComplete } from '../components/OrderComplete';
 
 export default function CheckoutPage() {
   const { items, total, clearCart } = useCart();
   const { t } = useLanguage();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [orderComplete, setOrderComplete] = useState<any>(null);
   const [deliveryFees, setDeliveryFees] = useState({
     beniSuef: 20,
     eastNile: 40
@@ -29,7 +31,8 @@ export default function CheckoutPage() {
     address: '',
     deliveryArea: 'benisuef',
     message: '',
-    method: 'whatsapp'
+    method: 'whatsapp',
+    paymentMethod: 'cash_on_delivery'
   });
   const [deliveryFee, setDeliveryFee] = useState(20);
   const [grandTotal, setGrandTotal] = useState(total);
@@ -40,7 +43,10 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     // Update delivery fee and grand total when delivery area changes
-    const fee = formData.deliveryArea === 'benisuef' ? deliveryFees.beniSuef : deliveryFees.eastNile;
+    // Only apply delivery fee if the subtotal is greater than 0
+    const fee = total > 0 
+      ? (formData.deliveryArea === 'benisuef' ? deliveryFees.beniSuef : deliveryFees.eastNile)
+      : 0;
     setDeliveryFee(fee);
     setGrandTotal(total + fee);
   }, [formData.deliveryArea, deliveryFees, total]);
@@ -59,9 +65,10 @@ export default function CheckoutPage() {
           cashWalletNumber: data.cashWalletNumber || '',
           facebookPageId: data.facebook?.split('/').pop() || '61582630209700'
         });
-        // Set initial delivery fee
-        setDeliveryFee(data.deliveryFeeBeniSuef || 20);
-        setGrandTotal(total + (data.deliveryFeeBeniSuef || 20));
+        // Set initial delivery fee - only if subtotal > 0
+        const initialFee = total > 0 ? (data.deliveryFeeBeniSuef || 20) : 0;
+        setDeliveryFee(initialFee);
+        setGrandTotal(total + initialFee);
       }
     } catch (error) {
       console.error('Failed to fetch delivery fees');
@@ -96,8 +103,25 @@ export default function CheckoutPage() {
       });
 
       if (res.ok) {
-        setIsSubmitted(true);
+        const orderResult = await res.json();
         clearCart();
+        
+        // Check payment method to determine next step
+        if (formData.paymentMethod === 'cash_on_delivery') {
+          // For cash on delivery, show order complete page
+          setOrderComplete({
+            customerName: formData.name,
+            customerPhone: formData.phone,
+            orderId: orderResult.id,
+            subtotal: total,
+            grandTotal: grandTotal,
+            deliveryFee: deliveryFee,
+            paymentMethod: formData.paymentMethod
+          });
+        } else {
+          // For online payment, show payment confirmation page
+          setIsSubmitted(true);
+        }
       } else {
         const error = await res.json();
         alert(error.error || 'Failed to place order. Please try again.');
@@ -109,6 +133,14 @@ export default function CheckoutPage() {
       setIsSubmitting(false);
     }
   };
+
+  if (orderComplete) {
+    return (
+      <OrderComplete 
+        orderData={orderComplete}
+      />
+    );
+  }
 
   if (isSubmitted) {
     return (
@@ -249,36 +281,44 @@ export default function CheckoutPage() {
 
               <div>
                 <label className="block text-sm font-medium text-chocolate-700 mb-2">{t('selectDeliveryArea')} *</label>
-                <div className="grid grid-cols-2 gap-3">
-                  <label className="relative flex items-center gap-3 cursor-pointer bg-white border-2 border-chocolate-200 rounded-xl p-4 hover:border-amber-500 transition-all">
-                    <input
-                      type="radio"
-                      name="deliveryArea"
-                      value="benisuef"
-                      checked={formData.deliveryArea === 'benisuef'}
-                      onChange={(e) => setFormData({ ...formData, deliveryArea: e.target.value })}
-                      className="text-chocolate-600 focus:ring-chocolate-500"
-                    />
-                    <div className="flex-1">
-                      <p className="font-bold text-chocolate-900">{t('insideBeniSuef')}</p>
-                      <p className="text-sm text-amber-700 font-semibold">{deliveryFees.beniSuef} EGP</p>
-                    </div>
-                  </label>
-                  <label className="relative flex items-center gap-3 cursor-pointer bg-white border-2 border-chocolate-200 rounded-xl p-4 hover:border-amber-500 transition-all">
-                    <input
-                      type="radio"
-                      name="deliveryArea"
-                      value="eastnile"
-                      checked={formData.deliveryArea === 'eastnile'}
-                      onChange={(e) => setFormData({ ...formData, deliveryArea: e.target.value })}
-                      className="text-chocolate-600 focus:ring-chocolate-500"
-                    />
-                    <div className="flex-1">
+                {total > 0 ? (
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="relative flex items-center gap-3 cursor-pointer bg-white border-2 border-chocolate-200 rounded-xl p-4 hover:border-amber-500 transition-all">
+                      <input
+                        type="radio"
+                        name="deliveryArea"
+                        value="benisuef"
+                        checked={formData.deliveryArea === 'benisuef'}
+                        onChange={(e) => setFormData({ ...formData, deliveryArea: e.target.value })}
+                        className="text-chocolate-600 focus:ring-chocolate-500"
+                      />
+                      <div className="flex-1">
+                        <p className="font-bold text-chocolate-900">{t('insideBeniSuef')}</p>
+                        <p className="text-sm text-amber-700 font-semibold">{deliveryFees.beniSuef} EGP</p>
+                      </div>
+                    </label>
+                    <label className="relative flex items-center gap-3 cursor-pointer bg-white border-2 border-chocolate-200 rounded-xl p-4 hover:border-amber-500 transition-all">
+                      <input
+                        type="radio"
+                        name="deliveryArea"
+                        value="eastnile"
+                        checked={formData.deliveryArea === 'eastnile'}
+                        onChange={(e) => setFormData({ ...formData, deliveryArea: e.target.value })}
+                        className="text-chocolate-600 focus:ring-chocolate-500"
+                      />
+                      <div className="flex-1">
                       <p className="font-bold text-chocolate-900">{t('eastNile')}</p>
                       <p className="text-sm text-amber-700 font-semibold">{deliveryFees.eastNile} EGP</p>
                     </div>
                   </label>
                 </div>
+                ) : (
+                  <div className="bg-gray-100 border border-gray-300 rounded-xl p-4 text-center">
+                    <p className="text-gray-500 text-sm">
+                      {t('deliveryOptionsAvailableAfterAdding')}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -305,6 +345,41 @@ export default function CheckoutPage() {
                       className="text-chocolate-600 focus:ring-chocolate-500"
                     />
                     <span className="text-chocolate-700">{t('phoneCall')}</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Payment Method Selection */}
+              <div>
+                <label className="block text-sm font-medium text-chocolate-700 mb-2">{t('paymentMethod')} *</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <label className="relative flex items-center gap-3 cursor-pointer bg-white border-2 border-chocolate-200 rounded-xl p-4 hover:border-amber-500 transition-all">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="cash_on_delivery"
+                      checked={formData.paymentMethod === 'cash_on_delivery'}
+                      onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
+                      className="text-chocolate-600 focus:ring-chocolate-500"
+                    />
+                    <div className="flex-1">
+                      <p className="font-bold text-chocolate-900">{t('cashOnDelivery')}</p>
+                      <p className="text-xs text-chocolate-600 mt-1">{t('paymentOnDelivery')}</p>
+                    </div>
+                  </label>
+                  <label className="relative flex items-center gap-3 cursor-pointer bg-white border-2 border-chocolate-200 rounded-xl p-4 hover:border-amber-500 transition-all">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="online_payment"
+                      checked={formData.paymentMethod === 'online_payment'}
+                      onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
+                      className="text-chocolate-600 focus:ring-chocolate-500"
+                    />
+                    <div className="flex-1">
+                      <p className="font-bold text-chocolate-900">{t('onlinePayment')}</p>
+                      <p className="text-xs text-chocolate-600 mt-1">إنستا باي أو محفظة الكاش</p>
+                    </div>
                   </label>
                 </div>
               </div>
