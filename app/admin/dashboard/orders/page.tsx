@@ -207,6 +207,16 @@ export default function OrdersPage() {
                     <span className="text-gray-600 font-medium min-w-[100px]">Contact via:</span>
                     <span className="font-semibold text-green-600 capitalize">{selectedOrder.preferredContact}</span>
                   </div>
+                  <div className="flex items-start gap-3">
+                    <span className="text-gray-600 font-medium min-w-[100px]">Payment:</span>
+                    <span className={`font-semibold px-2 py-1 rounded text-sm ${
+                      selectedOrder.paymentMethod === 'cash_on_delivery' 
+                        ? 'bg-yellow-100 text-yellow-800' 
+                        : 'bg-green-100 text-green-800'
+                    }`}>
+                      {selectedOrder.paymentMethod === 'cash_on_delivery' ? 'Cash on Delivery' : 'Online Payment'}
+                    </span>
+                  </div>
                   {selectedOrder.specialRequests && (
                     <div className="flex items-start gap-3 border-t border-blue-200 pt-3 mt-3">
                       <span className="text-gray-600 font-medium min-w-[100px]">Message:</span>

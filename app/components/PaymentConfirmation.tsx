@@ -32,7 +32,7 @@ export function PaymentConfirmation({ orderData, paymentSettings }: PaymentConfi
 
   const handleSendToFacebook = () => {
     // Open Facebook Messenger to the page
-    const messengerUrl = `https://m.me/${paymentSettings.facebookPageId}`;
+    const messengerUrl = `https://www.facebook.com/messages/t/61582630209700`;
     window.open(messengerUrl, '_blank');
   };
 

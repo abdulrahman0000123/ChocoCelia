@@ -89,6 +89,7 @@ export default function CheckoutPage() {
         customerAddress: `${formData.address} - ${deliveryAreaText}`,
         preferredContact: formData.method,
         specialRequests: formData.message || null,
+        paymentMethod: formData.paymentMethod,
         items: items.map(item => ({
           productId: item.id,
           quantity: item.quantity,

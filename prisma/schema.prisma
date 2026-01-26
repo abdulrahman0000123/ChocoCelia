@@ -52,6 +52,7 @@ model Order {
   preferredContact String @default("whatsapp") // whatsapp or call
   specialRequests String?
   status      String      @default("PENDING") // PENDING, PROCESSING, COMPLETED, CANCELLED
+  paymentMethod String    @default("cash_on_delivery") // cash_on_delivery or online_payment
   total       Float
   items       OrderItem[]
   createdAt   DateTime    @default(now())

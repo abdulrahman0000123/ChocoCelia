@@ -46,6 +46,7 @@ export async function POST(request: Request) {
       customerAddress,
       preferredContact,
       specialRequests,
+      paymentMethod,
       items,
       total
     } = body;
@@ -82,6 +83,7 @@ export async function POST(request: Request) {
         customerAddress,
         preferredContact: preferredContact || 'whatsapp',
         specialRequests,
+        paymentMethod: paymentMethod || 'cash_on_delivery',
         total,
         status: 'PENDING',
         items: {
