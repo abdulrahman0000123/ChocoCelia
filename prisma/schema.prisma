@@ -84,5 +84,5 @@ model SiteSettings {
   updatedAt             DateTime @updatedAt @map("updatedat")
   
   @@map("sitesettings")
-  -
+  
 }
