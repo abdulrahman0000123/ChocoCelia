@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ShoppingCart, Menu, X, Sparkles } from 'lucide-react';
+import { ShoppingCart, Menu, X, Sparkles, Home, UtensilsCrossed, Info, Mail } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../context/CartContext';
@@ -56,10 +56,10 @@ export function Navbar() {
 
           {/* Desktop Menu in center */}
           <div className="hidden md:flex items-center gap-4 flex-1 justify-center">
-            <NavLink href="/" label={t('home')} />
-            <NavLink href="/menu" label={t('menu')} />
-            <NavLink href="/about" label={t('about')} />
-            <NavLink href="/contact" label={t('contact')} />
+            <NavLink href="/" label={t('home')} icon={<Home className="w-6 h-6" />} />
+            <NavLink href="/menu" label={t('menu')} icon={<UtensilsCrossed className="w-6 h-6" />} />
+            <NavLink href="/about" label={t('about')} icon={<Info className="w-6 h-6" />} />
+            <NavLink href="/contact" label={t('contact')} icon={<Mail className="w-6 h-6" />} />
           </div>
             
           <div className="hidden md:flex items-center gap-2">
@@ -136,10 +136,10 @@ export function Navbar() {
             className="md:hidden mt-2 bg-white/80 backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl shadow-amber-900/20 border border-amber-200/50"
           >
             <div className="px-4 pt-2 pb-4 space-y-1">
-              <MobileNavLink href="/" label={t('home')} onClick={() => setIsOpen(false)} />
-              <MobileNavLink href="/menu" label={t('menu')} onClick={() => setIsOpen(false)} />
-              <MobileNavLink href="/about" label={t('about')} onClick={() => setIsOpen(false)} />
-              <MobileNavLink href="/contact" label={t('contact')} onClick={() => setIsOpen(false)} />
+              <MobileNavLink href="/" label={t('home')} icon={<Home className="w-6 h-6" />} onClick={() => setIsOpen(false)} />
+              <MobileNavLink href="/menu" label={t('menu')} icon={<UtensilsCrossed className="w-6 h-6" />} onClick={() => setIsOpen(false)} />
+              <MobileNavLink href="/about" label={t('about')} icon={<Info className="w-6 h-6" />} onClick={() => setIsOpen(false)} />
+              <MobileNavLink href="/contact" label={t('contact')} icon={<Mail className="w-6 h-6" />} onClick={() => setIsOpen(false)} />
             </div>
           </motion.div>
         )}
@@ -149,25 +149,27 @@ export function Navbar() {
 }
 
 // Desktop nav link component
-function NavLink({ href, label }: { href: string; label: string }) {
+function NavLink({ href, label, icon }: { href: string; label: string; icon: React.ReactNode }) {
   return (
     <Link 
       href={href} 
-      className="px-6 py-2.5 text-base font-semibold text-amber-900 hover:text-orange-600 transition-colors duration-200 rounded-full"
+      className="px-7 py-3 text-xl font-bold text-amber-900 hover:text-orange-600 transition-colors duration-200 rounded-full flex items-center gap-3"
     >
+      {icon}
       {label}
     </Link>
   );
 }
 
 // Mobile nav link component
-function MobileNavLink({ href, label, onClick }: { href: string; label: string; onClick: () => void }) {
+function MobileNavLink({ href, label, icon, onClick }: { href: string; label: string; icon: React.ReactNode; onClick: () => void }) {
   return (
     <Link
       href={href}
-      className="block px-4 py-3 text-amber-900 font-bold hover:bg-gradient-to-r hover:from-orange-400/20 hover:to-amber-400/20 rounded-xl transition-all border-2 border-transparent hover:border-orange-300"
+      className="flex items-center gap-4 px-5 py-4 text-lg text-amber-900 font-bold hover:bg-gradient-to-r hover:from-orange-400/20 hover:to-amber-400/20 rounded-xl transition-all border-2 border-transparent hover:border-orange-300"
       onClick={onClick}
     >
+      {icon}
       {label}
     </Link>
   );
