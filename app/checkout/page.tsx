@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '../context/LanguageContext';
+import { PaymentConfirmation } from '../components/PaymentConfirmation';
 
 export default function CheckoutPage() {
   const { items, total, clearCart } = useCart();
@@ -13,22 +14,36 @@ export default function CheckoutPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deliveryFees, setDeliveryFees] = useState({
-    beniSuef: '20',
-    eastNile: '40'
+    beniSuef: 20,
+    eastNile: 40
+  });
+  const [paymentSettings, setPaymentSettings] = useState({
+    instaPayLink: '',
+    cashWalletNumber: '',
+    facebookPageId: '61582630209700'
   });
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
     email: '',
     address: '',
-    city: 'Beni-Suef',
+    deliveryArea: 'benisuef',
     message: '',
     method: 'whatsapp'
   });
+  const [deliveryFee, setDeliveryFee] = useState(20);
+  const [grandTotal, setGrandTotal] = useState(total);
 
   useEffect(() => {
     fetchDeliveryFees();
   }, []);
+
+  useEffect(() => {
+    // Update delivery fee and grand total when delivery area changes
+    const fee = formData.deliveryArea === 'benisuef' ? deliveryFees.beniSuef : deliveryFees.eastNile;
+    setDeliveryFee(fee);
+    setGrandTotal(total + fee);
+  }, [formData.deliveryArea, deliveryFees, total]);
 
   const fetchDeliveryFees = async () => {
     try {
@@ -36,9 +51,17 @@ export default function CheckoutPage() {
       if (res.ok) {
         const data = await res.json();
         setDeliveryFees({
-          beniSuef: data.deliveryFeeBeniSuef || '20',
-          eastNile: data.deliveryFeeEastNile || '40'
+          beniSuef: data.deliveryFeeBeniSuef || 20,
+          eastNile: data.deliveryFeeEastNile || 40
         });
+        setPaymentSettings({
+          instaPayLink: data.instaPayLink || '',
+          cashWalletNumber: data.cashWalletNumber || '',
+          facebookPageId: data.facebook?.split('/').pop() || '61582630209700'
+        });
+        // Set initial delivery fee
+        setDeliveryFee(data.deliveryFeeBeniSuef || 20);
+        setGrandTotal(total + (data.deliveryFeeBeniSuef || 20));
       }
     } catch (error) {
       console.error('Failed to fetch delivery fees');
@@ -50,11 +73,12 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
+      const deliveryAreaText = formData.deliveryArea === 'benisuef' ? 'داخل بني سويف' : 'شرق النيل';
       const orderData = {
         customerName: formData.name,
         customerPhone: formData.phone,
         customerEmail: formData.email || null,
-        customerAddress: `${formData.address}, ${formData.city}`,
+        customerAddress: `${formData.address} - ${deliveryAreaText}`,
         preferredContact: formData.method,
         specialRequests: formData.message || null,
         items: items.map(item => ({
@@ -62,7 +86,7 @@ export default function CheckoutPage() {
           quantity: item.quantity,
           price: item.price
         })),
-        total: total
+        total: grandTotal
       };
 
       const res = await fetch('/api/orders', {
@@ -88,27 +112,15 @@ export default function CheckoutPage() {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-chocolate-50 flex items-center justify-center px-4">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md w-full"
-        >
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-10 h-10 text-green-600" />
-          </div>
-          <h2 className="text-3xl font-bold text-chocolate-900 mb-4 font-cairo">{t('orderReceived')}</h2>
-          <p className="text-chocolate-600 mb-8">
-            {t('thankYouOrder')}, {formData.name}. {t('continueShoppingMsg')}
-          </p>
-          <Link 
-            href="/menu"
-            className="block w-full bg-chocolate-600 text-white py-3 rounded-full font-bold hover:bg-chocolate-700 transition-colors font-cairo"
-          >
-            <span className="text-gold-500">{t('continueShopping')}</span>
-          </Link>
-        </motion.div>
-      </div>
+      <PaymentConfirmation 
+        orderData={{
+          customerName: formData.name,
+          subtotal: total,
+          grandTotal: grandTotal,
+          deliveryFee: deliveryFee
+        }}
+        paymentSettings={paymentSettings}
+      />
     );
   }
 
@@ -158,35 +170,32 @@ export default function CheckoutPage() {
             </div>
 
             {/* Shipping Info */}
-            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-xl p-4 mb-6">
-              <div className="flex items-start gap-3">
-                <div className="bg-amber-500 text-white rounded-full p-2 mt-0.5">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-xl p-4 mb-4">
+              <h3 className="font-bold text-chocolate-900 mb-3 text-base flex items-center gap-2">
+                <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {t('orderSummary')}
+              </h3>
+              <div className="space-y-2 bg-white/70 rounded-lg p-3">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-chocolate-700">{t('subtotal')}:</span>
+                  <span className="font-semibold text-chocolate-900">{total.toFixed(2)} EGP</span>
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-chocolate-900 mb-2 text-base">{t('deliveryCharges')}</h3>
-                  <div className="space-y-1.5 text-sm">
-                    <div className="flex items-center justify-between bg-white/70 px-3 py-2 rounded-lg">
-                      <span className="font-semibold text-chocolate-800">داخل بني سويف</span>
-                      <span className="font-bold text-amber-700">{deliveryFees.beniSuef} جنيه</span>
-                    </div>
-                    <div className="flex items-center justify-between bg-white/70 px-3 py-2 rounded-lg">
-                      <span className="font-semibold text-chocolate-800">شرق النيل</span>
-                      <span className="font-bold text-amber-700">{deliveryFees.eastNile} جنيه</span>
-                    </div>
-                  </div>
-                  <p className="text-xs text-chocolate-600 mt-2 italic">
-                    * سيتم إضافة رسوم التوصيل عند التأكيد
-                  </p>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-chocolate-700">{t('deliveryFee')}:</span>
+                  <span className="font-semibold text-amber-700">{deliveryFee.toFixed(2)} EGP</span>
+                </div>
+                <div className="border-t border-amber-200 pt-2 mt-2 flex justify-between items-center">
+                  <span className="text-base font-bold text-chocolate-900">{t('grandTotal')}:</span>
+                  <span className="text-xl font-bold text-orange-600">{grandTotal.toFixed(2)} EGP</span>
                 </div>
               </div>
             </div>
 
             <div className="border-t border-chocolate-100 pt-4 flex justify-between items-center">
               <span className="text-lg font-bold text-chocolate-900">{t('total')}</span>
-              <span className="text-2xl font-bold text-chocolate-900">{total.toFixed(2)} EGP</span>
+              <span className="text-2xl font-bold text-chocolate-900">{grandTotal.toFixed(2)} EGP</span>
             </div>
           </div>
 
@@ -239,15 +248,37 @@ export default function CheckoutPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-chocolate-700 mb-1">{t('city')} *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Beni-Suef"
-                  className="w-full px-4 py-2 rounded-lg border border-chocolate-200 focus:border-chocolate-500 focus:ring-1 focus:ring-chocolate-500 outline-none transition-colors text-black"
-                  value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                />
+                <label className="block text-sm font-medium text-chocolate-700 mb-2">{t('selectDeliveryArea')} *</label>
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="relative flex items-center gap-3 cursor-pointer bg-white border-2 border-chocolate-200 rounded-xl p-4 hover:border-amber-500 transition-all">
+                    <input
+                      type="radio"
+                      name="deliveryArea"
+                      value="benisuef"
+                      checked={formData.deliveryArea === 'benisuef'}
+                      onChange={(e) => setFormData({ ...formData, deliveryArea: e.target.value })}
+                      className="text-chocolate-600 focus:ring-chocolate-500"
+                    />
+                    <div className="flex-1">
+                      <p className="font-bold text-chocolate-900">{t('insideBeniSuef')}</p>
+                      <p className="text-sm text-amber-700 font-semibold">{deliveryFees.beniSuef} EGP</p>
+                    </div>
+                  </label>
+                  <label className="relative flex items-center gap-3 cursor-pointer bg-white border-2 border-chocolate-200 rounded-xl p-4 hover:border-amber-500 transition-all">
+                    <input
+                      type="radio"
+                      name="deliveryArea"
+                      value="eastnile"
+                      checked={formData.deliveryArea === 'eastnile'}
+                      onChange={(e) => setFormData({ ...formData, deliveryArea: e.target.value })}
+                      className="text-chocolate-600 focus:ring-chocolate-500"
+                    />
+                    <div className="flex-1">
+                      <p className="font-bold text-chocolate-900">{t('eastNile')}</p>
+                      <p className="text-sm text-amber-700 font-semibold">{deliveryFees.eastNile} EGP</p>
+                    </div>
+                  </label>
+                </div>
               </div>
 
               <div>

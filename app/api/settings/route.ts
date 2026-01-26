@@ -67,6 +67,8 @@ export async function GET() {
       instagram: dbSettings.instagram || 'https://www.instagram.com/chococelia2025/',
       deliveryFeeBeniSuef: dbSettings.deliveryFeeBeniSuef ?? 20,
       deliveryFeeEastNile: dbSettings.deliveryFeeEastNile ?? 40,
+      instaPayLink: dbSettings.instaPayLink || '',
+      cashWalletNumber: dbSettings.cashWalletNumber || '',
     });
   } catch (error) {
     console.error('Settings fetch error:', error);
@@ -102,6 +104,8 @@ export async function POST(request: Request) {
     if (body.deliveryFeeEastNile !== undefined) {
       dbUpdates.deliveryFeeEastNile = parseFloat(body.deliveryFeeEastNile);
     }
+    if (body.instaPayLink !== undefined) dbUpdates.instaPayLink = body.instaPayLink;
+    if (body.cashWalletNumber !== undefined) dbUpdates.cashWalletNumber = body.cashWalletNumber;
 
     // Update database if there are DB field changes
     let dbSettings;
@@ -126,6 +130,8 @@ export async function POST(request: Request) {
       instagram: dbSettings.instagram,
       deliveryFeeBeniSuef: dbSettings.deliveryFeeBeniSuef ?? 20,
       deliveryFeeEastNile: dbSettings.deliveryFeeEastNile ?? 40,
+      instaPayLink: dbSettings.instaPayLink || '',
+      cashWalletNumber: dbSettings.cashWalletNumber || '',
     });
   } catch (error) {
     console.error('Settings update error:', error);

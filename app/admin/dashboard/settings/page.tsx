@@ -15,6 +15,9 @@ export default function SettingsPage() {
     // Delivery Fees
     deliveryFeeBeniSuef: '20',
     deliveryFeeEastNile: '40',
+    // Payment Methods
+    instaPayLink: '',
+    cashWalletNumber: '',
     // Our Story
     ourStoryTitle: '',
     ourStorySubtitle: '',
@@ -56,6 +59,9 @@ export default function SettingsPage() {
           // Delivery Fees
           deliveryFeeBeniSuef: data.deliveryFeeBeniSuef || '20',
           deliveryFeeEastNile: data.deliveryFeeEastNile || '40',
+          // Payment Methods
+          instaPayLink: data.instaPayLink || '',
+          cashWalletNumber: data.cashWalletNumber || '',
           // Our Story
           ourStoryTitle: data.ourStoryTitle || '',
           ourStorySubtitle: data.ourStorySubtitle || '',
@@ -187,6 +193,40 @@ export default function SettingsPage() {
                   onChange={(e) => setFormData({ ...formData, deliveryFeeEastNile: e.target.value })}
                   className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-chocolate-700 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none transition-all bg-white dark:bg-chocolate-800 text-gray-900 dark:text-gray-100"
                   placeholder="40"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Payment Methods Section */}
+          <div>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 pb-2 border-b border-gray-200 dark:border-chocolate-800">
+              Payment Methods (طرق الدفع)
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  InstaPay Link (رابط إنستا باي)
+                </label>
+                <input
+                  type="text"
+                  value={formData.instaPayLink}
+                  onChange={(e) => setFormData({ ...formData, instaPayLink: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-chocolate-700 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none transition-all bg-white dark:bg-chocolate-800 text-gray-900 dark:text-gray-100"
+                  placeholder="https://instapay.com/..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Cash Wallet Number (رقم المحفظة)
+                </label>
+                <input
+                  type="text"
+                  value={formData.cashWalletNumber}
+                  onChange={(e) => setFormData({ ...formData, cashWalletNumber: e.target.value })}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-chocolate-700 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none transition-all bg-white dark:bg-chocolate-800 text-gray-900 dark:text-gray-100"
+                  placeholder="01xxxxxxxxx"
                 />
               </div>
             </div>

@@ -79,6 +79,8 @@ model SiteSettings {
   instagram             String?
   deliveryFeeBeniSuef   Float    @default(20) @map("deliveryfeebenisue")
   deliveryFeeEastNile   Float    @default(40) @map("deliveryfeeastnile")
+  instaPayLink          String?  @map("instapaylink")
+  cashWalletNumber      String?  @map("cashwalletnumber")
   updatedAt             DateTime @updatedAt @map("updatedat")
   
   @@map("sitesettings")
