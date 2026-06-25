@@ -38,7 +38,7 @@ export function Sidebar() {
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-chocolate-950/90 backdrop-blur-md px-4 py-2 shadow-lg border-b border-chocolate-800/80">
         <div className="flex items-center justify-center gap-2">
-          <p className="text-sm text-gold-400 font-semibold tracking-wider">Admin ChocoCelia</p>
+          <p className="text-sm text-white font-semibold tracking-wider">Admin ChocoCelia</p>
         </div>
         <div className="absolute right-4 top-1/2 -translate-y-1/2">
           <button
@@ -69,7 +69,7 @@ export function Sidebar() {
         {/* Desktop Header */}
         <div className="hidden lg:flex lg:flex-col lg:items-center lg:justify-center p-6 border-b border-chocolate-800/80 bg-chocolate-950/40 relative">
           <div className="absolute inset-0 bg-gold-500/5 blur-xl pointer-events-none rounded-full" />
-          <p className="text-sm text-gold-400 font-semibold tracking-wide relative z-10">Admin ChocoCelia</p>
+          <p className="text-sm text-white font-semibold tracking-wide relative z-10">Admin ChocoCelia</p>
         </div>
 
         {/* Mobile spacer */}
