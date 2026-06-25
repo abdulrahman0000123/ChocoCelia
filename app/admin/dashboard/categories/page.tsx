@@ -253,55 +253,112 @@ export default function CategoriesPage() {
           </div>
 
           {/* Table Container */}
-          <div className="bg-chocolate-900/20 rounded-2xl shadow overflow-hidden border border-chocolate-800">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-chocolate-950/40 border-b border-chocolate-800 text-xs font-bold text-white uppercase tracking-wider">
-                    <th className="px-6 py-4">Name (EN)</th>
-                    <th className="px-6 py-4 text-right">Name (AR)</th>
-                    <th className="px-6 py-4">Products Linked</th>
-                    <th className="px-6 py-4 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-chocolate-800/40 text-sm text-chocolate-100">
-                  {filteredCategories.map((category) => (
-                    <tr key={category.id} className="hover:bg-chocolate-900/30 transition-colors">
-                      <td className="px-6 py-4 font-semibold text-white">{category.name}</td>
-                      <td className="px-6 py-4 text-right font-medium text-chocolate-200" dir="rtl">{category.nameAr || '-'}</td>
-                      <td className="px-6 py-4 text-chocolate-300">{category._count?.products || 0} products</td>
-                      <td className="px-6 py-4 text-right space-x-2">
-                        <button
-                          onClick={() => handleEdit(category)}
-                          className="text-gold-500 hover:text-gold-400 p-2 hover:bg-chocolate-800/40 rounded-xl transition-all"
-                          title="Edit Category"
-                        >
-                          <Edit className="w-5 h-5" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(category.id)}
-                          disabled={deletingId === category.id}
-                          className="text-red-500 hover:text-red-400 p-2 hover:bg-chocolate-800/40 rounded-xl transition-all disabled:opacity-50"
-                          title="Delete Category"
-                        >
-                          {deletingId === category.id ? (
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                          ) : (
-                            <Trash2 className="w-5 h-5" />
-                          )}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          {/* Table / Cards Container */}
+          {filteredCategories.length === 0 ? (
+            <div className="text-center py-16 text-chocolate-300 bg-chocolate-900/10 border border-chocolate-800 rounded-2xl">
+              <p className="text-lg font-medium">No categories found.</p>
             </div>
-            {filteredCategories.length === 0 && (
-              <div className="text-center py-12 text-chocolate-300">
-                <p className="text-lg">No categories found.</p>
+          ) : (
+            <>
+              {/* Desktop Table (md and up) */}
+              <div className="hidden md:block bg-chocolate-900/20 rounded-2xl shadow-lg overflow-hidden border border-chocolate-800">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-chocolate-950/60 border-b border-chocolate-800 text-xs font-bold text-white uppercase tracking-wider">
+                        <th className="px-6 py-4.5">Name (EN)</th>
+                        <th className="px-6 py-4.5 text-right">Name (AR)</th>
+                        <th className="px-6 py-4.5">Products Linked</th>
+                        <th className="px-6 py-4.5 text-right w-32">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-chocolate-800/40 text-sm text-chocolate-100">
+                      {filteredCategories.map((category) => (
+                        <tr key={category.id} className="hover:bg-chocolate-900/30 transition-colors">
+                          <td className="px-6 py-4 font-semibold text-white">{category.name}</td>
+                          <td className="px-6 py-4 text-right font-medium text-chocolate-200" dir="rtl">{category.nameAr || '-'}</td>
+                          <td className="px-6 py-4 text-chocolate-300">
+                            <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-chocolate-800/50 text-chocolate-200 border border-chocolate-700/30">
+                              {category._count?.products || 0} products
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-right space-x-2">
+                            <button
+                              onClick={() => handleEdit(category)}
+                              className="text-gold-500 hover:text-gold-400 p-2 hover:bg-chocolate-800/40 rounded-xl transition-all cursor-pointer inline-flex"
+                              title="Edit Category"
+                            >
+                              <Edit className="w-5 h-5" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(category.id)}
+                              disabled={deletingId === category.id}
+                              className="text-red-500 hover:text-red-400 p-2 hover:bg-chocolate-800/40 rounded-xl transition-all disabled:opacity-50 cursor-pointer inline-flex"
+                              title="Delete Category"
+                            >
+                              {deletingId === category.id ? (
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-5 h-5" />
+                              )}
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            )}
-          </div>
+
+              {/* Mobile Card List (under md) */}
+              <div className="block md:hidden space-y-4">
+                {filteredCategories.map((category) => (
+                  <div 
+                    key={category.id} 
+                    className="bg-chocolate-900/20 border border-chocolate-800/80 rounded-2xl p-5 space-y-4 backdrop-blur-sm shadow-md"
+                  >
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="space-y-1">
+                        <h3 className="font-bold text-white text-base leading-tight">{category.name}</h3>
+                        {category.nameAr && (
+                          <p className="text-xs text-chocolate-300 font-medium text-right mt-1" dir="rtl">
+                            {category.nameAr}
+                          </p>
+                        )}
+                      </div>
+                      <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-chocolate-800/80 text-gold-400 border border-chocolate-700/50 flex-shrink-0">
+                        {category._count?.products || 0} products
+                      </span>
+                    </div>
+
+                    <div className="flex justify-end gap-2 pt-3 border-t border-chocolate-800/40">
+                      <button
+                        onClick={() => handleEdit(category)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-gold-600/10 hover:bg-gold-600/20 text-gold-400 rounded-xl transition-all font-bold text-xs cursor-pointer min-h-[36px]"
+                        title="Edit Category"
+                      >
+                        <Edit className="w-4 h-4" />
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(category.id)}
+                        disabled={deletingId === category.id}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-red-650/10 hover:bg-red-650/20 text-red-400 rounded-xl transition-all font-bold text-xs cursor-pointer disabled:opacity-50 min-h-[36px]"
+                        title="Delete Category"
+                      >
+                        {deletingId === category.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </>
       )}
     </div>

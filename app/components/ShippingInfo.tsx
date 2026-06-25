@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ShieldCheck, CornerUpLeft, Award } from 'lucide-react';
+import { ShieldCheck, Award } from 'lucide-react';
 
 interface ShippingInfoProps {
   locale: string;
@@ -12,31 +12,16 @@ export function ShippingInfo({ locale }: ShippingInfoProps) {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* Quality Guarantees */}
-        <div className="flex items-center gap-3 p-3 bg-white dark:bg-chocolate-900 border border-chocolate-100/50 dark:border-chocolate-850 rounded-xl">
-          <Award className="w-5 h-5 text-gold-600 flex-shrink-0" />
-          <div>
-            <span className="text-xs font-bold text-chocolate-950 dark:text-white block font-cairo">
-              {isAr ? 'شوكولاتة طبيعية 100%' : '100% Premium Cocoa'}
-            </span>
-            <span className="text-[10px] text-chocolate-500 dark:text-chocolate-400 font-medium">
-              {isAr ? 'بلجيكية فاخرة بدون مواد حافظة' : 'Premium Belgian chocolate, no preservatives'}
-            </span>
-          </div>
-        </div>
-
-        {/* Return Policy */}
-        <div className="flex items-center gap-3 p-3 bg-white dark:bg-chocolate-900 border border-chocolate-100/50 dark:border-chocolate-850 rounded-xl">
-          <CornerUpLeft className="w-5 h-5 text-gold-600 flex-shrink-0" />
-          <div>
-            <span className="text-xs font-bold text-chocolate-950 dark:text-white block font-cairo">
-              {isAr ? 'ضمان الاستلام' : 'Delivery Guarantee'}
-            </span>
-            <span className="text-[10px] text-chocolate-500 dark:text-chocolate-400 font-medium">
-              {isAr ? 'استبدال فوري مجاني في حال التلف' : 'Free replacement if items are damaged'}
-            </span>
-          </div>
+      {/* Quality Guarantees */}
+      <div className="flex items-center gap-3 p-3 bg-white dark:bg-chocolate-900 border border-chocolate-100/50 dark:border-chocolate-850 rounded-xl">
+        <Award className="w-5 h-5 text-gold-600 flex-shrink-0" />
+        <div>
+          <span className="text-xs font-bold text-chocolate-950 dark:text-white block font-cairo">
+            {isAr ? 'شوكولاتة طبيعية 100%' : '100% Premium Cocoa'}
+          </span>
+          <span className="text-[10px] text-chocolate-500 dark:text-chocolate-400 font-medium">
+            {isAr ? 'بلجيكية فاخرة بدون مواد حافظة' : 'Premium Belgian chocolate, no preservatives'}
+          </span>
         </div>
       </div>
 

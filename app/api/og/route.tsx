@@ -109,7 +109,7 @@ export async function GET(request: Request) {
                   opacity: 0.8,
                 }}
               >
-                توصيل القاهرة والجيزة وبني سويف
+                توصيل داخل المحافظة وقريباً لجميع المحافظات
               </div>
             </div>
           </div>

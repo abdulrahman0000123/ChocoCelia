@@ -109,7 +109,7 @@ export function ReviewsSection({ productId, initialReviews, locale }: ReviewsSec
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="px-5 py-2.5 rounded-xl bg-chocolate-100 hover:bg-chocolate-200 dark:bg-chocolate-800 dark:hover:bg-chocolate-700 text-chocolate-800 dark:text-gold-400 font-bold text-sm transition-all cursor-pointer min-h-[44px]"
+          className="px-5 py-2.5 rounded-xl bg-chocolate-800 hover:bg-chocolate-900 dark:bg-chocolate-800 dark:hover:bg-chocolate-700 text-white dark:text-gold-400 font-bold text-sm transition-all cursor-pointer min-h-[44px]"
         >
           {showForm ? (isAr ? 'إلغاء' : 'Cancel') : t('writeAReview')}
         </button>

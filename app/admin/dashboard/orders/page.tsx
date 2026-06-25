@@ -151,61 +151,114 @@ export default function OrdersPage() {
       </div>
 
       {/* Table grid */}
-      <div className="bg-chocolate-900/20 rounded-2xl shadow overflow-hidden border border-chocolate-850/60">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead className="bg-chocolate-950/40 border-b border-chocolate-850/60 text-xs font-bold text-white uppercase tracking-wider">
-              <tr>
-                <th className="px-6 py-4 hidden md:table-cell">Order ID</th>
-                <th className="px-6 py-4">Customer</th>
-                <th className="px-6 py-4">Phone</th>
-                <th className="px-6 py-4 hidden md:table-cell">Date</th>
-                <th className="px-6 py-4 hidden md:table-cell text-center">Items</th>
-                <th className="px-6 py-4 hidden md:table-cell">Total</th>
-                <th className="px-6 py-4 text-center">Status</th>
-                <th className="px-6 py-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-chocolate-850/40 text-sm text-gray-250">
-              {filteredOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-chocolate-900/30 transition-colors">
-                  <td className="px-6 py-4 text-chocolate-300 font-mono hidden md:table-cell">
-                    #{order.id.slice(0, 8).toUpperCase()}
-                  </td>
-                  <td className="px-6 py-4 font-semibold text-white">{order.customerName}</td>
-                  <td className="px-6 py-4 font-mono text-chocolate-200">{order.customerPhone}</td>
-                  <td className="px-6 py-4 text-chocolate-300 hidden md:table-cell">
-                    {new Date(order.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 text-center hidden md:table-cell">
-                    {order.items?.length || 0}
-                  </td>
-                  <td className="px-6 py-4 text-white font-bold hidden md:table-cell">
-                    {order.total.toFixed(2)} EGP
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    {getStatusBadge(order.status)}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <button
-                      onClick={() => setSelectedOrder(order)}
-                      className="p-2 bg-chocolate-800 hover:bg-chocolate-700 text-gold-400 rounded-lg transition-colors cursor-pointer inline-flex items-center justify-center"
-                      title="View Details"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Table / Cards Container */}
+      {filteredOrders.length === 0 ? (
+        <div className="text-center py-20 text-chocolate-300 bg-chocolate-900/10 border border-chocolate-850/60 rounded-2xl">
+          <p className="text-lg font-medium">No orders matched the criteria.</p>
         </div>
-        {filteredOrders.length === 0 && (
-          <div className="text-center py-20 text-chocolate-300 bg-chocolate-900/10">
-            <p className="text-lg">No orders matched the criteria.</p>
+      ) : (
+        <>
+          {/* Desktop Table (md and up) */}
+          <div className="hidden md:block bg-chocolate-900/20 rounded-2xl shadow-lg overflow-hidden border border-chocolate-850/60">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-chocolate-950/60 border-b border-chocolate-850/60 text-xs font-bold text-white uppercase tracking-wider">
+                  <tr>
+                    <th className="px-6 py-4.5">Order ID</th>
+                    <th className="px-6 py-4.5">Customer</th>
+                    <th className="px-6 py-4.5">Phone</th>
+                    <th className="px-6 py-4.5">Date</th>
+                    <th className="px-6 py-4.5 text-center">Items</th>
+                    <th className="px-6 py-4.5">Total</th>
+                    <th className="px-6 py-4.5 text-center">Status</th>
+                    <th className="px-6 py-4.5 text-right w-24">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-chocolate-850/40 text-sm text-gray-250">
+                  {filteredOrders.map((order) => (
+                    <tr key={order.id} className="hover:bg-chocolate-900/30 transition-colors">
+                      <td className="px-6 py-4 text-chocolate-300 font-mono">
+                        #{order.id.slice(0, 8).toUpperCase()}
+                      </td>
+                      <td className="px-6 py-4 font-semibold text-white">{order.customerName}</td>
+                      <td className="px-6 py-4 font-mono text-chocolate-200">{order.customerPhone}</td>
+                      <td className="px-6 py-4 text-chocolate-300">
+                        {new Date(order.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 text-center text-chocolate-200">
+                        {order.items?.length || 0}
+                      </td>
+                      <td className="px-6 py-4 text-white font-extrabold">
+                        {order.total.toFixed(2)} EGP
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        {getStatusBadge(order.status)}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <button
+                          onClick={() => setSelectedOrder(order)}
+                          className="p-2 bg-chocolate-800 hover:bg-chocolate-700 text-gold-400 rounded-xl transition-all cursor-pointer inline-flex items-center justify-center"
+                          title="View Details"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        )}
-      </div>
+
+          {/* Mobile Card Grid (under md) */}
+          <div className="block md:hidden space-y-4">
+            {filteredOrders.map((order) => (
+              <div 
+                key={order.id} 
+                className="bg-chocolate-900/20 border border-chocolate-850/60 rounded-2xl p-5 space-y-4 backdrop-blur-sm shadow-md"
+              >
+                <div className="flex justify-between items-center">
+                  <span className="font-mono text-xs font-bold text-chocolate-300">
+                    #{order.id.slice(0, 8).toUpperCase()}
+                  </span>
+                  <div>{getStatusBadge(order.status)}</div>
+                </div>
+
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-chocolate-300 font-medium">Customer:</span>
+                    <span className="font-bold text-white">{order.customerName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-chocolate-300 font-medium">Phone:</span>
+                    <span className="font-mono text-chocolate-100">{order.customerPhone}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-chocolate-300 font-medium">Date:</span>
+                    <span className="text-chocolate-200">{new Date(order.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-chocolate-300 font-medium">Items:</span>
+                    <span className="font-semibold text-white">{order.items?.length || 0} items</span>
+                  </div>
+                  <div className="flex justify-between pt-2 border-t border-chocolate-800/40 mt-1">
+                    <span className="text-chocolate-300 font-bold">Total:</span>
+                    <span className="font-extrabold text-gold-400">{order.total.toFixed(2)} EGP</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setSelectedOrder(order)}
+                  className="w-full mt-2 py-2 bg-chocolate-800 hover:bg-chocolate-700 text-gold-400 rounded-xl transition-all cursor-pointer font-bold text-xs flex items-center justify-center gap-1.5 min-h-[36px]"
+                >
+                  <Eye className="w-4 h-4" />
+                  View Details
+                </button>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
 
       {/* Order Details Modal */}
       {selectedOrder && (

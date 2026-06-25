@@ -255,100 +255,200 @@ export default function ProductsPage() {
           </div>
 
           {/* Table Container */}
-          <div className="bg-chocolate-900/20 rounded-2xl shadow overflow-hidden border border-chocolate-850/60">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-chocolate-950/40 border-b border-chocolate-850/60 text-xs font-bold text-white uppercase tracking-wider">
-                    <th className="px-6 py-4 w-20">Image</th>
-                    <th className="px-6 py-4">Name (EN/AR)</th>
-                    <th className="px-6 py-4">Category</th>
-                    <th className="px-6 py-4">Price</th>
-                    <th className="px-6 py-4 text-center w-32">Available</th>
-                    <th className="px-6 py-4 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-chocolate-850/40 text-sm text-gray-200">
-                  {filteredProducts.map((product) => (
-                    <tr key={product.id} className="hover:bg-chocolate-900/30 transition-colors">
-                      <td className="px-6 py-4">
+          {/* Table / Cards Container */}
+          {filteredProducts.length === 0 ? (
+            <div className="text-center py-20 text-chocolate-300 bg-chocolate-900/10 border border-chocolate-850/60 rounded-2xl">
+              <p className="text-lg font-medium">No products match your search filter.</p>
+            </div>
+          ) : (
+            <>
+              {/* Desktop Table (md and up) */}
+              <div className="hidden md:block bg-chocolate-900/20 rounded-2xl shadow-lg overflow-hidden border border-chocolate-850/60">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-chocolate-950/60 border-b border-chocolate-850/60 text-xs font-bold text-white uppercase tracking-wider">
+                        <th className="px-6 py-4.5 w-20">Image</th>
+                        <th className="px-6 py-4.5">Name (EN/AR)</th>
+                        <th className="px-6 py-4.5">Category</th>
+                        <th className="px-6 py-4.5">Price</th>
+                        <th className="px-6 py-4.5 text-center w-32">Available</th>
+                        <th className="px-6 py-4.5 text-right w-32">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-chocolate-850/40 text-sm text-gray-200">
+                      {filteredProducts.map((product) => (
+                        <tr key={product.id} className="hover:bg-chocolate-900/30 transition-colors">
+                          <td className="px-6 py-4">
+                            {product.image ? (
+                              <img 
+                                src={product.image} 
+                                alt={product.name} 
+                                className="w-12 h-12 object-cover rounded-xl border border-chocolate-800 shadow-sm"
+                              />
+                            ) : (
+                              <div className="w-12 h-12 bg-chocolate-950/60 rounded-xl border border-chocolate-800 flex items-center justify-center text-chocolate-400">
+                                <ImageIcon className="w-6 h-6" />
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="font-bold text-white leading-snug">{product.name}</div>
+                            {product.nameAr && (
+                              <div className="text-xs text-chocolate-300 font-medium mt-0.5" dir="rtl">{product.nameAr}</div>
+                            )}
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-chocolate-800/50 text-chocolate-200 border border-chocolate-700/30">
+                              {product.category?.name || 'Unassigned'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 font-extrabold text-white">
+                            {Number(product.price).toFixed(2)} EGP
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex justify-center">
+                              <label className="relative inline-flex items-center cursor-pointer select-none">
+                                <input 
+                                  type="checkbox" 
+                                  checked={product.isAvailable} 
+                                  onChange={() => handleToggleAvailability(product.id, product.isAvailable)}
+                                  className="sr-only peer"
+                                />
+                                <div className="w-11 h-6 bg-chocolate-950 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-chocolate-300 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gold-600 peer-checked:after:bg-white"></div>
+                              </label>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <div className="flex justify-end gap-2">
+                              <button
+                                onClick={() => {
+                                  setEditingProduct({
+                                    ...product,
+                                    category: product.category?.name || product.categoryId
+                                  });
+                                  setIsFormOpen(true);
+                                }}
+                                className="p-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-xl transition-all cursor-pointer inline-flex"
+                                title="Edit"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(product.id)}
+                                disabled={deletingId === product.id}
+                                className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-all cursor-pointer disabled:opacity-50 inline-flex"
+                                title="Delete"
+                              >
+                                {deletingId === product.id ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <Trash2 className="w-4 h-4" />
+                                )}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Mobile Card Grid (under md) */}
+              <div className="block md:hidden space-y-4">
+                {filteredProducts.map((product) => (
+                  <div 
+                    key={product.id} 
+                    className="bg-chocolate-900/20 border border-chocolate-850/60 rounded-2xl p-5 space-y-4 backdrop-blur-sm shadow-md"
+                  >
+                    <div className="flex gap-4 items-start">
+                      {/* Image */}
+                      <div className="flex-shrink-0">
                         {product.image ? (
                           <img 
                             src={product.image} 
                             alt={product.name} 
-                            className="w-12 h-12 object-cover rounded-xl border border-chocolate-800"
+                            className="w-16 h-16 object-cover rounded-xl border border-chocolate-800 shadow-sm"
                           />
                         ) : (
-                          <div className="w-12 h-12 bg-chocolate-950/60 rounded-xl border border-chocolate-800 flex items-center justify-center text-chocolate-400">
+                          <div className="w-16 h-16 bg-chocolate-950/60 rounded-xl border border-chocolate-800 flex items-center justify-center text-chocolate-400">
                             <ImageIcon className="w-6 h-6" />
                           </div>
                         )}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="font-bold text-white">{product.name}</div>
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-white text-base leading-tight truncate">{product.name}</h3>
                         {product.nameAr && (
-                          <div className="text-xs text-chocolate-300 font-medium mt-0.5">{product.nameAr}</div>
+                          <p className="text-xs text-chocolate-300 font-medium truncate text-right mt-1" dir="rtl">
+                            {product.nameAr}
+                          </p>
                         )}
-                      </td>
-                      <td className="px-6 py-4 text-chocolate-200">
-                        {product.category?.name || 'Unassigned'}
-                      </td>
-                      <td className="px-6 py-4 font-semibold text-white">
-                        {Number(product.price).toFixed(2)} EGP
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex justify-center">
-                          <label className="relative inline-flex items-center cursor-pointer select-none">
-                            <input 
-                              type="checkbox" 
-                              checked={product.isAvailable} 
-                              onChange={() => handleToggleAvailability(product.id, product.isAvailable)}
-                              className="sr-only peer"
-                            />
-                            <div className="w-11 h-6 bg-chocolate-950 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-chocolate-300 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gold-600 peer-checked:after:bg-white"></div>
-                          </label>
+                        <div className="flex flex-wrap items-center gap-2 mt-2.5">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-chocolate-800/80 text-chocolate-200 border border-chocolate-700/50">
+                            {product.category?.name || 'Unassigned'}
+                          </span>
+                          <span className="text-sm font-extrabold text-gold-400">
+                            {Number(product.price).toFixed(2)} EGP
+                          </span>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex justify-end gap-2">
-                          <button
-                            onClick={() => {
-                              setEditingProduct({
-                                ...product,
-                                category: product.category?.name || product.categoryId
-                              });
-                              setIsFormOpen(true);
-                            }}
-                            className="p-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg transition-colors cursor-pointer"
-                            title="Edit"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(product.id)}
-                            disabled={deletingId === product.id}
-                            className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
-                            title="Delete"
-                          >
-                            {deletingId === product.id ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <Trash2 className="w-4 h-4" />
-                            )}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            {filteredProducts.length === 0 && (
-              <div className="text-center py-20 text-chocolate-300 bg-chocolate-900/10">
-                <p className="text-lg">No products match your search filter.</p>
+                      </div>
+                    </div>
+
+                    {/* Footer Controls */}
+                    <div className="flex items-center justify-between pt-3 border-t border-chocolate-800/40">
+                      {/* Availability Switch */}
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-chocolate-300">
+                          {product.isAvailable ? 'Available' : 'Out of Stock'}
+                        </span>
+                        <label className="relative inline-flex items-center cursor-pointer select-none">
+                          <input 
+                            type="checkbox" 
+                            checked={product.isAvailable} 
+                            onChange={() => handleToggleAvailability(product.id, product.isAvailable)}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-chocolate-950 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-chocolate-300 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gold-600 peer-checked:after:bg-white"></div>
+                        </label>
+                      </div>
+
+                      {/* Edit/Delete Actions */}
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            setEditingProduct({
+                              ...product,
+                              category: product.category?.name || product.categoryId
+                            });
+                            setIsFormOpen(true);
+                          }}
+                          className="p-2 bg-blue-500/10 hover:bg-blue-500/25 text-blue-400 rounded-xl transition-all cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
+                          title="Edit"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(product.id)}
+                          disabled={deletingId === product.id}
+                          className="p-2 bg-red-500/10 hover:bg-red-500/25 text-red-400 rounded-xl transition-all cursor-pointer disabled:opacity-50 min-h-[36px] min-w-[36px] flex items-center justify-center"
+                          title="Delete"
+                        >
+                          {deletingId === product.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            )}
-          </div>
+            </>
+          )}
         </>
       )}
     </div>

@@ -96,11 +96,11 @@ export function AboutClient({ settings, locale }: AboutClientProps) {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="bg-white/95 dark:bg-chocolate-850/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 md:p-12 border border-chocolate-100/50 dark:border-chocolate-800/80"
+          className="bg-chocolate-900 dark:bg-chocolate-950 backdrop-blur-xl rounded-3xl shadow-2xl p-8 md:p-12 border border-chocolate-800 dark:border-chocolate-900"
         >
           <div className="text-center font-cairo">
             <div className="text-5xl text-gold-500 mb-2">"</div>
-            <p className="text-xl md:text-2xl text-chocolate-800 dark:text-chocolate-100 italic leading-relaxed font-semibold">
+            <p className="text-xl md:text-2xl text-gold-500 dark:text-gold-400 italic leading-relaxed font-semibold">
               {isAr 
                 ? 'في شوكو سيليا، نؤمن بأن الشوكولاتة ليست مجرد حلوى، بل هي تجربة سعيدة تلمس القلب وتصنع الذكريات.' 
                 : 'At CHOCO-CELIA, we believe that chocolate is not just a treat, but a joyful experience that speaks to the heart.'}

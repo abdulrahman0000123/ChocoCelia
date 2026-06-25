@@ -150,7 +150,7 @@ export function ProductDetailsClient({ product, reviews = [], locale }: ProductD
         className="flex flex-col justify-center"
       >
         <div className="flex flex-wrap items-center gap-2 mb-4">
-          <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider px-3 py-1.5 bg-chocolate-100/80 dark:bg-chocolate-800 text-chocolate-700 dark:text-gold-400 rounded-full w-fit">
+          <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider px-3 py-1.5 bg-chocolate-100/80 dark:bg-chocolate-800 text-gold-600 dark:text-gold-400 rounded-full w-fit">
             {displayCategory}
           </div>
           {product.badge && <ProductBadge badge={product.badge} locale={locale} />}

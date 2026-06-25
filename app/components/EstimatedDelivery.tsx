@@ -20,13 +20,13 @@ export function EstimatedDelivery({ locale }: EstimatedDeliveryProps) {
         <div className="text-chocolate-600 dark:text-chocolate-300 font-medium space-y-1">
           <p>
             {isAr
-              ? '• القاهرة والجيزة وبني سويف: خلال 24 ساعة (اليوم أو غداً)'
-              : '• Cairo, Giza, and Beni Suef: Within 24 hours (Today or Tomorrow)'}
+              ? '• داخل المحافظة: خلال 24 ساعة وفي أسرع وقت'
+              : '• Inside the governorate: within 24 hours and as soon as possible'}
           </p>
           <p>
             {isAr
-              ? '• باقي المحافظات: من 2 إلى 4 أيام عمل'
-              : '• Other Governorates: 2 to 4 business days'}
+              ? '• قريباً في جميع المحافظات'
+              : '• Soon in all governorates'}
           </p>
         </div>
       </div>

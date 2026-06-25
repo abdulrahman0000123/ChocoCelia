@@ -9,15 +9,15 @@ const defaultFaqs = [
     id: 'default-1',
     questionEn: 'How long does delivery take?',
     questionAr: 'كم من الوقت يستغرق التوصيل؟',
-    answerEn: 'Delivery is currently only available in Beni Suef within 24 hours, but will soon be available in other governorates.',
-    answerAr: 'التوصيل غير متاح حاليا غير في بني سويف في غضون 24 ساعه ولكن قريبا في باقي المحافظات'
+    answerEn: 'Delivery is currently available inside the governorate within 24 hours and as soon as possible, and very soon in all governorates.',
+    answerAr: 'التوصيل متاح حالياً داخل المحافظة خلال 24 ساعة وفي أسرع وقت، وقريباً جداً في جميع المحافظات.'
   },
   {
     id: 'default-2',
     questionEn: 'What are your delivery fees?',
     questionAr: 'ما هي رسوم التوصيل؟',
-    answerEn: 'Delivery inside Beni Suef is 20 EGP, East Nile is 40 EGP. Cairo and Giza delivery ranges between 40-60 EGP depending on the area.',
-    answerAr: 'التوصيل داخل بني سويف 20 جنيهاً، وشرق النيل 40 جنيهاً. رسوم التوصيل للقاهرة والجيزة تتراوح بين 40-60 جنيهاً حسب المنطقة.'
+    answerEn: 'Delivery is currently inside the governorate (inside Beni Suef is 20 EGP, East Nile is 40 EGP), and soon in all governorates.',
+    answerAr: 'التوصيل حالياً داخل المحافظة (بني سويف 20 جنيهاً، وشرق النيل 40 جنيهاً)، وقريباً في جميع المحافظات.'
   },
   {
     id: 'default-3',
