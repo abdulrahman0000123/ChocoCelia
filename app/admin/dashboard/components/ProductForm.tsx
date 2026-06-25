@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Upload, X } from 'lucide-react';
 import { compressImage } from '@/app/lib/imageUtils';
 
@@ -26,11 +26,13 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
     price: initialData?.price || '',
     categoryId: initialData?.categoryId || '',
     image: initialData?.image || '',
+    images: Array.isArray(initialData?.images) ? initialData.images : [],
     isAvailable: initialData?.isAvailable ?? true,
   });
 
   const [imagePreview, setImagePreview] = useState<string>(initialData?.image || '');
   const [uploading, setUploading] = useState(false);
+  const [uploadingGallery, setUploadingGallery] = useState(false);
 
   useEffect(() => {
     fetchCategories();
@@ -42,7 +44,6 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
       if (res.ok) {
         const data = await res.json();
         setCategories(data);
-        // Set first category as default if no initial data
         if (!initialData && data.length > 0) {
           setFormData(prev => ({ ...prev, categoryId: data[0].id }));
         }
@@ -74,9 +75,45 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
     }
   };
 
+  const handleGalleryImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (formData.images.length >= 5) {
+      alert('You can only upload up to 5 additional images');
+      return;
+    }
+
+    setUploadingGallery(true);
+
+    try {
+      const result = await compressImage(file, 800, 800, 0.85);
+      
+      if (result.success && result.data) {
+        setFormData(prev => ({ 
+          ...prev, 
+          images: [...prev.images, result.data as string] 
+        }));
+      } else {
+        alert(result.error || 'Failed to upload gallery image');
+      }
+    } catch (error) {
+      alert('Failed to upload gallery image');
+    } finally {
+      setUploadingGallery(false);
+    }
+  };
+
   const removeImage = () => {
     setImagePreview('');
     setFormData({ ...formData, image: '' });
+  };
+
+  const removeGalleryImage = (indexToRemove: number) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_: string, index: number) => index !== indexToRemove)
+    }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -84,26 +121,29 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
     onSubmit(formData);
   };
 
+  const inputClasses = "w-full px-4 py-2.5 bg-chocolate-950/60 border border-chocolate-800 rounded-xl focus:ring-2 focus:ring-gold-500 focus:border-transparent outline-none transition-all text-white text-sm";
+  const labelClasses = "block text-xs font-bold text-chocolate-300 uppercase tracking-wider mb-1.5";
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Product Name (English)</label>
+          <label className={labelClasses}>Product Name (English)</label>
           <input
             type="text"
             required
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none text-black"
+            className={inputClasses}
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">اسم المنتج (عربي)</label>
+          <label className={`${labelClasses} text-right`}>اسم المنتج (عربي)</label>
           <input
             type="text"
             required
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none text-right text-black"
+            className={`${inputClasses} text-right`}
             dir="rtl"
             value={formData.nameAr}
             onChange={(e) => setFormData({ ...formData, nameAr: e.target.value })}
@@ -111,20 +151,20 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
         </div>
 
         <div className="col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Description (English)</label>
+          <label className={labelClasses}>Description (English)</label>
           <textarea
             rows={3}
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none text-black"
+            className={inputClasses}
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           />
         </div>
 
         <div className="col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">الوصف (عربي)</label>
+          <label className={`${labelClasses} text-right`}>الوصف (عربي)</label>
           <textarea
             rows={3}
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none text-right text-black"
+            className={`${inputClasses} text-right`}
             dir="rtl"
             value={formData.descriptionAr}
             onChange={(e) => setFormData({ ...formData, descriptionAr: e.target.value })}
@@ -132,22 +172,22 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
+          <label className={labelClasses}>Price (EGP)</label>
           <input
             type="number"
             step="0.01"
             required
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none text-black"
+            className={inputClasses}
             value={formData.price}
             onChange={(e) => setFormData({ ...formData, price: e.target.value })}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+          <label className={labelClasses}>Category</label>
           <select
             required
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none text-black"
+            className={inputClasses}
             value={formData.categoryId}
             onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
           >
@@ -161,21 +201,22 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
         </div>
 
         <div className="col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Product Image
+          <label className={labelClasses}>
+            Main Product Image (Required)
           </label>
           
           {imagePreview ? (
-            <div className="relative">
+            <div className="relative rounded-2xl overflow-hidden border border-chocolate-800 h-48">
               <img 
                 src={imagePreview} 
                 alt="Preview" 
-                className="w-full h-48 object-cover rounded-lg border border-gray-300"
+                className="w-full h-full object-cover"
               />
               <button
                 type="button"
                 onClick={removeImage}
-                className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors"
+                className="absolute top-3 right-3 bg-red-500 hover:bg-red-600 text-white p-2 rounded-full transition-colors cursor-pointer shadow"
+                aria-label="Remove image"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -192,14 +233,14 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
               />
               <label
                 htmlFor="image-upload"
-                className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-chocolate-500 transition-colors"
+                className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-chocolate-800/80 rounded-2xl cursor-pointer hover:border-gold-500/50 bg-chocolate-900/10 transition-colors"
               >
-                <Upload className="w-12 h-12 text-gray-400 mb-2" />
-                <span className="text-sm text-gray-500">
-                  {uploading ? 'Uploading...' : 'Click to upload image'}
+                <Upload className="w-10 h-10 text-chocolate-400 mb-2" />
+                <span className="text-sm text-chocolate-200">
+                  {uploading ? 'Uploading & compressing...' : 'Click to upload main image'}
                 </span>
-                <span className="text-xs text-gray-400 mt-1">
-                  PNG, JPG up to 5MB
+                <span className="text-xs text-chocolate-400 mt-1">
+                  PNG, JPG auto-compressed
                 </span>
               </label>
             </div>
@@ -207,31 +248,79 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
         </div>
 
         <div className="col-span-2">
-          <label className="flex items-center gap-2 cursor-pointer">
+          <label className={labelClasses}>
+            Additional Gallery Images (Optional)
+          </label>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-2">
+            {formData.images.map((imgUrl: string, index: number) => (
+              <div key={index} className="relative rounded-xl overflow-hidden border border-chocolate-800 aspect-square">
+                <img 
+                  src={imgUrl} 
+                  alt={`Gallery Preview ${index + 1}`} 
+                  className="w-full h-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeGalleryImage(index)}
+                  className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-full transition-colors cursor-pointer shadow"
+                  aria-label="Remove gallery image"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
+            
+            {formData.images.length < 5 && (
+              <div className="relative aspect-square">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleGalleryImageUpload}
+                  className="hidden"
+                  id="gallery-image-upload"
+                  disabled={uploadingGallery}
+                />
+                <label
+                  htmlFor="gallery-image-upload"
+                  className="flex flex-col items-center justify-center w-full h-full border-2 border-dashed border-chocolate-800/80 rounded-xl cursor-pointer hover:border-gold-500/50 bg-chocolate-900/10 transition-colors"
+                >
+                  <Upload className="w-6 h-6 text-chocolate-400 mb-2" />
+                  <span className="text-xs text-center text-chocolate-200 px-2">
+                    {uploadingGallery ? 'Uploading...' : 'Add Image'}
+                  </span>
+                </label>
+              </div>
+            )}
+          </div>
+          <p className="text-xs text-chocolate-400 mt-2">You can add up to 5 additional images for the product gallery.</p>
+        </div>
+
+        <div className="col-span-2">
+          <label className="flex items-center gap-3 cursor-pointer select-none">
             <input
               type="checkbox"
-              className="w-4 h-4 text-chocolate-600 rounded focus:ring-chocolate-500"
+              className="w-5 h-5 text-gold-600 border-chocolate-800 bg-chocolate-950/60 rounded focus:ring-gold-500 accent-gold-500"
               checked={formData.isAvailable}
               onChange={(e) => setFormData({ ...formData, isAvailable: e.target.checked })}
             />
-            <span className="text-gray-700">Available for purchase</span>
+            <span className="text-sm font-semibold text-chocolate-200">Available for purchase</span>
           </label>
         </div>
       </div>
 
-      <div className="flex justify-end gap-4 pt-4 border-t border-gray-100">
+      <div className="flex justify-end gap-3 pt-4 border-t border-chocolate-850/40">
         <button
           type="button"
           onClick={onCancel}
-          className="px-6 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          className="px-5 py-2 text-chocolate-300 hover:bg-chocolate-900/40 rounded-xl transition-colors text-sm font-medium cursor-pointer"
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="px-6 py-2 bg-chocolate-600 text-white rounded-lg hover:bg-chocolate-700 transition-colors"
+          className="px-6 py-2 bg-chocolate-600 text-white rounded-xl hover:bg-chocolate-700 transition-colors text-sm font-medium cursor-pointer"
         >
-          Save Product
+          Save Product Properties
         </button>
       </div>
     </form>

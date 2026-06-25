@@ -57,6 +57,7 @@ export async function PUT(
       descriptionAr,
       price,
       image,
+      images,
       categoryId,
       isAvailable,
       tags
@@ -98,6 +99,7 @@ export async function PUT(
         descriptionAr: descriptionAr !== undefined ? descriptionAr : existingProduct.descriptionAr,
         price: price ? parseFloat(price) : existingProduct.price,
         image: image || existingProduct.image,
+        images: images !== undefined ? (Array.isArray(images) ? images : []) : existingProduct.images,
         categoryId: categoryId || existingProduct.categoryId,
         isAvailable: isAvailable !== undefined ? isAvailable : existingProduct.isAvailable,
         tags: tags !== undefined ? tags : existingProduct.tags,

@@ -23,13 +23,19 @@ model Product {
   descriptionAr String?
   price       Float
   image       String
+  images      String[] // Additional gallery images (base64 or URLs)
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id])
   isAvailable Boolean  @default(true)
   tags        String? // Comma separated tags like "New, Best Seller"
+  weight      String?
+  ingredients String?
+  badge       String?
+  stock       Int?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   OrderItems  OrderItem[]
+  reviews     Review[]
 
   @@index([categoryId])
 }
@@ -85,5 +91,80 @@ model SiteSettings {
   updatedAt             DateTime @updatedAt @map("updatedat")
   
   @@map("sitesettings")
-   
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  rating     Int
+  text       String
+  authorName String
+  authorCity String
+  imageUrl   String?
+  createdAt  DateTime @default(now())
+  approved   Boolean  @default(false)
+
+  @@index([productId])
+}
+
+model Testimonial {
+  id           String   @id @default(cuid())
+  quoteAr      String
+  quoteEn      String
+  customerName String
+  city         String
+  rating       Int
+  approved     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+}
+
+model FAQ {
+  id         String   @id @default(cuid())
+  questionAr String
+  questionEn String
+  answerAr   String
+  answerEn   String
+  order      Int      @default(0)
+}
+
+model Campaign {
+  id             String    @id @default(cuid())
+  name           String
+  heroImage      String
+  heroTitleAr    String
+  heroTitleEn    String
+  heroCtaAr      String
+  heroCtaEn      String
+  heroCtaLink    String
+  accentColor    String?
+  collectionLink String?
+  isActive       Boolean   @default(false)
+  startsAt       DateTime?
+  endsAt         DateTime?
+  createdAt      DateTime  @default(now())
+}
+
+model Banner {
+  id        String    @id @default(cuid())
+  textAr    String
+  textEn    String
+  ctaAr     String?
+  ctaEn     String?
+  link      String?
+  isActive  Boolean   @default(false)
+  startsAt  DateTime?
+  endsAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model Coupon {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  discountPct Float
+  maxUses     Int?
+  uses        Int       @default(0)
+  expiry      DateTime?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
 }

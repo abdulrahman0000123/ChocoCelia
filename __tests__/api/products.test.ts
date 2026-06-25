@@ -113,7 +113,9 @@ describe('Products API', () => {
       const mockRequest = {
         json: async () => ({
           name: 'New Chocolate',
+          nameAr: 'New Chocolate Ar',
           description: 'Test description',
+          descriptionAr: 'Test description Ar',
           price: 29.99,
           categoryId: '1',
           image: '/test.jpg',
@@ -151,7 +153,7 @@ describe('Products API', () => {
 
       const { POST } = await import('@/app/api/products/route')
       const mockRequest = {
-        json: async () => ({ name: 'Test' }),
+        json: async () => ({ name: 'Test', price: 10 }),
       } as Request
 
       const response = await POST(mockRequest)
@@ -172,7 +174,9 @@ describe('Products API', () => {
       const mockRequest = {
         json: async () => ({
           name: 'Test',
+          nameAr: 'Test Ar',
           description: 'Test',
+          descriptionAr: 'Test Ar',
           price: 10,
           categoryId: '999',
           image: '/test.jpg',

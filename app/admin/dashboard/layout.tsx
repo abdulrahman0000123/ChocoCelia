@@ -42,7 +42,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 lg:flex">
+    <div className="min-h-screen bg-transparent lg:flex">
       <Sidebar />
       {/* Notification Bell for Desktop - Top right corner of main content area */}
       <div className="hidden lg:block lg:fixed lg:top-4 lg:right-4 z-50">

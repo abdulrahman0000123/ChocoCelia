@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useLanguage } from '../context/LanguageContext';
-import { translations } from '../lib/translations';
+import { useTranslations } from 'next-intl';
 
 interface ChocolatePreloaderProps {
   onComplete?: () => void;
@@ -12,11 +11,7 @@ interface ChocolatePreloaderProps {
 export default function ChocolatePreloader({ onComplete }: ChocolatePreloaderProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState(0);
-  const { locale } = useLanguage();
-  const t = (key: string) => {
-    const translation = translations[locale as keyof typeof translations];
-    return (translation as any)[key] || key;
-  };
+  const t = useTranslations();
 
   useEffect(() => {
     // Add class to body during preloading
@@ -178,7 +173,7 @@ export default function ChocolatePreloader({ onComplete }: ChocolatePreloaderPro
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1 }}
-              className="mt-3 text-amber-200/60 text-xs tracking-widest uppercase"
+              className="mt-3 text-amber-200/60 text-xs tracking-widest uppercase font-cairo"
             >
               {t('loading')}
               <motion.span

@@ -4,6 +4,7 @@
   --background: #ffffff;
   --foreground: #171717;
   --font-cairo: 'Cairo', sans-serif;
+  --font-cormorant: 'Cormorant Garamond', serif;
 }
 
 .dark {
@@ -15,6 +16,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-cairo);
+  --font-display: var(--font-cormorant);
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
   
   /* Chocolate Palette */
@@ -43,10 +45,40 @@ body {
   overflow-x: hidden;
   margin: 0;
   padding: 0;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
+/* Ensure Cairo is used everywhere by default */
 * {
   font-family: var(--font-cairo), 'Cairo', sans-serif;
+}
+
+/* Apply Cormorant Garamond to English headings and display elements ONLY */
+html[lang="en"] h1,
+html[lang="en"] h2,
+html[lang="en"] h3,
+html[lang="en"] .hero-title,
+html[lang="en"] .product-name,
+html[lang="en"] .font-display {
+  font-family: var(--font-cormorant), serif;
+}
+
+/* Mobile Tap Target Sizing (Accessibility WCAG AA) */
+button,
+a,
+select,
+input[type="button"],
+input[type="submit"],
+[role="button"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* iOS Safari Auto-Zoom Fix for Form Inputs */
+input,
+select,
+textarea {
+  font-size: 16px !important;
 }
 
 /* Critical: Prevent ANY content flash before preloader completes */
@@ -70,3 +102,19 @@ body > div {
 body.preloading {
   overflow: hidden !important;
 }
+
+/* Hide default webkit scrollbar if needed */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Accessible focus ring (WCAG AA) */
+:focus-visible {
+  outline: 3px solid #d4af37 !important;
+  outline-offset: 2px !important;
+}
+

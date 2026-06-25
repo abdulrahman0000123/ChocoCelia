@@ -2,8 +2,8 @@
 
 import { motion } from 'framer-motion';
 import { CheckCircle, Phone, MessageCircle, Home } from 'lucide-react';
-import { useLanguage } from '../context/LanguageContext';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/routing';
 
 interface OrderCompleteProps {
   orderData: {
@@ -18,7 +18,7 @@ interface OrderCompleteProps {
 }
 
 export function OrderComplete({ orderData }: OrderCompleteProps) {
-  const { t } = useLanguage();
+  const t = useTranslations();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center px-4 py-12">
@@ -47,7 +47,7 @@ export function OrderComplete({ orderData }: OrderCompleteProps) {
 
         {/* Order Details */}
         <div className="p-8">
-          <div className="bg-green-50 border-2 border-green-200 rounded-2xl p-6 mb-6">
+          <div className="bg-green-50 border-2 border-green-200 rounded-2xl p-6 mb-6 font-cairo">
             <div className="text-center mb-4">
               <p className="text-sm text-green-600 mb-1">Order Number</p>
               <p className="text-2xl font-bold text-green-800">#{orderData.orderId.slice(-8).toUpperCase()}</p>
@@ -83,7 +83,7 @@ export function OrderComplete({ orderData }: OrderCompleteProps) {
           </div>
 
           {/* Contact Information */}
-          <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-4 mb-6">
+          <div className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-4 mb-6 font-cairo">
             <h4 className="font-bold text-blue-800 mb-3 flex items-center gap-2">
               <Phone className="w-4 h-4" />
               {t('contactInformation')}
@@ -94,20 +94,20 @@ export function OrderComplete({ orderData }: OrderCompleteProps) {
           </div>
 
           {/* Action Buttons */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-cairo">
             <Link 
               href="/menu"
-              className="flex items-center justify-center gap-3 bg-chocolate-600 text-white py-3 px-6 rounded-xl font-bold hover:bg-chocolate-700 transition-all"
+              className="flex items-center justify-center gap-3 bg-chocolate-600 text-white py-3 px-6 rounded-xl font-bold hover:bg-chocolate-700 transition-all cursor-pointer min-h-[44px]"
             >
               <Home className="w-5 h-5" />
               {t('continueShopping')}
             </Link>
             
             <a 
-              href={`https://wa.me/+201234567890?text=Hello, I just placed order #${orderData.orderId.slice(-8).toUpperCase()}`}
+              href={`https://api.whatsapp.com/send?phone=201000000000&text=Hello, I just placed order #${orderData.orderId.slice(-8).toUpperCase()}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-3 bg-green-600 text-white py-3 px-6 rounded-xl font-bold hover:bg-green-700 transition-all"
+              className="flex items-center justify-center gap-3 bg-green-600 text-white py-3 px-6 rounded-xl font-bold hover:bg-green-700 transition-all cursor-pointer min-h-[44px]"
             >
               <MessageCircle className="w-5 h-5" />
               {t('contactUs')}

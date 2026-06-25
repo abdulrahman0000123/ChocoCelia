@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Package, ShoppingBag, Settings, LogOut, Menu, X, FolderTree } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingBag, Settings, LogOut, Menu, X, FolderTree, MessageSquare, Megaphone, HelpCircle, Quote } from 'lucide-react';
 import { useState } from 'react';
 
 const MENU_ITEMS = [
@@ -10,6 +10,10 @@ const MENU_ITEMS = [
   { name: 'Products', href: '/admin/dashboard/products', icon: Package },
   { name: 'Categories', href: '/admin/dashboard/categories', icon: FolderTree },
   { name: 'Orders', href: '/admin/dashboard/orders', icon: ShoppingBag },
+  { name: 'Reviews', href: '/admin/dashboard/reviews', icon: MessageSquare },
+  { name: 'Testimonials', href: '/admin/dashboard/testimonials', icon: Quote },
+  { name: 'FAQs', href: '/admin/dashboard/faq', icon: HelpCircle },
+  { name: 'Marketing', href: '/admin/dashboard/marketing', icon: Megaphone },
   { name: 'Settings', href: '/admin/dashboard/settings', icon: Settings },
 ];
 
@@ -32,19 +36,19 @@ export function Sidebar() {
   return (
     <>
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-amber-50 px-4 py-2 shadow-lg border-b border-amber-200">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-chocolate-950/90 backdrop-blur-md px-4 py-2 shadow-lg border-b border-chocolate-800/80">
         <div className="flex items-center justify-center gap-2">
           <img 
             src="/logo.svg" 
             alt="CHOCO-CELIA" 
             className="h-10 w-auto object-contain"
           />
-          <p className="text-xs text-chocolate-700 font-semibold">Admin Panel</p>
+          <p className="text-xs text-gold-400 font-semibold tracking-wider">Admin Panel</p>
         </div>
         <div className="absolute right-4 top-1/2 -translate-y-1/2">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="p-2 rounded-lg hover:bg-amber-100 transition-colors text-chocolate-700"
+            className="p-2 rounded-xl bg-chocolate-800/80 hover:bg-chocolate-700 transition-colors text-white cursor-pointer shadow-md border border-chocolate-600/50"
           >
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -54,27 +58,28 @@ export function Sidebar() {
       {/* Mobile Overlay */}
       {isOpen && (
         <div 
-          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          className="lg:hidden fixed inset-0 bg-black/60 z-40 backdrop-blur-sm"
           onClick={closeSidebar}
         />
       )}
 
       {/* Sidebar */}
       <aside className={`
-        fixed lg:static inset-y-0 left-0 z-50
-        w-64 bg-chocolate-900 text-white flex flex-col
+        fixed lg:sticky lg:top-0 inset-y-0 left-0 z-50 lg:h-screen
+        w-64 bg-chocolate-950/80 backdrop-blur-xl text-white flex flex-col border-r border-chocolate-850/60
         transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         lg:transform-none
       `}>
         {/* Desktop Header */}
-        <div className="hidden lg:flex lg:flex-col lg:items-center lg:justify-center p-6 border-b border-amber-200 bg-amber-50">
+        <div className="hidden lg:flex lg:flex-col lg:items-center lg:justify-center p-6 border-b border-chocolate-800/80 bg-chocolate-950/40 relative">
+          <div className="absolute inset-0 bg-gold-500/5 blur-xl pointer-events-none rounded-full" />
           <img 
             src="/logo.svg" 
             alt="CHOCO-CELIA" 
-            className="h-20 w-auto object-contain mb-3"
+            className="h-20 w-auto object-contain mb-3 drop-shadow-[0_2px_8px_rgba(212,175,55,0.4)] relative z-10"
           />
-          <p className="text-sm text-chocolate-700 font-semibold">Admin Panel</p>
+          <p className="text-sm text-gold-400 font-semibold tracking-wide relative z-10">Admin Panel</p>
         </div>
 
         {/* Mobile spacer */}
@@ -90,26 +95,26 @@ export function Sidebar() {
                 key={item.href}
                 href={item.href}
                 onClick={closeSidebar}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 border-l-4 ${
                   isActive 
-                    ? 'bg-chocolate-800 text-white' 
-                    : 'text-chocolate-200 hover:bg-chocolate-800 hover:text-white'
+                    ? 'bg-gradient-to-r from-gold-500/15 to-transparent text-gold-400 font-bold border-gold-500 shadow-inner' 
+                    : 'text-chocolate-200 hover:text-white hover:bg-chocolate-900/60 border-transparent'
                 }`}
               >
-                <Icon className="w-5 h-5" />
-                <span className="font-medium">{item.name}</span>
+                <Icon className={`w-5 h-5 transition-transform duration-200 ${isActive ? 'text-gold-400 scale-110' : 'text-chocolate-300'}`} />
+                <span className="font-semibold text-sm tracking-wide">{item.name}</span>
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t border-chocolate-800">
+        <div className="p-4 border-t border-chocolate-800/80">
           <button 
             onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-3 w-full text-chocolate-200 hover:text-white hover:bg-chocolate-800 rounded-lg transition-colors"
+            className="flex items-center gap-3 px-4 py-3 w-full text-chocolate-200 hover:text-white hover:bg-chocolate-900/60 rounded-xl transition-colors cursor-pointer"
           >
             <LogOut className="w-5 h-5" />
-            <span className="font-medium">Logout</span>
+            <span className="font-semibold text-sm tracking-wide">Logout</span>
           </button>
         </div>
       </aside>

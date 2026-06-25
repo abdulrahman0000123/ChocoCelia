@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Loader2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Loader2, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function CategoriesPage() {
@@ -12,6 +12,7 @@ export default function CategoriesPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchCategories();
@@ -41,9 +42,9 @@ export default function CategoriesPage() {
   const handleDelete = async (id: string) => {
     toast((t) => (
       <div className="flex flex-col gap-3">
-        <p className="font-medium">Are you sure you want to delete this category?</p>
-        <p className="text-sm text-gray-500">Products in this category will be affected.</p>
-        <div className="flex gap-2">
+        <p className="font-medium text-white">Are you sure you want to delete this category?</p>
+        <p className="text-sm text-chocolate-300">Products in this category will be affected.</p>
+        <div className="flex gap-2 justify-end">
           <button
             onClick={async () => {
               toast.dismiss(t.id);
@@ -68,13 +69,13 @@ export default function CategoriesPage() {
                 setDeletingId(null);
               }
             }}
-            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-colors font-medium text-sm"
           >
             Delete
           </button>
           <button
             onClick={() => toast.dismiss(t.id)}
-            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+            className="px-4 py-2 bg-chocolate-800 hover:bg-chocolate-700 text-white rounded-xl transition-colors font-medium text-sm"
           >
             Cancel
           </button>
@@ -83,8 +84,9 @@ export default function CategoriesPage() {
     ), {
       duration: 10000,
       style: {
-        background: '#fff',
-        color: '#1f2937',
+        background: '#2A1810',
+        color: '#fff',
+        border: '1px solid rgba(212, 175, 55, 0.2)',
         maxWidth: '400px',
       },
     });
@@ -148,52 +150,64 @@ export default function CategoriesPage() {
     }
   };
 
+  const filteredCategories = categories.filter((category) => {
+    const matchesSearch = 
+      category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (category.nameAr && category.nameAr.toLowerCase().includes(searchQuery.toLowerCase()));
+    return matchesSearch;
+  });
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-chocolate-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-gold-500" />
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Categories</h1>
-        <button
-          onClick={() => {
-            setEditingCategory(null);
-            setFormData({ name: '', nameAr: '' });
-            setIsFormOpen(true);
-          }}
-          className="bg-chocolate-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-chocolate-700 transition-colors"
-        >
-          <Plus className="w-5 h-5" />
-          Add Category
-        </button>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-display font-bold text-white tracking-wide">Categories</h1>
+          <p className="text-sm text-chocolate-300 mt-1">Manage and organize your menu categories</p>
+        </div>
+        {!isFormOpen && (
+          <button
+            onClick={() => {
+              setEditingCategory(null);
+              setFormData({ name: '', nameAr: '' });
+              setIsFormOpen(true);
+            }}
+            className="bg-gradient-to-r from-gold-600 to-gold-500 hover:from-gold-500 hover:to-gold-600 text-chocolate-950 px-5 py-2.5 rounded-xl flex items-center gap-2 font-bold transition-all duration-300 shadow-[0_0_15px_rgba(212,175,55,0.15)] hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] cursor-pointer"
+          >
+            <Plus className="w-5 h-5" />
+            Add Category
+          </button>
+        )}
       </div>
 
       {isFormOpen ? (
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 max-w-md">
-          <h2 className="text-xl font-bold text-gray-800 mb-6">
+        <div className="bg-chocolate-900/20 p-6 rounded-2xl shadow-xl border border-chocolate-800 max-w-md backdrop-blur-md">
+          <h2 className="text-xl font-bold text-white mb-6">
             {editingCategory ? 'Edit Category' : 'New Category'}
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Name (English)</label>
+              <label className="block text-sm font-medium text-chocolate-200 mb-1">Name (English)</label>
               <input
                 type="text"
                 required
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none text-black"
+                className="w-full px-4 py-2 bg-chocolate-950/60 border border-chocolate-800 rounded-xl text-white placeholder-chocolate-500 outline-none focus:ring-2 focus:ring-gold-500 transition-all text-base"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Name (Arabic)</label>
+              <label className="block text-sm font-medium text-chocolate-200 mb-1">Name (Arabic)</label>
               <input
                 type="text"
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-chocolate-500 focus:border-transparent outline-none text-black"
+                className="w-full px-4 py-2 bg-chocolate-950/60 border border-chocolate-800 rounded-xl text-white placeholder-chocolate-500 outline-none focus:ring-2 focus:ring-gold-500 transition-all text-right text-base"
                 value={formData.nameAr}
                 onChange={(e) => setFormData({ ...formData, nameAr: e.target.value })}
                 dir="rtl"
@@ -204,14 +218,14 @@ export default function CategoriesPage() {
                 type="button"
                 onClick={() => setIsFormOpen(false)}
                 disabled={saving}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                className="px-4 py-2 text-chocolate-200 hover:bg-chocolate-800/40 rounded-xl transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={saving}
-                className="px-4 py-2 bg-chocolate-600 text-white rounded-lg hover:bg-chocolate-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+                className="px-5 py-2.5 bg-gradient-to-r from-gold-600 to-gold-500 hover:from-gold-500 hover:to-gold-600 text-chocolate-950 rounded-xl font-bold transition-all duration-300 disabled:opacity-50 flex items-center gap-2 shadow-[0_0_15px_rgba(212,175,55,0.15)] cursor-pointer"
               >
                 {saving && <Loader2 className="w-4 h-4 animate-spin" />}
                 {saving ? 'Saving...' : 'Save Category'}
@@ -220,53 +234,75 @@ export default function CategoriesPage() {
           </form>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <table className="w-full text-left">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="px-6 py-4 font-semibold text-gray-600">Name (EN)</th>
-                <th className="px-6 py-4 font-semibold text-gray-600">Name (AR)</th>
-                <th className="px-6 py-4 font-semibold text-gray-600">Products</th>
-                <th className="px-6 py-4 font-semibold text-gray-600 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {categories.map((category) => (
-                <tr key={category.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-gray-800 font-medium">{category.name}</td>
-                  <td className="px-6 py-4 text-gray-600" dir="rtl">{category.nameAr || '-'}</td>
-                  <td className="px-6 py-4 text-gray-600">{category._count?.products || 0} products</td>
-                  <td className="px-6 py-4 text-right space-x-2">
-                    <button
-                      onClick={() => handleEdit(category)}
-                      className="text-blue-600 hover:text-blue-800 p-2 hover:bg-blue-50 rounded-lg transition-all"
-                      title="Edit Category"
-                    >
-                      <Edit className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(category.id)}
-                      disabled={deletingId === category.id}
-                      className="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg transition-all disabled:opacity-50"
-                      title="Delete Category"
-                    >
-                      {deletingId === category.id ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                      ) : (
-                        <Trash2 className="w-5 h-5" />
-                      )}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {categories.length === 0 && (
-            <div className="text-center py-12 text-gray-400">
-              <p className="text-lg">No categories found. Create your first category!</p>
+        <>
+          {/* Filters Bar */}
+          <div className="bg-chocolate-900/20 p-4 rounded-2xl shadow border border-chocolate-800 flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div className="relative w-full sm:w-72">
+              <Search className="w-4 h-4 text-chocolate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search categories..."
+                className="w-full pl-9 pr-4 py-2 bg-chocolate-950/60 border border-chocolate-800 rounded-xl text-sm text-white placeholder-chocolate-400 outline-none focus:ring-2 focus:ring-gold-500 transition-all text-base"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
-          )}
-        </div>
+            <div className="text-xs text-chocolate-300 font-medium">
+              Showing {filteredCategories.length} of {categories.length} categories
+            </div>
+          </div>
+
+          {/* Table Container */}
+          <div className="bg-chocolate-900/20 rounded-2xl shadow overflow-hidden border border-chocolate-800">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-chocolate-950/40 border-b border-chocolate-800 text-xs font-bold text-white uppercase tracking-wider">
+                    <th className="px-6 py-4">Name (EN)</th>
+                    <th className="px-6 py-4 text-right">Name (AR)</th>
+                    <th className="px-6 py-4">Products Linked</th>
+                    <th className="px-6 py-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-chocolate-800/40 text-sm text-chocolate-100">
+                  {filteredCategories.map((category) => (
+                    <tr key={category.id} className="hover:bg-chocolate-900/30 transition-colors">
+                      <td className="px-6 py-4 font-semibold text-white">{category.name}</td>
+                      <td className="px-6 py-4 text-right font-medium text-chocolate-200" dir="rtl">{category.nameAr || '-'}</td>
+                      <td className="px-6 py-4 text-chocolate-300">{category._count?.products || 0} products</td>
+                      <td className="px-6 py-4 text-right space-x-2">
+                        <button
+                          onClick={() => handleEdit(category)}
+                          className="text-gold-500 hover:text-gold-400 p-2 hover:bg-chocolate-800/40 rounded-xl transition-all"
+                          title="Edit Category"
+                        >
+                          <Edit className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(category.id)}
+                          disabled={deletingId === category.id}
+                          className="text-red-500 hover:text-red-400 p-2 hover:bg-chocolate-800/40 rounded-xl transition-all disabled:opacity-50"
+                          title="Delete Category"
+                        >
+                          {deletingId === category.id ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-5 h-5" />
+                          )}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {filteredCategories.length === 0 && (
+              <div className="text-center py-12 text-chocolate-300">
+                <p className="text-lg">No categories found.</p>
+              </div>
+            )}
+          </div>
+        </>
       )}
     </div>
   );

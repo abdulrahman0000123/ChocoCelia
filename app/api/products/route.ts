@@ -49,6 +49,7 @@ export async function POST(request: Request) {
       descriptionAr,
       price,
       image,
+      images,
       categoryId,
       isAvailable,
       tags
@@ -99,6 +100,7 @@ export async function POST(request: Request) {
         descriptionAr: descriptionAr || null,
         price: parsedPrice,
         image,
+        images: Array.isArray(images) ? images : [],
         categoryId,
         isAvailable: isAvailable !== undefined ? isAvailable : true,
         tags: tags || null,
