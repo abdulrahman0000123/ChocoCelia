@@ -124,20 +124,6 @@ export function Hero({ settings, locale, activeCampaign }: HeroProps) {
           >
             <ChevronRight className={`w-6 h-6 transform ${isAr ? 'rotate-180' : ''}`} />
           </button>
-          
-          {/* Dots Indicator */}
-          <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-20 flex gap-2">
-            {slides.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentSlide(index)}
-                className={`h-2.5 rounded-full transition-all duration-300 ${
-                  currentSlide === index ? 'bg-gold-500 w-8' : 'bg-white/40 w-2.5'
-                }`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
-          </div>
         </>
       )}
 
