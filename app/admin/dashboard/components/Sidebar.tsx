@@ -38,12 +38,7 @@ export function Sidebar() {
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-chocolate-950/90 backdrop-blur-md px-4 py-2 shadow-lg border-b border-chocolate-800/80">
         <div className="flex items-center justify-center gap-2">
-          <img 
-            src="/logo.svg" 
-            alt="CHOCO-CELIA" 
-            className="h-10 w-auto object-contain"
-          />
-          <p className="text-xs text-gold-400 font-semibold tracking-wider">Admin Panel</p>
+          <p className="text-sm text-gold-400 font-semibold tracking-wider">Admin ChocoCelia</p>
         </div>
         <div className="absolute right-4 top-1/2 -translate-y-1/2">
           <button
