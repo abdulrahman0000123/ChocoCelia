@@ -74,12 +74,7 @@ export function Sidebar() {
         {/* Desktop Header */}
         <div className="hidden lg:flex lg:flex-col lg:items-center lg:justify-center p-6 border-b border-chocolate-800/80 bg-chocolate-950/40 relative">
           <div className="absolute inset-0 bg-gold-500/5 blur-xl pointer-events-none rounded-full" />
-          <img 
-            src="/logo.svg" 
-            alt="CHOCO-CELIA" 
-            className="h-20 w-auto object-contain mb-3 drop-shadow-[0_2px_8px_rgba(212,175,55,0.4)] relative z-10"
-          />
-          <p className="text-sm text-gold-400 font-semibold tracking-wide relative z-10">Admin Panel</p>
+          <p className="text-sm text-gold-400 font-semibold tracking-wide relative z-10">Admin ChocoCelia</p>
         </div>
 
         {/* Mobile spacer */}
