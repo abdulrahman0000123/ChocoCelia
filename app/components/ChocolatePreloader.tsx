@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 
-const MIN_VISIBLE_MS = 500;
-const MAX_WAIT_MS = 1800;
-const EXIT_ANIMATION_MS = 260;
+const MIN_VISIBLE_MS = 2400;
+const MAX_WAIT_MS = 3500;
+const EXIT_ANIMATION_MS = 500;
 
 export default function ChocolatePreloader() {
   const [isVisible, setIsVisible] = useState(true);
@@ -65,7 +65,14 @@ export default function ChocolatePreloader() {
       <div className="brand-preloader-glow brand-preloader-glow-two" aria-hidden="true" />
 
       <div className="brand-preloader-content">
-        <span className="brand-preloader-mark brand-mark" aria-hidden="true" />
+        <div className="brand-preloader-emblem" aria-hidden="true">
+          <svg className="brand-preloader-orbit" viewBox="0 0 144 144" fill="none">
+            <circle className="brand-preloader-orbit-track" cx="72" cy="72" r="67" />
+            <circle className="brand-preloader-orbit-arc" cx="72" cy="72" r="67" pathLength="100" />
+            <circle className="brand-preloader-orbit-inner" cx="72" cy="72" r="58" pathLength="100" />
+          </svg>
+          <span className="brand-preloader-mark brand-mark" />
+        </div>
         <p className="brand-preloader-name brand-wordmark">Choco Celia</p>
         <p className="brand-preloader-caption">
           {isArabic ? 'شوكولاتة مصنوعة يدويًا' : 'HANDMADE CHOCOLATE'}
