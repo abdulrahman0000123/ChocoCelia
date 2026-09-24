@@ -3,34 +3,50 @@
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 
-const STORAGE_KEY = 'choco-celia-brand-intro-shown';
+const MIN_VISIBLE_MS = 500;
+const MAX_WAIT_MS = 1800;
+const EXIT_ANIMATION_MS = 260;
 
 export default function ChocolatePreloader() {
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const [isExiting, setIsExiting] = useState(false);
   const locale = useLocale();
   const t = useTranslations();
 
   useEffect(() => {
-    try {
-      if (window.sessionStorage.getItem(STORAGE_KEY)) {
-        return;
-      }
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const minVisibleMs = reducedMotion ? 120 : MIN_VISIBLE_MS;
+    const exitAnimationMs = reducedMotion ? 1 : EXIT_ANIMATION_MS;
+    const startedAt = window.performance.now();
+    let hasFinished = false;
+    let exitTimer = 0;
+    let hideTimer = 0;
 
-      window.sessionStorage.setItem(STORAGE_KEY, 'true');
-    } catch {
-      // Keep the intro available when browser storage is disabled.
+    const finishLoading = () => {
+      if (hasFinished) return;
+      hasFinished = true;
+      window.clearTimeout(fallbackTimer);
+
+      const remainingVisibleMs = Math.max(0, minVisibleMs - (window.performance.now() - startedAt));
+      exitTimer = window.setTimeout(() => {
+        setIsExiting(true);
+        hideTimer = window.setTimeout(() => setIsVisible(false), exitAnimationMs);
+      }, remainingVisibleMs);
+    };
+
+    const fallbackTimer = window.setTimeout(finishLoading, MAX_WAIT_MS);
+
+    if (document.readyState === 'complete') {
+      finishLoading();
+    } else {
+      window.addEventListener('load', finishLoading, { once: true });
     }
 
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const showTimer = window.setTimeout(() => setIsVisible(true), 0);
-    const exitTimer = window.setTimeout(() => setIsExiting(true), reducedMotion ? 120 : 620);
-    const hideTimer = window.setTimeout(() => setIsVisible(false), reducedMotion ? 300 : 880);
-
     return () => {
-      window.clearTimeout(showTimer);
       window.clearTimeout(exitTimer);
       window.clearTimeout(hideTimer);
+      window.clearTimeout(fallbackTimer);
+      window.removeEventListener('load', finishLoading);
     };
   }, []);
 

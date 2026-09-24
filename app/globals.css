@@ -285,6 +285,11 @@ html[lang="en"] .font-display,
   .brand-wordmark { font-size: 1.3rem; }
 }
 
+@media (min-width: 768px) {
+  .brand-preloader .brand-preloader-mark { width: 4.5rem; height: 4.5rem; }
+  .brand-preloader .brand-preloader-name { font-size: clamp(2rem, 8vw, 2.75rem); }
+}
+
 @media (max-width: 360px) {
   .brand-wordmark-wrap { display: none; }
 }
