@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
 import { CartDrawer } from './CartDrawer';
+import ChocolatePreloader from './ChocolatePreloader';
 
 export default function ConditionalLayout({
   children,
@@ -26,6 +27,7 @@ export default function ConditionalLayout({
   // Public layout: with navbar, footer, and cart
   return (
     <>
+      <ChocolatePreloader />
       <Navbar />
       <CartDrawer />
       <main className="flex-grow">

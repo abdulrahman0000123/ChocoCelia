@@ -157,6 +157,100 @@ html[lang="en"] .font-display,
   white-space: nowrap;
 }
 
+.brand-preloader {
+  position: fixed;
+  z-index: 10000;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.brand-preloader-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.brand-preloader-mark { width: 4.5rem; height: 4.5rem; }
+.brand-preloader-name { margin: 1rem 0 0; font-size: clamp(2rem, 8vw, 2.75rem); }
+.brand-preloader-caption {
+  margin: 0.4rem 0 0;
+  color: var(--muted);
+  font-size: 0.63rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+}
+
+.brand-preloader-loader {
+  width: 9rem;
+  height: 2px;
+  margin-top: 2rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--border);
+  direction: ltr;
+}
+
+.brand-preloader-loader span {
+  display: block;
+  width: 34%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--brand-accent);
+  animation: brand-preloader-progress 1s ease-in-out infinite;
+}
+
+.brand-preloader-message {
+  margin: 0.85rem 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.brand-preloader-glow {
+  position: absolute;
+  width: min(72vw, 28rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--brand-accent);
+  opacity: 0.07;
+  filter: blur(5rem);
+  pointer-events: none;
+}
+
+.brand-preloader-glow-one { top: -22%; inset-inline-start: -18%; }
+.brand-preloader-glow-two { right: -20%; bottom: -28%; background: var(--brand-blush); }
+.brand-preloader-enter { animation: brand-preloader-reveal 240ms ease-out both; }
+.brand-preloader-exit { animation: brand-preloader-dismiss 260ms ease-in both; }
+
+@keyframes brand-preloader-progress {
+  from { transform: translateX(-120%); }
+  to { transform: translateX(420%); }
+}
+
+@keyframes brand-preloader-reveal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes brand-preloader-dismiss {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-preloader-enter,
+  .brand-preloader-exit { animation-duration: 1ms; }
+  .brand-preloader-loader span { animation: none; transform: translateX(100%); }
+}
+
 @media (min-width: 768px) {
   .brand-mark { width: 2.75rem; height: 2.75rem; }
   .brand-wordmark { font-size: 1.3rem; }
