@@ -1,8 +1,5 @@
 'use client';
 
-import React from 'react';
-import { Phone } from 'lucide-react';
-
 interface WhatsAppButtonProps {
   phone?: string;
   locale: string;
@@ -12,7 +9,7 @@ export function WhatsAppButton({ phone = '201XXXXXXXXX', locale }: WhatsAppButto
   // Pre-filled messages for WhatsApp
   const message = locale === 'ar' 
     ? encodeURIComponent('مرحباً شوكو سيليا، أود الاستفسار عن منتجات الشوكولاتة المتوفرة ولدي بعض الأسئلة.')
-    : encodeURIComponent('Hello Choco-Celia, I would like to inquire about your handmade chocolates.');
+    : encodeURIComponent('Hello Choco Celia, I would like to inquire about your handmade chocolates.');
 
   // Clean phone number (remove +, spaces, dashes)
   const cleanPhone = phone.replace(/[^0-9]/g, '');

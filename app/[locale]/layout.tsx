@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cairo, Cormorant_Garamond } from "next/font/google";
+import { Noto_Sans_Arabic, Playfair_Display } from "next/font/google";
 import "../globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import ClientLayout from "../components/ClientLayout";
@@ -15,25 +15,29 @@ import { PromoBanner } from "@/app/components/PromoBanner";
 import { prisma } from "@/app/lib/db";
 import { getSiteUrl } from "@/app/lib/productImages";
 
-const cairo = Cairo({
+const notoSansArabic = Noto_Sans_Arabic({
   subsets: ["latin", "arabic"],
-  variable: "--font-cairo",
+  variable: "--font-noto-arabic",
+  weight: ["400", "500", "600", "700"],
 });
 
-const cormorantGaramond = Cormorant_Garamond({
+const playfairDisplay = Playfair_Display({
   subsets: ["latin"],
-  variable: "--font-cormorant",
-  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-playfair-display",
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
-  title: "CHOCO-CELIA | Premium Handmade Chocolates",
+  title: "Choco Celia | Handmade Chocolate",
   description: "Where Every Bite Melts Your Heart. Discover our exquisite collection of handmade chocolates.",
   icons: {
-    icon: "/logo.png",
-    shortcut: "/logo.png",
-    apple: "/logo.png",
+    icon: [
+      { url: "/brand/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/brand/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    shortcut: "/brand/icon-192.png",
+    apple: "/brand/apple-touch-icon.png",
   },
 };
 
@@ -70,8 +74,8 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} suppressHydrationWarning className="scroll-smooth">
       <head>
-        <link rel="icon" href="/logo.png" type="image/png" />
-        <link rel="apple-touch-icon" href="/logo.png" />
+        <link rel="icon" href="/brand/icon-192.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/brand/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
         <style dangerouslySetInnerHTML={{
           __html: `
@@ -84,7 +88,7 @@ export default async function LocaleLayout({
         }} />
       </head>
       <body
-        className={`${cairo.variable} ${cormorantGaramond.variable} antialiased min-h-screen flex flex-col font-cairo`}
+        className={`${notoSansArabic.variable} ${playfairDisplay.variable} antialiased min-h-screen flex flex-col font-cairo`}
       >
         <NextIntlClientProvider messages={messages} locale={locale}>
           <AnalyticsProvider />

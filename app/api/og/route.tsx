@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
 
     // Parse parameters
-    const name = searchParams.get('name') || 'Choco-Celia';
+    const name = searchParams.get('name') || 'Choco Celia';
     const image = searchParams.get('image') || '';
 
     return new ImageResponse(
@@ -20,8 +20,8 @@ export async function GET(request: Request) {
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
-            backgroundColor: '#1c0d02',
-            backgroundImage: 'radial-gradient(circle, #3a1b05 0%, #1c0d02 100%)',
+            backgroundColor: '#2B1712',
+            backgroundImage: 'radial-gradient(circle, #46271D 0%, #2B1712 100%)',
             padding: '60px',
             position: 'relative',
           }}
@@ -34,7 +34,7 @@ export async function GET(request: Request) {
               bottom: '20px',
               left: '20px',
               right: '20px',
-              border: '2px solid #D4AF37',
+              border: '2px solid #C89B67',
               borderRadius: '24px',
               opacity: 0.3,
             }}
@@ -54,19 +54,19 @@ export async function GET(request: Request) {
               style={{
                 fontSize: '28px',
                 fontWeight: 'bold',
-                color: '#D4AF37',
+                color: '#C89B67',
                 letterSpacing: '3px',
                 marginBottom: '20px',
                 textTransform: 'uppercase',
               }}
             >
-              Choco-Celia
+              Choco Celia
             </div>
             <div
               style={{
                 fontSize: '56px',
                 fontWeight: 'extrabold',
-                color: '#ffffff',
+                color: '#FFF8EE',
                 lineHeight: 1.2,
                 marginBottom: '20px',
               }}
@@ -76,7 +76,7 @@ export async function GET(request: Request) {
             <div
               style={{
                 fontSize: '22px',
-                color: '#e2d4c9',
+                color: '#E8C9BD',
                 lineHeight: 1.5,
               }}
             >
@@ -92,8 +92,8 @@ export async function GET(request: Request) {
               <div
                 style={{
                   padding: '12px 24px',
-                  backgroundColor: '#D4AF37',
-                  color: '#1c0d02',
+                  backgroundColor: '#C89B67',
+                  color: '#2B1712',
                   fontSize: '18px',
                   fontWeight: 'bold',
                   borderRadius: '30px',
@@ -132,7 +132,7 @@ export async function GET(request: Request) {
                   width: '380px',
                   height: '380px',
                   borderRadius: '30px',
-                  border: '6px solid #D4AF37',
+                  border: '6px solid #C89B67',
                   objectFit: 'cover',
                   boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6)',
                 }}
@@ -143,7 +143,7 @@ export async function GET(request: Request) {
                   width: '380px',
                   height: '380px',
                   borderRadius: '30px',
-                  border: '6px dashed #D4AF37',
+                  border: '6px dashed #C89B67',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -162,7 +162,7 @@ export async function GET(request: Request) {
         height: 630,
       }
     );
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error('OG image generation failed:', e);
     return new Response(`Failed to generate OG image`, { status: 500 });
   }

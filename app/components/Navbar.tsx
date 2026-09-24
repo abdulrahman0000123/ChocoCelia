@@ -3,7 +3,6 @@
 import { ShoppingCart, Menu, X, Home, UtensilsCrossed, Info, Mail, Heart, Search } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
 import { useCart } from '../context/CartContext';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link, usePathname, useRouter } from '@/i18n/routing';
@@ -21,7 +20,6 @@ export function Navbar() {
   const router = useRouter();
   const t = useTranslations();
 
-  const isAr = locale === 'ar';
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   useEffect(() => {
@@ -49,29 +47,28 @@ export function Navbar() {
         transition={{ duration: 0.5, ease: 'easeOut' }}
         className={`max-w-7xl mx-auto transition-all duration-300 rounded-full ${
           scrolled 
-            ? 'bg-white/70 backdrop-blur-xl shadow-2xl shadow-amber-900/20' 
-            : 'bg-white/80 backdrop-blur-lg shadow-xl shadow-amber-900/10'
+            ? 'bg-background/90 backdrop-blur-xl shadow-xl shadow-chocolate-900/10 ring-1 ring-border/70'
+            : 'bg-background/95 backdrop-blur-lg shadow-lg shadow-chocolate-900/5 ring-1 ring-border/60'
         }`}
       >
         <div className="px-2 sm:px-8 lg:px-10 flex justify-between items-center h-16 sm:h-20">
           {/* Logo with glow effect */}
-          <Link href="/" className="relative flex items-center gap-3 group">
+          <Link
+            href="/"
+            aria-label={locale === 'ar' ? 'شوكو سيليا - الرئيسية' : 'Choco Celia home'}
+            className="relative flex items-center gap-1.5 sm:gap-2.5"
+          >
             <motion.div
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.2 }}
-              className="relative"
+              className="relative flex-none"
             >
-              <div className="absolute inset-0 bg-orange-400/20 blur-xl group-hover:bg-orange-500/30 transition-all rounded-full" />
-              <Image
-                src="/logo.png"
-                width={128}
-                height={103}
-                sizes="(max-width: 639px) 48px, 80px"
-                priority
-                alt="CHOCO-CELIA" 
-                className="relative h-10 w-12 sm:h-12 sm:w-[60px] md:h-16 md:w-20 object-contain drop-shadow-xl"
-              />
+              <span className="brand-mark" aria-hidden="true" />
             </motion.div>
+            <span className="brand-wordmark-wrap">
+              <span className="brand-wordmark">Choco Celia</span>
+              <span className="brand-caption hidden md:block">HANDMADE CHOCOLATE</span>
+            </span>
           </Link>
 
           {/* Desktop Menu in center */}
@@ -152,26 +149,12 @@ export function Navbar() {
               {locale === 'en' ? 'AR' : 'EN'}
             </motion.button>
             
-            <Link
-              href="/wishlist"
-              aria-label={t('wishlist')}
-              title={t('wishlist')}
-              className="relative p-2 rounded-full bg-white text-chocolate-700 shadow-md border border-chocolate-100 min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
-            >
-              <Heart className="w-4 h-4" />
-              {wishlist.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center ring-1 ring-white">
-                  {wishlist.length}
-                </span>
-              )}
-            </Link>
-
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsSearchOpen(true)}
               aria-label={t('searchPlaceholder')}
-              className="p-2 rounded-full bg-white text-chocolate-700 shadow-md border border-chocolate-100 min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
+              className="p-2 rounded-full bg-surface text-chocolate-700 dark:text-chocolate-100 shadow-sm border border-border min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
             >
               <Search className="w-4 h-4" />
             </motion.button>
@@ -181,7 +164,7 @@ export function Navbar() {
               whileTap={{ scale: 0.95 }}
               onClick={toggleCart}
               aria-label={locale === 'ar' ? 'سلة التسوق' : 'Shopping cart'}
-              className="relative p-2 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-md cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="relative p-2 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-sm cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
             >
               <ShoppingCart className="w-4 h-4" />
               {itemCount > 0 && (
@@ -197,7 +180,7 @@ export function Navbar() {
               aria-label={isOpen ? (locale === 'ar' ? 'إغلاق القائمة' : 'Close menu') : (locale === 'ar' ? 'فتح القائمة' : 'Open menu')}
               aria-expanded={isOpen}
               aria-controls="mobile-navigation"
-              className="p-2 rounded-full bg-white/80 backdrop-blur-sm text-amber-800 shadow-md border border-amber-200 cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="p-2 rounded-full bg-surface/90 backdrop-blur-sm text-foreground shadow-sm border border-border cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
             >
               {isOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </motion.button>
@@ -213,7 +196,7 @@ export function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             id="mobile-navigation"
-            className="md:hidden mt-2 bg-white/80 backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl shadow-amber-900/20 border border-amber-200/50"
+            className="md:hidden mt-2 bg-background/95 backdrop-blur-xl rounded-3xl overflow-hidden shadow-xl shadow-chocolate-900/10 border border-border"
           >
             <div className="px-4 pt-2 pb-4 space-y-1">
               <MobileNavLink href="/" label={t('home')} icon={<Home className="w-5 h-5" />} onClick={() => setIsOpen(false)} />
@@ -238,7 +221,7 @@ function NavLink({ href, label, icon }: { href: string; label: string; icon: Rea
   return (
     <Link 
       href={href} 
-      className="px-6 py-2.5 text-base font-bold text-amber-950 hover:text-orange-600 transition-colors duration-200 rounded-full flex items-center gap-2"
+      className="px-6 py-2.5 text-base font-bold text-foreground hover:text-chocolate-600 dark:hover:text-chocolate-300 transition-colors duration-200 rounded-full flex items-center gap-2"
     >
       {icon}
       {label}
@@ -251,7 +234,7 @@ function MobileNavLink({ href, label, icon, onClick }: { href: string; label: st
   return (
     <Link
       href={href}
-      className="flex items-center gap-4 px-5 py-4 text-base text-amber-950 font-bold hover:bg-gradient-to-r hover:from-orange-400/20 hover:to-amber-400/20 rounded-xl transition-all border-2 border-transparent hover:border-orange-300"
+      className="flex items-center gap-4 px-5 py-4 text-base text-foreground font-bold hover:bg-surface-muted rounded-xl transition-colors border border-transparent hover:border-border"
       onClick={onClick}
     >
       {icon}

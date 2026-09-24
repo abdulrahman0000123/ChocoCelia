@@ -19,26 +19,26 @@ export function Footer() {
   const isAr = locale === 'ar';
 
   useEffect(() => {
-    fetchSettings();
+    const loadSettings = async () => {
+      try {
+        const res = await fetch('/api/settings');
+        if (res.ok) {
+          const data = await res.json();
+          setSettings({
+            facebook: data.facebook || DEFAULT_SOCIAL_LINKS.facebook,
+            instagram: data.instagram || DEFAULT_SOCIAL_LINKS.instagram,
+          });
+        }
+      } catch {
+        console.error('Failed to fetch settings');
+      }
+    };
+
+    void loadSettings();
   }, []);
 
-  const fetchSettings = async () => {
-    try {
-      const res = await fetch('/api/settings');
-      if (res.ok) {
-        const data = await res.json();
-        setSettings({
-          facebook: data.facebook || DEFAULT_SOCIAL_LINKS.facebook,
-          instagram: data.instagram || DEFAULT_SOCIAL_LINKS.instagram,
-        });
-      }
-    } catch (error) {
-      console.error('Failed to fetch settings');
-    }
-  };
-
   return (
-    <footer className="relative bg-gradient-to-b from-chocolate-900 via-chocolate-950 to-black dark:from-chocolate-950 dark:via-black dark:to-black overflow-hidden">
+    <footer className="relative bg-gradient-to-b from-chocolate-900 via-chocolate-950 to-chocolate-900 overflow-hidden">
       {/* Decorative gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-gold-500/5 via-transparent to-gold-500/5 pointer-events-none" />
       <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-gold-500 to-transparent opacity-70" />
@@ -53,10 +53,11 @@ export function Footer() {
             className="md:col-span-2 text-center"
           >
             <div className="flex flex-col items-center mb-4">
-              <Heart className="w-8 h-8 text-gold-500 fill-gold-500 animate-pulse mb-0.5" />
-              <h3 className="text-4xl font-bold font-cairo bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(234,179,8,0.6)]">
-                CHOCO-CELIA
+              <span className="brand-mark brand-mark-on-dark mb-2" aria-hidden="true" />
+              <h3 className="text-4xl font-semibold brand-wordmark text-chocolate-50">
+                Choco Celia
               </h3>
+              <span className="brand-caption text-chocolate-300">HANDMADE CHOCOLATE</span>
             </div>
             <p className="text-chocolate-300 text-base mb-6 leading-relaxed font-cairo">
               {isAr ? (
@@ -166,7 +167,7 @@ export function Footer() {
         >
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-chocolate-400 text-sm text-center md:text-left">
-              &copy; {new Date().getFullYear()} CHOCO-CELIA. {t('copyright')}
+              &copy; {new Date().getFullYear()} Choco Celia. {t('copyright')}
             </p>
             <div className="flex items-center gap-2 text-chocolate-400 text-sm">
               <span>{isAr ? 'صُنع بكل' : 'Made with'}</span>

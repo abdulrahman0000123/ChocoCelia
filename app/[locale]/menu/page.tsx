@@ -41,13 +41,13 @@ export async function generateMetadata({ params }: MenuPageProps): Promise<Metad
       title,
       description,
       url: `${siteUrl}/${locale}/menu`,
-      siteName: 'ChocoCelia',
+      siteName: 'Choco Celia',
       images: [
         {
           url: ogImageUrl,
-          width: 1200,
-          height: 630,
-          alt: 'ChocoCelia Menu',
+          width: 512,
+          height: 512,
+          alt: 'Choco Celia handmade chocolate emblem',
         },
       ],
       locale: locale === 'ar' ? 'ar_EG' : 'en_US',

@@ -24,7 +24,7 @@ export function QuickContactMenu({
 
   const whatsappMessage = locale === 'ar'
     ? encodeURIComponent('مرحباً شوكو سيليا، أود الاستفسار عن منتجات الشوكولاتة المتوفرة.')
-    : encodeURIComponent('Hello Choco-Celia, I would like to inquire about your handmade chocolates.');
+    : encodeURIComponent('Hello Choco Celia, I would like to inquire about your handmade chocolates.');
 
   const whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${whatsappMessage}`;
 
@@ -40,7 +40,7 @@ export function QuickContactMenu({
       const parts = cleaned.split('/');
       const pageName = parts[parts.length - 1];
       if (pageName) return `https://m.me/${pageName}`;
-    } catch (e) { /* ignore */ }
+    } catch { /* ignore */ }
     return 'https://m.me/chococelia2025';
   };
 

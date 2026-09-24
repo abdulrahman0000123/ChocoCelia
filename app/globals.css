@@ -1,70 +1,171 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --font-cairo: 'Cairo', sans-serif;
-  --font-cormorant: 'Cormorant Garamond', serif;
+  color-scheme: light;
+  --background: #fff8ee;
+  --surface: #ffffff;
+  --surface-muted: #f7eee2;
+  --foreground: #2b1712;
+  --muted: #754331;
+  --brand-accent: #c89b67;
+  --brand-accent-foreground: #2b1712;
+  --brand-blush: #e8c9bd;
+  --border: #decdbf;
+  --focus: #754331;
+  --font-cairo: var(--font-noto-arabic), 'Noto Sans Arabic', sans-serif;
+  --font-playfair: var(--font-playfair-display), 'Playfair Display', Georgia, serif;
 }
 
 .dark {
-  --background: #2e1a12;
-  --foreground: #fdf8f6;
+  color-scheme: dark;
+  --background: #2b1712;
+  --surface: #39231c;
+  --surface-muted: #46271d;
+  --foreground: #fff8ee;
+  --muted: #e8c9bd;
+  --brand-accent: #c89b67;
+  --brand-accent-foreground: #2b1712;
+  --border: #705044;
+  --focus: #e8c9bd;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-accent-foreground: var(--brand-accent-foreground);
+  --color-brand-blush: var(--brand-blush);
+  --color-caramel: #c89b67;
+  --color-cocoa: #2b1712;
+  --color-milk-chocolate: #754331;
+  --color-blush: #e8c9bd;
+  --color-border: var(--border);
   --font-sans: var(--font-cairo);
-  --font-display: var(--font-cormorant);
+  --font-display: var(--font-playfair);
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
-  
-  /* Chocolate Palette */
-  --color-chocolate-50: #fdf8f6;
-  --color-chocolate-100: #f2e8e5;
-  --color-chocolate-200: #eaddd7;
-  --color-chocolate-300: #e0cec7;
-  --color-chocolate-400: #d2bab0;
-  --color-chocolate-500: #a18072;
-  --color-chocolate-600: #8a6a5d;
-  --color-chocolate-700: #735448;
-  --color-chocolate-800: #5c4035;
-  --color-chocolate-850: #50362a;
-  --color-chocolate-900: #452c22;
-  --color-chocolate-950: #2e1a12;
-  
-  --color-cream: #fdfbf7;
-  --color-gold-500: #d4af37;
-  --color-gold-600: #c5a028;
+
+  /* Choco Celia: ivory, cocoa, milk chocolate, caramel, and blush. */
+  --color-chocolate-50: #fff8ee;
+  --color-chocolate-100: #f7eee2;
+  --color-chocolate-200: #e8d9ca;
+  --color-chocolate-300: #decdbf;
+  --color-chocolate-400: #c6a995;
+  --color-chocolate-500: #9c705a;
+  --color-chocolate-600: #754331;
+  --color-chocolate-700: #5e3729;
+  --color-chocolate-750: #523326;
+  --color-chocolate-800: #46271d;
+  --color-chocolate-850: #39231c;
+  --color-chocolate-900: #2b1712;
+  --color-chocolate-950: #21110e;
+  --color-cream: #fff8ee;
+
+  /* Keep existing orange/amber/gold utility classes on brand. */
+  --color-orange-50: #fff8ee;
+  --color-orange-100: #f7eee2;
+  --color-orange-200: #e8d9ca;
+  --color-orange-300: #decdbf;
+  --color-orange-400: #c89b67;
+  --color-orange-500: #754331;
+  --color-orange-600: #5e3729;
+  --color-orange-700: #523326;
+  --color-orange-800: #46271d;
+  --color-orange-900: #39231c;
+  --color-orange-950: #2b1712;
+  --color-amber-50: #fff8ee;
+  --color-amber-100: #f7eee2;
+  --color-amber-200: #e8d9ca;
+  --color-amber-300: #decdbf;
+  --color-amber-400: #e8c9bd;
+  --color-amber-500: #8a5338;
+  --color-amber-600: #754331;
+  --color-amber-700: #5e3729;
+  --color-amber-800: #46271d;
+  --color-amber-900: #39231c;
+  --color-amber-950: #2b1712;
+  --color-gold-300: #f0d9c9;
+  --color-gold-400: #e8c9bd;
+  --color-gold-450: #d8b29a;
+  --color-gold-500: #754331;
+  --color-gold-600: #5e3729;
+  --color-gold-700: #523326;
+  --color-gold-800: #46271d;
+  --color-gold-900: #2b1712;
 }
 
 body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0 0 env(safe-area-inset-bottom);
+  overflow-x: hidden;
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-cairo), 'Cairo', sans-serif;
+  font-family: var(--font-cairo), sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
-  overflow-x: hidden;
-  margin: 0;
-  padding: 0;
-  padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* Ensure Cairo is used everywhere by default */
 * {
-  font-family: var(--font-cairo), 'Cairo', sans-serif;
+  font-family: var(--font-cairo), sans-serif;
 }
 
-/* Apply Cormorant Garamond to English headings and display elements ONLY */
 html[lang="en"] h1,
 html[lang="en"] h2,
 html[lang="en"] h3,
 html[lang="en"] .hero-title,
 html[lang="en"] .product-name,
-html[lang="en"] .font-display {
-  font-family: var(--font-cormorant), serif;
+html[lang="en"] .font-display,
+.brand-wordmark {
+  font-family: var(--font-playfair), Georgia, serif;
 }
 
-/* Mobile Tap Target Sizing (Accessibility WCAG AA) */
+.brand-mark {
+  display: block;
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  background-color: var(--foreground);
+  -webkit-mask: url('/brand/logo-mark.webp') center / contain no-repeat;
+  mask: url('/brand/logo-mark.webp') center / contain no-repeat;
+}
+
+.brand-mark-on-dark { background-color: #fff8ee; }
+
+.brand-wordmark-wrap {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.brand-wordmark {
+  color: var(--foreground);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  white-space: nowrap;
+}
+
+.brand-caption {
+  margin-top: 0.25rem;
+  color: var(--muted);
+  font-size: 0.52rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .brand-mark { width: 2.75rem; height: 2.75rem; }
+  .brand-wordmark { font-size: 1.3rem; }
+}
+
+@media (max-width: 360px) {
+  .brand-wordmark-wrap { display: none; }
+}
+
 button,
 a,
 select,
@@ -75,47 +176,26 @@ input[type="submit"],
   min-width: 44px;
 }
 
-/* iOS Safari Auto-Zoom Fix for Form Inputs */
 input,
 select,
 textarea {
   font-size: 16px !important;
 }
 
-/* Critical: Prevent ANY content flash before preloader completes */
-body {
-  background: linear-gradient(135deg, #3D1E0F 0%, #5D3A1A 50%, #78350f 100%);
-}
+body > div { min-height: 100vh; }
 
-/* Prevent content flash before preloader */
-body > div {
-  min-height: 100vh;
-}
-
-/* Ensure smooth preloader transition */
 .preloader-overlay {
   position: fixed;
   inset: 0;
   z-index: 9999;
 }
 
-/* Hide scrollbar during preload */
-body.preloading {
-  overflow: hidden !important;
-}
+body.preloading { overflow: hidden !important; }
 
-/* Hide default webkit scrollbar if needed */
-.scrollbar-none::-webkit-scrollbar {
-  display: none;
-}
-.scrollbar-none {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
-}
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Accessible focus ring (WCAG AA) */
 :focus-visible {
-  outline: 3px solid #d4af37 !important;
+  outline: 3px solid var(--focus) !important;
   outline-offset: 2px !important;
 }
-

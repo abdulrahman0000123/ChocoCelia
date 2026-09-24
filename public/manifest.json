@@ -1,21 +1,21 @@
 {
-  "name": "Choco-Celia Premium Chocolates",
-  "short_name": "ChocoCelia",
+  "name": "Choco Celia Handmade Chocolate",
+  "short_name": "Choco Celia",
   "description": "Premium handmade chocolates and gift boxes.",
-  "theme_color": "#4A3728",
-  "background_color": "#fdf8f6",
+  "theme_color": "#2B1712",
+  "background_color": "#FFF8EE",
   "display": "standalone",
   "start_url": "/",
   "orientation": "any",
   "icons": [
     {
-      "src": "/logo.png",
+      "src": "/brand/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/logo.png",
+      "src": "/brand/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

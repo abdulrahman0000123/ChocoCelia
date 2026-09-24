@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   
   const title = locale === 'ar' 
     ? 'شوكو سيليا | شوكولاتة فاخرة مصنوعة يدوياً 🍫' 
-    : 'ChocoCelia | Premium Handmade Chocolates 🍫';
+    : 'Choco Celia | Handmade Chocolate 🍫';
     
   const description = locale === 'ar'
     ? 'تذوق السحر مع شوكولاتة شوكو سيليا الفاخرة المصنوعة يدوياً. نوفر تشكيلة مميزة من الهدايا وبوكسات الشوكولاتة لجميع المناسبات. التوصيل حالياً في محافظة بني سويف وقريباً في جميع المحافظات.'
@@ -45,13 +45,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title,
       description,
       url: `${siteUrl}/${locale}`,
-      siteName: 'ChocoCelia',
+      siteName: 'Choco Celia',
       images: [
         {
           url: ogImageUrl,
-          width: 1200,
-          height: 630,
-          alt: 'ChocoCelia Preview',
+          width: 512,
+          height: 512,
+          alt: 'Choco Celia handmade chocolate emblem',
         },
       ],
       locale: locale === 'ar' ? 'ar_EG' : 'en_US',

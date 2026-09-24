@@ -99,13 +99,13 @@ export function AboutClient({ settings, locale }: AboutClientProps) {
           className="bg-chocolate-900 dark:bg-chocolate-950 backdrop-blur-xl rounded-3xl shadow-2xl p-8 md:p-12 border border-chocolate-800 dark:border-chocolate-900"
         >
           <div className="text-center font-cairo">
-            <div className="text-5xl text-gold-500 mb-2">"</div>
+            <div className="text-5xl text-gold-500 mb-2">&ldquo;</div>
             <p className="text-xl md:text-2xl text-gold-500 dark:text-gold-400 italic leading-relaxed font-semibold">
               {isAr 
                 ? 'في شوكو سيليا، نؤمن بأن الشوكولاتة ليست مجرد حلوى، بل هي تجربة سعيدة تلمس القلب وتصنع الذكريات.' 
-                : 'At CHOCO-CELIA, we believe that chocolate is not just a treat, but a joyful experience that speaks to the heart.'}
+                : 'At Choco Celia, we believe that chocolate is not just a treat, but a joyful experience that speaks to the heart.'}
             </p>
-            <div className="text-5xl text-gold-500 mt-2 rotate-180">"</div>
+            <div className="text-5xl text-gold-500 mt-2 rotate-180">&rdquo;</div>
           </div>
         </motion.div>
       </div>
@@ -134,7 +134,7 @@ export function AboutClient({ settings, locale }: AboutClientProps) {
                 <p className="text-base sm:text-lg text-chocolate-700 dark:text-chocolate-200 leading-relaxed font-cairo">
                   {settings.ourStoryBeginning || (isAr 
                     ? 'بدأت قصتنا بشغف كبير بفن الشوكولاتة اليدوية، حيث انطلقت شوكو سيليا من تجارب مطبخنا الصغير لابتكار قطع تتميز بالجمال والمذاق الرائع.' 
-                    : 'Our story began with a deep passion for the art of chocolate making, launching Choco-Celia from our kitchen to craft beautiful and delicious creations.')}
+                    : 'Our story began with a deep passion for the art of chocolate making, launching Choco Celia from our kitchen to craft beautiful and delicious creations.')}
                 </p>
               </div>
             </div>
