@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ShoppingCart, Check, Star } from 'lucide-react';
+import { ShoppingCart, Check } from 'lucide-react';
 import Image from 'next/image';
 import { useCart } from '../context/CartContext';
 import { useLocale, useTranslations } from 'next-intl';
@@ -127,14 +127,10 @@ export function ProductCard({ product }: ProductCardProps) {
             </p>
           </div>
 
-          <div className="flex items-center justify-between border-t border-chocolate-50 dark:border-chocolate-800/40 pt-4 mt-auto">
+          <div className="flex items-center border-t border-chocolate-50 dark:border-chocolate-800/40 pt-4 mt-auto">
             <span className="text-xl font-extrabold text-chocolate-900 dark:text-white">
               {Number(product.price).toFixed(2)} EGP
             </span>
-            <div className="flex items-center gap-1 text-gold-500">
-              <Star className="w-4 h-4 fill-current" />
-              <span className="text-sm font-bold">4.9</span>
-            </div>
           </div>
         </div>
       </motion.div>

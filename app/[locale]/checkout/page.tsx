@@ -2,10 +2,9 @@
 
 import { useState, useEffect, use } from 'react';
 import { useCart } from '../../context/CartContext';
-import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from '@/i18n/routing';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { PaymentConfirmation } from '../../components/PaymentConfirmation';
 import { OrderComplete } from '../../components/OrderComplete';
 
@@ -13,15 +12,47 @@ interface CheckoutPageProps {
   params: Promise<{ locale: string }>;
 }
 
+interface CheckoutProduct {
+  id: string;
+  name: string;
+  nameAr?: string | null;
+  price: number;
+}
+
+interface CheckoutOrder {
+  customerName: string;
+  customerPhone: string;
+  orderId: string;
+  subtotal: number;
+  grandTotal: number;
+  deliveryFee: number;
+  paymentMethod: string;
+}
+
+interface ConfirmationOrder {
+  customerName: string;
+  subtotal: number;
+  grandTotal: number;
+  deliveryFee: number;
+}
+
 export default function CheckoutPage({ params }: CheckoutPageProps) {
   const { locale } = use(params);
-  const { items, total, clearCart } = useCart();
+  const { items, clearCart } = useCart();
+  const [catalog, setCatalog] = useState<CheckoutProduct[]>([]);
+  const [catalogReady, setCatalogReady] = useState(false);
+  const [catalogError, setCatalogError] = useState(false);
+  const unavailableItems = catalogReady && items.some((item) => !catalog.some((product) => product.id === item.id));
+  const checkoutSubtotal = items.reduce((sum, item) => {
+    const currentProduct = catalog.find((product) => product.id === item.id);
+    return sum + (currentProduct?.price ?? item.price) * item.quantity;
+  }, 0);
   const t = useTranslations();
   
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [orderComplete, setOrderComplete] = useState<any>(null);
-  const [savedOrderData, setSavedOrderData] = useState<any>(null);
+  const [orderComplete, setOrderComplete] = useState<CheckoutOrder | null>(null);
+  const [savedOrderData, setSavedOrderData] = useState<ConfirmationOrder | null>(null);
   const [deliveryFees, setDeliveryFees] = useState({
     beniSuef: 20,
     eastNile: 40
@@ -42,45 +73,58 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
     paymentMethod: 'cash_on_delivery'
   });
   const [deliveryFee, setDeliveryFee] = useState(20);
-  const [grandTotal, setGrandTotal] = useState(total);
+  const [grandTotal, setGrandTotal] = useState(checkoutSubtotal);
 
   useEffect(() => {
-    fetchDeliveryFees();
+    let active = true;
+    async function loadCheckoutData() {
+      try {
+        const [settingsResponse, productsResponse] = await Promise.all([fetch('/api/settings'), fetch('/api/products/catalog')]);
+        if (productsResponse.ok) {
+          const products = await productsResponse.json();
+          if (active) {
+            setCatalog(products);
+            setCatalogReady(true);
+          }
+        } else if (active) {
+          setCatalogError(true);
+        }
+        if (settingsResponse.ok) {
+          const data = await settingsResponse.json();
+          if (active) {
+            setDeliveryFees({ beniSuef: data.deliveryFeeBeniSuef ?? 20, eastNile: data.deliveryFeeEastNile ?? 40 });
+            setPaymentSettings({
+              instaPayLink: data.instaPayLink || '',
+              cashWalletNumber: data.cashWalletNumber || '',
+              facebookPageId: data.facebook?.split('/').pop() || '61582630209700',
+            });
+          }
+        }
+      } catch {
+        if (active) {
+          setCatalogError(true);
+          console.error('Failed to load checkout details');
+        }
+      }
+    }
+    void loadCheckoutData();
+    return () => { active = false; };
   }, []);
 
   useEffect(() => {
-    const fee = total > 0 
+    const fee = checkoutSubtotal > 0
       ? (formData.deliveryArea === 'benisuef' ? deliveryFees.beniSuef : deliveryFees.eastNile)
       : 0;
     setDeliveryFee(fee);
-    setGrandTotal(total + fee);
-  }, [formData.deliveryArea, deliveryFees, total]);
-
-  const fetchDeliveryFees = async () => {
-    try {
-      const res = await fetch('/api/settings');
-      if (res.ok) {
-        const data = await res.json();
-        setDeliveryFees({
-          beniSuef: data.deliveryFeeBeniSuef || 20,
-          eastNile: data.deliveryFeeEastNile || 40
-        });
-        setPaymentSettings({
-          instaPayLink: data.instaPayLink || '',
-          cashWalletNumber: data.cashWalletNumber || '',
-          facebookPageId: data.facebook?.split('/').pop() || '61582630209700'
-        });
-        const initialFee = total > 0 ? (data.deliveryFeeBeniSuef || 20) : 0;
-        setDeliveryFee(initialFee);
-        setGrandTotal(total + initialFee);
-      }
-    } catch (error) {
-      console.error('Failed to fetch delivery fees');
-    }
-  };
+    setGrandTotal(checkoutSubtotal + fee);
+  }, [formData.deliveryArea, deliveryFees, checkoutSubtotal]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!catalogReady || catalogError || unavailableItems) {
+      alert(locale === 'ar' ? 'أحد المنتجات في سلتك لم يعد متاحاً أو تعذر تحديث الأسعار. حدّث السلة ثم أعد المحاولة.' : 'A product is unavailable or prices could not be refreshed. Update your cart and try again.');
+      return;
+    }
     setIsSubmitting(true);
 
     try {
@@ -96,12 +140,12 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
         preferredContact: formData.method,
         specialRequests: formData.message || null,
         paymentMethod: formData.paymentMethod,
+        deliveryArea: formData.deliveryArea === 'benisuef' ? 'beniSuef' : 'eastNile',
         items: items.map(item => ({
           productId: item.id,
           quantity: item.quantity,
-          price: item.price
-        })),
-        total: grandTotal
+          price: catalog.find((product) => product.id === item.id)?.price ?? item.price
+        }))
       };
 
       const res = await fetch('/api/orders', {
@@ -115,9 +159,9 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
         
         const orderDataForConfirmation = {
           customerName: formData.name,
-          subtotal: total,
-          grandTotal: grandTotal,
-          deliveryFee: deliveryFee
+          subtotal: orderResult.subtotal,
+          grandTotal: orderResult.total,
+          deliveryFee: orderResult.deliveryFee
         };
         
         clearCart();
@@ -157,7 +201,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
       <PaymentConfirmation 
         orderData={savedOrderData || {
           customerName: formData.name,
-          subtotal: total,
+          subtotal: checkoutSubtotal,
           grandTotal: grandTotal,
           deliveryFee: deliveryFee
         }}
@@ -195,6 +239,9 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
           {/* Order Summary */}
           <div className="bg-white dark:bg-chocolate-900 p-6 rounded-3xl shadow-lg border border-chocolate-100/50 dark:border-chocolate-800/80 h-fit">
             <h2 className="text-xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-6 font-cairo border-b border-chocolate-50 dark:border-chocolate-800 pb-3">{t('orderSummary')}</h2>
+            {!catalogReady && !catalogError && <p role="status" className="mb-4 text-sm text-chocolate-600 dark:text-chocolate-300">{locale === 'ar' ? 'جارٍ تحديث الأسعار…' : 'Refreshing prices…'}</p>}
+            {catalogError && <p role="alert" className="mb-4 rounded-xl bg-red-50 p-3 text-sm font-semibold text-red-800 dark:bg-red-950/40 dark:text-red-200">{locale === 'ar' ? 'تعذر تحديث الأسعار. تحقق من اتصالك ثم أعد تحميل الصفحة.' : 'Could not refresh prices. Check your connection and reload the page.'}</p>}
+            {unavailableItems && <p role="alert" className="mb-4 rounded-xl bg-red-50 p-3 text-sm font-semibold text-red-800 dark:bg-red-950/40 dark:text-red-200">{locale === 'ar' ? 'أحد المنتجات لم يعد متاحاً. أزله من السلة ثم أعد المحاولة.' : 'A product is no longer available. Remove it from your cart before continuing.'}</p>}
             <div className="space-y-4 mb-6">
               {items.map((item) => (
                 <div key={item.id} className="flex justify-between items-center text-sm font-semibold">
@@ -202,10 +249,13 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                     <span className="w-6 h-6 bg-chocolate-100 dark:bg-chocolate-800 rounded-full flex items-center justify-center text-xs font-bold text-chocolate-850 dark:text-chocolate-200">
                       {item.quantity}
                     </span>
-                    <span className="text-chocolate-850 dark:text-chocolate-200">{item.name}</span>
+                    <span className="text-chocolate-850 dark:text-chocolate-200">{(() => {
+                      const product = catalog.find((entry) => entry.id === item.id);
+                      return locale === 'ar' && product?.nameAr ? product.nameAr : product?.name || item.name;
+                    })()}</span>
                   </div>
                   <span className="text-chocolate-700 dark:text-chocolate-300">
-                    {(item.price * item.quantity).toFixed(2)} EGP
+                    {((catalog.find((product) => product.id === item.id)?.price ?? item.price) * item.quantity).toFixed(2)} EGP
                   </span>
                 </div>
               ))}
@@ -213,16 +263,10 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
 
             {/* Shipping Info Card */}
             <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-chocolate-800 dark:to-chocolate-850 border border-amber-200 dark:border-chocolate-700 rounded-2xl p-4 mb-6">
-              <h3 className="font-bold text-chocolate-900 dark:text-chocolate-100 mb-3 text-sm flex items-center gap-2 font-cairo">
-                <svg className="w-5 h-5 text-amber-600 dark:text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {t('orderSummary')}
-              </h3>
               <div className="space-y-2 bg-white/70 dark:bg-chocolate-900/50 rounded-xl p-3">
                 <div className="flex justify-between items-center text-xs font-bold">
                   <span className="text-chocolate-700 dark:text-chocolate-300">{t('subtotal')}:</span>
-                  <span className="text-chocolate-900 dark:text-white">{total.toFixed(2)} EGP</span>
+                  <span className="text-chocolate-900 dark:text-white">{checkoutSubtotal.toFixed(2)} EGP</span>
                 </div>
                 <div className="flex justify-between items-center text-xs font-bold">
                   <span className="text-chocolate-700 dark:text-chocolate-300">{t('deliveryFee')}:</span>
@@ -235,10 +279,6 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
               </div>
             </div>
 
-            <div className="border-t border-chocolate-50 dark:border-chocolate-800 pt-4 flex justify-between items-center">
-              <span className="text-lg font-extrabold text-chocolate-900 dark:text-chocolate-100 font-cairo">{t('total')}</span>
-              <span className="text-2xl font-extrabold text-chocolate-900 dark:text-white">{grandTotal.toFixed(2)} EGP</span>
-            </div>
           </div>
 
           {/* Contact Details Form */}
@@ -246,10 +286,12 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
             <h2 className="text-xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-6 font-cairo border-b border-chocolate-50 dark:border-chocolate-800 pb-3">{t('contactDetails')}</h2>
             <form onSubmit={handleSubmit} className="space-y-4 font-cairo">
               <div>
-                <label className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-2">{t('name')}</label>
+                <label htmlFor="checkout-name" className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-2">{t('name')}</label>
                 <input
+                  id="checkout-name"
                   type="text"
                   required
+                  autoComplete="name"
                   className="w-full px-4 py-2.5 rounded-xl border border-chocolate-200 dark:border-chocolate-700 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 outline-none transition-colors text-black dark:text-white bg-chocolate-50/20 dark:bg-chocolate-800/20 font-semibold text-base min-h-[44px]"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -257,10 +299,13 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
               </div>
               
               <div>
-                <label className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-2">{t('phoneNumber')}</label>
+                <label htmlFor="checkout-phone" className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-2">{t('phoneNumber')}</label>
                 <input
+                  id="checkout-phone"
                   type="tel"
                   required
+                  autoComplete="tel"
+                  inputMode="tel"
                   className="w-full px-4 py-2.5 rounded-xl border border-chocolate-200 dark:border-chocolate-700 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 outline-none transition-colors text-black dark:text-white bg-chocolate-50/20 dark:bg-chocolate-800/20 font-semibold text-base min-h-[44px]"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -268,9 +313,11 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-2">{t('emailOptional')}</label>
+                <label htmlFor="checkout-email" className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-2">{t('emailOptional')}</label>
                 <input
+                  id="checkout-email"
                   type="email"
+                  autoComplete="email"
                   className="w-full px-4 py-2.5 rounded-xl border border-chocolate-200 dark:border-chocolate-700 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 outline-none transition-colors text-black dark:text-white bg-chocolate-50/20 dark:bg-chocolate-800/20 font-semibold text-base min-h-[44px]"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -278,8 +325,10 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-2">{t('address')} *</label>
+                <label htmlFor="checkout-address" className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-2">{t('address')} *</label>
                 <textarea
+                  id="checkout-address"
+                  autoComplete="street-address"
                   required
                   rows={3}
                   placeholder={t('addressPlaceholder')}
@@ -291,7 +340,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
 
               <div>
                 <label className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-3">{t('selectDeliveryArea')} *</label>
-                {total > 0 ? (
+                {checkoutSubtotal > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <label className="relative flex items-center gap-3 cursor-pointer bg-white dark:bg-chocolate-850 border-2 border-chocolate-200 dark:border-chocolate-800 rounded-2xl p-4 hover:border-gold-500 transition-all">
                       <input
@@ -406,7 +455,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
 
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !catalogReady || catalogError || unavailableItems}
                 className="w-full bg-gradient-to-r from-chocolate-700 to-chocolate-800 dark:from-gold-600 dark:to-gold-500 text-white py-4 rounded-full font-bold hover:shadow-lg transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
               >
                 {isSubmitting ? (

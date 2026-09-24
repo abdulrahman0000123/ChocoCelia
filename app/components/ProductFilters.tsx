@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { SlidersHorizontal, ArrowUpDown, Tag, DollarSign, X } from 'lucide-react';
 
@@ -39,6 +40,44 @@ export function ProductFilters({
 }: ProductFiltersProps) {
   const t = useTranslations();
   const isAr = locale === 'ar';
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const previouslyFocused = document.activeElement;
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onCloseRef.current?.();
+        return;
+      }
+      if (event.key !== 'Tab' || !dialogRef.current) return;
+      const focusable = Array.from(dialogRef.current.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), input:not([disabled]), select:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
+      ));
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      if (previouslyFocused instanceof HTMLElement) previouslyFocused.focus();
+    };
+  }, [isOpen]);
 
   const handleCategoryChange = (catName: string) => {
     onChange({ ...filters, category: catName });
@@ -216,12 +255,14 @@ export function ProductFilters({
 
       {/* Mobile Modal Drawer Sheet filter view */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 bg-chocolate-950/40 backdrop-blur-md flex justify-end md:hidden">
-          <div className="w-full max-w-xs bg-white dark:bg-chocolate-900 h-full p-6 shadow-2xl flex flex-col justify-between overflow-y-auto animate-slide-in">
-            <div>
+        <div className="fixed inset-0 z-50 bg-chocolate-950/40 backdrop-blur-md flex justify-end md:hidden" role="presentation" onClick={onClose}>
+          <div ref={dialogRef} className="w-full max-w-xs bg-white dark:bg-chocolate-900 h-dvh p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl flex flex-col overflow-hidden animate-slide-in" role="dialog" aria-modal="true" aria-label={isAr ? 'تصفية المنتجات' : 'Filter products'} onClick={(event) => event.stopPropagation()}>
+            <div className="flex-1 min-h-0 overflow-y-auto">
               <div className="flex justify-end mb-4">
                 <button
+                  ref={closeButtonRef}
                   onClick={onClose}
+                  aria-label={isAr ? 'إغلاق المرشحات' : 'Close filters'}
                   className="p-1 rounded-full hover:bg-chocolate-50 dark:hover:bg-chocolate-800 text-chocolate-400 cursor-pointer min-h-[40px] min-w-[40px] flex items-center justify-center"
                 >
                   <X className="w-6 h-6" />
@@ -232,7 +273,7 @@ export function ProductFilters({
             {onClose && (
               <button
                 onClick={onClose}
-                className="w-full mt-8 py-3 bg-gold-600 hover:bg-gold-500 text-white font-bold rounded-xl transition-all shadow-md active:scale-95 cursor-pointer min-h-[44px]"
+                className="w-full mt-4 py-3 bg-gold-600 hover:bg-gold-500 text-white font-bold rounded-xl transition-all shadow-md active:scale-95 cursor-pointer min-h-[48px] shrink-0"
               >
                 {isAr ? 'عرض النتائج' : 'Show Results'}
               </button>

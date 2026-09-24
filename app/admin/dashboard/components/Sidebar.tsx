@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Package, ShoppingBag, Settings, LogOut, Menu, X, FolderTree, MessageSquare, Megaphone, HelpCircle, Quote } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingBag, Settings, LogOut, Menu, X, FolderTree, MessageSquare, Megaphone, HelpCircle, Quote, Shield } from 'lucide-react';
 import { useState } from 'react';
 
 const MENU_ITEMS = [
@@ -15,6 +15,7 @@ const MENU_ITEMS = [
   { name: 'FAQs', href: '/admin/dashboard/faq', icon: HelpCircle },
   { name: 'Marketing', href: '/admin/dashboard/marketing', icon: Megaphone },
   { name: 'Settings', href: '/admin/dashboard/settings', icon: Settings },
+  { name: 'Security', href: '/admin/dashboard/security', icon: Shield },
 ];
 
 export function Sidebar() {

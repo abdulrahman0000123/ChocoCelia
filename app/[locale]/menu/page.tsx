@@ -4,6 +4,8 @@ import { getTranslations } from 'next-intl/server';
 import { MenuClient } from '../../components/MenuClient';
 import { BreadcrumbSchema } from '../../components/schemas/BreadcrumbSchema';
 import { getProducts, getCategories } from '@/app/lib/products';
+import { toPublicProduct } from '@/app/lib/productImages';
+import { getSiteUrl } from '@/app/lib/productImages';
 
 interface MenuPageProps {
   params: Promise<{ locale: string }>;
@@ -21,23 +23,24 @@ export async function generateMetadata({ params }: MenuPageProps): Promise<Metad
     ? 'تصفح قائمتنا الغنية بقطع الشوكولاتة البلجيكية الفاخرة المصنوعة يدوياً، بارات الشوكولاتة المخصصة، وبوكسات هدايا المناسبات مع التوصيل المبرد السريع.'
     : 'Explore our rich menu of premium handcrafted chocolates, customized bars, and elegant gift boxes. Place your order online for fresh delivery in Egypt.';
 
-  const ogImageUrl = `https://choco-celia.com/api/og?name=${encodeURIComponent(locale === 'ar' ? 'قائمة المنتجات' : 'Chocolate Menu')}`;
+  const siteUrl = getSiteUrl();
+  const ogImageUrl = `${siteUrl}/logo.png`;
 
   return {
     title,
     description,
     alternates: {
-      canonical: `https://choco-celia.com/${locale}/menu`,
+      canonical: `${siteUrl}/${locale}/menu`,
       languages: {
-        'en': 'https://choco-celia.com/en/menu',
-        'ar': 'https://choco-celia.com/ar/menu',
-        'x-default': 'https://choco-celia.com/en/menu',
+        'en': `${siteUrl}/en/menu`,
+        'ar': `${siteUrl}/ar/menu`,
+        'x-default': `${siteUrl}/en/menu`,
       },
     },
     openGraph: {
       title,
       description,
-      url: `https://choco-celia.com/${locale}/menu`,
+      url: `${siteUrl}/${locale}/menu`,
       siteName: 'ChocoCelia',
       images: [
         {
@@ -69,8 +72,8 @@ export default async function MenuPage({ params, searchParams }: MenuPageProps) 
   const rawCategories = await getCategories();
 
   // Only display available products
-  const products = (rawProducts as any[]).filter((p) => p.isAvailable);
-  const categories = rawCategories as any[];
+  const products = rawProducts.filter((p) => p.isAvailable).map(toPublicProduct);
+  const categories = rawCategories;
 
   // Parse category/tag from query params to pre-filter
   const category = typeof resolvedSearchParams?.category === 'string' ? resolvedSearchParams.category : 'All';
@@ -78,8 +81,8 @@ export default async function MenuPage({ params, searchParams }: MenuPageProps) 
 
   // Schema breadcrumb trail
   const breadcrumbItems = [
-    { name: locale === 'ar' ? 'الرئيسية' : 'Home', item: `https://choco-celia.com/${locale}` },
-    { name: locale === 'ar' ? 'القائمة' : 'Menu', item: `https://choco-celia.com/${locale}/menu` },
+    { name: locale === 'ar' ? 'الرئيسية' : 'Home', item: `${getSiteUrl()}/${locale}` },
+    { name: locale === 'ar' ? 'القائمة' : 'Menu', item: `${getSiteUrl()}/${locale}/menu` },
   ];
 
   return (

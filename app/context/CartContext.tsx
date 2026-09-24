@@ -25,20 +25,41 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [hasLoadedCart, setHasLoadedCart] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
   // Load cart from local storage on mount
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
-      setItems(JSON.parse(savedCart));
+      try {
+        const parsed: unknown = JSON.parse(savedCart);
+        if (!Array.isArray(parsed)) throw new Error('Invalid saved cart');
+        const safeItems = parsed.filter((item: unknown): item is CartItem => {
+          if (!item || typeof item !== 'object') return false;
+          const candidate = item as Record<string, unknown>;
+          return typeof candidate.id === 'string' && typeof candidate.name === 'string' &&
+            typeof candidate.image === 'string' && typeof candidate.price === 'number' && Number.isFinite(candidate.price) &&
+            typeof candidate.quantity === 'number' && Number.isInteger(candidate.quantity) && candidate.quantity > 0;
+        }
+        ).map((item) => ({
+          ...item,
+          image: typeof item.image === 'string' && item.image.startsWith('data:image/')
+            ? `/api/products/${encodeURIComponent(item.id)}/image?index=0`
+            : item.image,
+        }));
+        setItems(safeItems);
+      } catch {
+        localStorage.removeItem('cart');
+      }
     }
+    setHasLoadedCart(true);
   }, []);
 
   // Save cart to local storage whenever it changes
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(items));
-  }, [items]);
+    if (hasLoadedCart) localStorage.setItem('cart', JSON.stringify(items));
+  }, [items, hasLoadedCart]);
 
   const addItem = (newItem: CartItem) => {
     setItems((currentItems) => {

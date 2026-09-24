@@ -15,6 +15,15 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
+model LoginAttempt {
+  key         String   @id
+  count       Int      @default(0)
+  windowStart DateTime
+  updatedAt   DateTime @updatedAt
+
+  @@index([windowStart])
+}
+
 model Product {
   id          String   @id @default(cuid())
   name        String

@@ -9,6 +9,7 @@ import { ProductSchema } from '../../../components/schemas/ProductSchema';
 import { BreadcrumbSchema } from '../../../components/schemas/BreadcrumbSchema';
 import { getProduct, getProducts } from '@/app/lib/products';
 import { routing } from '@/i18n/routing';
+import { toPublicProduct, getSiteUrl } from '@/app/lib/productImages';
 
 interface ProductDetailPageProps {
   params: Promise<{ id: string; locale: string }>;
@@ -30,23 +31,25 @@ export async function generateMetadata({ params }: ProductDetailPageProps): Prom
   const title = `${name} | ChocoCelia`;
   
   // Dynamic OG image URL pointing to edge route
-  const ogImageUrl = `https://choco-celia.com/api/og?name=${encodeURIComponent(name)}&image=${encodeURIComponent(product.image || '')}`;
+  const siteUrl = getSiteUrl();
+  const publicProduct = toPublicProduct(product);
+  const ogImageUrl = publicProduct.image.startsWith('/') ? `${siteUrl}${publicProduct.image}` : publicProduct.image;
 
   return {
     title,
     description: description.slice(0, 160),
     alternates: {
-      canonical: `https://choco-celia.com/${locale}/menu/${id}`,
+      canonical: `${siteUrl}/${locale}/menu/${id}`,
       languages: {
-        'en': `https://choco-celia.com/en/menu/${id}`,
-        'ar': `https://choco-celia.com/ar/menu/${id}`,
-        'x-default': `https://choco-celia.com/en/menu/${id}`,
+        'en': `${siteUrl}/en/menu/${id}`,
+        'ar': `${siteUrl}/ar/menu/${id}`,
+        'x-default': `${siteUrl}/en/menu/${id}`,
       },
     },
     openGraph: {
       title,
       description,
-      url: `https://choco-celia.com/${locale}/menu/${id}`,
+      url: `${siteUrl}/${locale}/menu/${id}`,
       siteName: 'ChocoCelia',
       images: [
         {
@@ -86,6 +89,8 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
   }
 
   const allProducts = await getProducts();
+  const publicProduct = toPublicProduct(product);
+  const publicProducts = allProducts.map(toPublicProduct);
 
   // Fetch approved reviews for the product
   const reviews = await prisma.review.findMany({
@@ -116,15 +121,15 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
 
   // Schema breadcrumb trail: Home > Menu > Product Name
   const breadcrumbItems = [
-    { name: isAr ? 'الرئيسية' : 'Home', item: `https://choco-celia.com/${locale}` },
-    { name: isAr ? 'القائمة' : 'Menu', item: `https://choco-celia.com/${locale}/menu` },
-    { name: displayName, item: `https://choco-celia.com/${locale}/menu/${product.id}` },
+    { name: isAr ? 'الرئيسية' : 'Home', item: `${getSiteUrl()}/${locale}` },
+    { name: isAr ? 'القائمة' : 'Menu', item: `${getSiteUrl()}/${locale}/menu` },
+    { name: displayName, item: `${getSiteUrl()}/${locale}/menu/${product.id}` },
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-chocolate-50 via-white to-chocolate-50/50 dark:from-chocolate-950 dark:via-chocolate-900 dark:to-chocolate-950 pb-20 pt-28">
       {/* Schema.org Structured Data */}
-      <ProductSchema product={product as any} reviews={formattedReviews} locale={locale} />
+      <ProductSchema product={publicProduct} reviews={formattedReviews} locale={locale} />
       <BreadcrumbSchema items={breadcrumbItems} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -140,13 +145,13 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
         </Link>
 
         {/* Product Details Form Client Component */}
-        <ProductDetailsClient product={product as any} reviews={formattedReviews} locale={locale} />
+        <ProductDetailsClient product={publicProduct} reviews={formattedReviews} locale={locale} />
 
         {/* Related Products Section */}
         <RelatedProducts productId={product.id} categoryId={product.categoryId} locale={locale} />
 
         {/* Recently Viewed Section */}
-        <RecentlyViewed products={allProducts as any} currentProductId={product.id} />
+        <RecentlyViewed products={publicProducts} currentProductId={product.id} />
 
         {/* Reviews Section */}
         <ReviewsSection productId={product.id} initialReviews={formattedReviews} locale={locale} />

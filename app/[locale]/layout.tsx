@@ -13,6 +13,7 @@ import { AnalyticsProvider } from "@/app/components/analytics/AnalyticsProvider"
 import { OrganizationSchema } from "@/app/components/schemas/OrganizationSchema";
 import { PromoBanner } from "@/app/components/PromoBanner";
 import { prisma } from "@/app/lib/db";
+import { getSiteUrl } from "@/app/lib/productImages";
 
 const cairo = Cairo({
   subsets: ["latin", "arabic"],
@@ -26,6 +27,7 @@ const cormorantGaramond = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getSiteUrl()),
   title: "CHOCO-CELIA | Premium Handmade Chocolates",
   description: "Where Every Bite Melts Your Heart. Discover our exquisite collection of handmade chocolates.",
   icons: {
@@ -45,7 +47,7 @@ export default async function LocaleLayout({
   const { locale } = await params;
 
   // Validate the locale
-  if (!routing.locales.includes(locale as any)) {
+  if (!routing.locales.some((supportedLocale) => supportedLocale === locale)) {
     notFound();
   }
 
@@ -56,7 +58,7 @@ export default async function LocaleLayout({
   const settings = await getSettings();
 
   // Get active marketing banner
-  let activeBanner = null;
+  let activeBanner: Awaited<ReturnType<typeof prisma.banner.findFirst>> = null;
   try {
     activeBanner = await prisma.banner.findFirst({
       where: { isActive: true },
@@ -78,10 +80,6 @@ export default async function LocaleLayout({
               padding: 0; 
               overflow-x: hidden;
             }
-            /* Prevent content flash - hide everything initially */
-            body > div:not([class*="preloader"]) {
-              opacity: 0;
-            }
           `
         }} />
       </head>
@@ -93,7 +91,6 @@ export default async function LocaleLayout({
           <PromoBanner activeBanner={activeBanner} locale={locale} />
           <OrganizationSchema 
             locale={locale} 
-            phone={settings.phone || undefined} 
             facebook={settings.facebook || undefined}
             instagram={settings.instagram || undefined}
           />

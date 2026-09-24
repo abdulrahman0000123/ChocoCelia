@@ -1,4 +1,5 @@
 import React from 'react';
+import { serializeJsonLd } from '@/app/lib/jsonLd';
 
 interface BreadcrumbItem {
   name: string;
@@ -24,7 +25,7 @@ export function BreadcrumbSchema({ items }: BreadcrumbSchemaProps) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: serializeJsonLd(schema) }}
     />
   );
 }

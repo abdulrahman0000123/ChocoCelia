@@ -1,4 +1,6 @@
 import React from 'react';
+import { getSiteUrl } from '@/app/lib/productImages';
+import { serializeJsonLd } from '@/app/lib/jsonLd';
 
 interface SchemaReview {
   id: string;
@@ -14,8 +16,12 @@ interface ProductSchemaProps {
     id: string;
     name: string;
     description: string;
+    nameAr?: string | null;
+    descriptionAr?: string | null;
     image: string;
+    images?: string[];
     price: number;
+    isAvailable: boolean;
     category?: {
       name: string;
     };
@@ -26,14 +32,29 @@ interface ProductSchemaProps {
 
 export function ProductSchema({ product, reviews = [], locale }: ProductSchemaProps) {
   const isAr = locale === 'ar';
-  const productUrl = `https://choco-celia.com/${locale}/menu/${product.id}`;
+  const siteUrl = getSiteUrl();
+  const productUrl = `${siteUrl}/${locale}/menu/${product.id}`;
+  const imageUrls = [product.image, ...(product.images || [])].map((image) =>
+    image.startsWith('/') ? `${siteUrl}${image}` : image,
+  ).filter(Boolean);
 
-  const schema: any = {
+  const schema: {
+    '@context': string;
+    '@type': string;
+    name: string;
+    image: string[];
+    description: string;
+    sku: string;
+    mpn: string;
+    offers: Record<string, unknown>;
+    aggregateRating?: Record<string, unknown>;
+    review?: Record<string, unknown>[];
+  } = {
     "@context": "https://schema.org",
     "@type": "Product",
-    "name": product.name,
-    "image": product.image || "https://choco-celia.com/logo.png",
-    "description": product.description,
+    "name": isAr && product.nameAr ? product.nameAr : product.name,
+    "image": imageUrls.length ? imageUrls : [`${siteUrl}/logo.png`],
+    "description": (isAr && product.descriptionAr ? product.descriptionAr : product.description).slice(0, 5000),
     "sku": product.id,
     "mpn": product.id,
     "offers": {
@@ -42,11 +63,11 @@ export function ProductSchema({ product, reviews = [], locale }: ProductSchemaPr
       "priceCurrency": "EGP",
       "price": product.price,
       "itemCondition": "https://schema.org/NewCondition",
-      "availability": "https://schema.org/InStock",
+      "availability": product.isAvailable ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       "seller": {
         "@type": "Organization",
         "name": isAr ? "شوكو سيليا" : "ChocoCelia",
-        "url": "https://choco-celia.com"
+        "url": siteUrl
       }
     }
   };
@@ -80,7 +101,7 @@ export function ProductSchema({ product, reviews = [], locale }: ProductSchemaPr
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: serializeJsonLd(schema) }}
     />
   );
 }

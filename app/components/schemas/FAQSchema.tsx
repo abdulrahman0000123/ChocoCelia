@@ -1,4 +1,5 @@
 import React from 'react';
+import { serializeJsonLd } from '@/app/lib/jsonLd';
 
 interface FAQItem {
   id: string;
@@ -32,7 +33,7 @@ export function FAQSchema({ items, locale }: FAQSchemaProps) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: serializeJsonLd(schema) }}
     />
   );
 }

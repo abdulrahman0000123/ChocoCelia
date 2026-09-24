@@ -10,17 +10,25 @@ export async function POST(request: Request) {
     const { username, password } = body;
 
     // Validate input
-    if (!username || !password) {
+    if (typeof username !== 'string' || typeof password !== 'string' ||
+        !username.trim() || !password || username.length > 100 || password.length > 128) {
       return NextResponse.json(
         { error: 'Username and password are required' },
         { status: 400 }
       );
     }
 
-    // Rate limiting - 5 attempts per 15 minutes per username
-    const rateLimitResult = rateLimit(`login:${username}`, 5, 15 * 60 * 1000);
-    if (rateLimitResult.limited) {
-      const remainingMinutes = Math.ceil((rateLimitResult.resetTime - Date.now()) / 60000);
+    const forwardedIp = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
+    const clientIp = request.headers.get('x-real-ip') || forwardedIp || 'unknown';
+    const windowMs = 15 * 60 * 1000;
+    const [pairLimit, usernameLimit, ipLimit] = await Promise.all([
+      rateLimit(`login:pair:${username.trim().toLowerCase()}:${clientIp}`, 5, windowMs),
+      rateLimit(`login:user:${username.trim().toLowerCase()}`, 20, windowMs),
+      rateLimit(`login:ip:${clientIp}`, 30, windowMs),
+    ]);
+    const limited = [pairLimit, usernameLimit, ipLimit].find((result) => result.limited);
+    if (limited) {
+      const remainingMinutes = Math.max(1, Math.ceil((limited.resetTime - Date.now()) / 60000));
       return NextResponse.json(
         { error: `Too many login attempts. Please try again in ${remainingMinutes} minutes.` },
         { status: 429 }
@@ -51,7 +59,7 @@ export async function POST(request: Request) {
     }
 
     // Create session
-    await login({ id: user.id, username: user.username });
+    await login({ id: user.id, username: user.username, updatedAt: user.updatedAt });
 
     return NextResponse.json({ success: true });
   } catch (error) {

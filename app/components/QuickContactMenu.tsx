@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { usePathname } from 'next/navigation';
 
 interface QuickContactMenuProps {
   phone?: string;
@@ -10,12 +11,14 @@ interface QuickContactMenuProps {
 }
 
 export function QuickContactMenu({
-  phone = '201000000000',
+  phone = '201111913570',
   facebook = '',
   instagram = '',
   locale,
 }: QuickContactMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+  if (pathname?.includes('/checkout')) return null;
 
   const cleanPhone = phone.replace(/[^0-9]/g, '');
 
@@ -60,9 +63,9 @@ export function QuickContactMenu({
       <div
         style={{
           position: 'fixed',
-          bottom: '24px',
-          ...(isRtl ? { left: '24px' } : { right: '24px' }),
-          zIndex: 99999,
+          bottom: 'calc(16px + env(safe-area-inset-bottom, 0px))',
+          ...(isRtl ? { left: 'calc(16px + env(safe-area-inset-left, 0px))' } : { right: 'calc(16px + env(safe-area-inset-right, 0px))' }),
+          zIndex: 40,
           display: 'flex',
           flexDirection: 'column',
           alignItems: isRtl ? 'flex-start' : 'flex-end',

@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { MapPin, Instagram, Facebook, Twitter } from 'lucide-react';
 import { useState, useEffect, use } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -24,29 +24,29 @@ export default function ContactPage({ params }: PageProps) {
     facebook: '',
     instagram: '',
     twitter: '',
+    phone: '',
   });
+  const [statusMessage, setStatusMessage] = useState('');
 
   useEffect(() => {
-    fetchSettings();
+    let active = true;
+    fetch('/api/settings')
+      .then(async (response) => {
+        if (response.ok) {
+          const data = await response.json();
+          if (active) setSettings(data);
+        }
+      })
+      .catch(() => console.error('Failed to load contact details'));
+    return () => { active = false; };
   }, []);
-
-  const fetchSettings = async () => {
-    try {
-      const res = await fetch('/api/settings');
-      if (res.ok) {
-        const data = await res.json();
-        setSettings(data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch settings');
-    }
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Contact form submitted:', formData);
-    alert(t('messageSentSuccess'));
-    setFormData({ name: '', email: '', message: '' });
+    const phone = (settings.phone || '201111913570').replace(/[^0-9]/g, '');
+    const message = `${formData.message}\n\n${formData.name}\n${formData.email}`;
+    window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+    setStatusMessage(isAr ? 'تم فتح واتساب برسالتك. أرسلها هناك لإتمام التواصل.' : 'WhatsApp opened with your message. Send it there to complete your contact.');
   };
 
   return (
@@ -141,10 +141,12 @@ export default function ContactPage({ params }: PageProps) {
             <h3 className="text-2xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-6 font-cairo border-b border-chocolate-50 dark:border-chocolate-800 pb-4">{t('sendUsMessage')}</h3>
             <form onSubmit={handleSubmit} className="space-y-6 font-cairo">
               <div>
-                <label className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-2">{t('name')}</label>
+                <label htmlFor="contact-name" className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-2">{t('name')}</label>
                 <input
+                  id="contact-name"
                   type="text"
                   required
+                  autoComplete="name"
                   className="w-full px-4 py-3 rounded-xl border border-chocolate-200 dark:border-chocolate-700 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 outline-none transition-colors bg-chocolate-50/20 dark:bg-chocolate-800/20 text-black dark:text-chocolate-100 font-semibold text-base min-h-[44px]"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -152,10 +154,12 @@ export default function ContactPage({ params }: PageProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-2">{t('email')}</label>
+                <label htmlFor="contact-email" className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-2">{t('email')}</label>
                 <input
+                  id="contact-email"
                   type="email"
                   required
+                  autoComplete="email"
                   className="w-full px-4 py-3 rounded-xl border border-chocolate-200 dark:border-chocolate-700 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 outline-none transition-colors bg-chocolate-50/20 dark:bg-chocolate-800/20 text-black dark:text-chocolate-100 font-semibold text-base min-h-[44px]"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -163,8 +167,9 @@ export default function ContactPage({ params }: PageProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-2">{t('message')}</label>
+                <label htmlFor="contact-message" className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-2">{t('message')}</label>
                 <textarea
+                  id="contact-message"
                   required
                   rows={5}
                   className="w-full px-4 py-3 rounded-xl border border-chocolate-200 dark:border-chocolate-700 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 outline-none transition-colors bg-chocolate-50/20 dark:bg-chocolate-800/20 text-black dark:text-chocolate-100 font-semibold text-base"
@@ -179,6 +184,7 @@ export default function ContactPage({ params }: PageProps) {
               >
                 {t('sendMessage')}
               </button>
+              {statusMessage && <p role="status" className="text-sm font-semibold text-green-700 dark:text-green-300">{statusMessage}</p>}
             </form>
           </motion.div>
         </div>

@@ -1,15 +1,14 @@
 import React from 'react';
+import { serializeJsonLd } from '@/app/lib/jsonLd';
 
 interface OrganizationSchemaProps {
   locale: string;
-  phone?: string;
   facebook?: string;
   instagram?: string;
 }
 
 export function OrganizationSchema({
   locale,
-  phone = '201000000000',
   facebook = 'https://www.facebook.com/profile.php?id=61582630209700',
   instagram = 'https://www.instagram.com/chococelia2025/',
 }: OrganizationSchemaProps) {
@@ -19,15 +18,8 @@ export function OrganizationSchema({
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": isAr ? "شوكو سيليا" : "ChocoCelia",
-    "url": "https://choco-celia.com",
-    "logo": "https://choco-celia.com/logo.png",
-    "contactPoint": {
-      "@type": "ContactPoint",
-      "telephone": `+${phone}`,
-      "contactType": "customer service",
-      "areaServed": "EG",
-      "availableLanguage": ["Arabic", "English"]
-    },
+    "url": process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://choco-celia2.vercel.app',
+    "logo": `${(process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://choco-celia2.vercel.app').replace(/\/$/, '')}/logo.png`,
     "sameAs": [
       facebook,
       instagram
@@ -37,7 +29,7 @@ export function OrganizationSchema({
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: serializeJsonLd(schema) }}
     />
   );
 }

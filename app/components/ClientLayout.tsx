@@ -1,9 +1,7 @@
 'use client';
 
-import { useState, useEffect } from "react";
 import { CartProvider } from "../context/CartContext";
 import { ThemeProvider } from "./ThemeProvider";
-import ChocolatePreloader from "./ChocolatePreloader";
 import { Toaster } from "react-hot-toast";
 import ConditionalLayout from "./ConditionalLayout";
 
@@ -12,19 +10,6 @@ export default function ClientLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [isPreloaderComplete, setIsPreloaderComplete] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
-
-  // Ensure component is mounted on client
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Don't render children until preloader is complete
-  if (!isMounted) {
-    return null;
-  }
-
   return (
     <ThemeProvider
       attribute="class"
@@ -57,12 +42,7 @@ export default function ClientLayout({
             },
           }}
         />
-        <ChocolatePreloader onComplete={() => setIsPreloaderComplete(true)} />
-        <div style={{ 
-          opacity: isPreloaderComplete ? 1 : 0,
-          visibility: isPreloaderComplete ? 'visible' : 'hidden',
-          transition: 'opacity 0.3s ease-in-out'
-        }}>
+        <div>
           <ConditionalLayout>
             {children}
           </ConditionalLayout>

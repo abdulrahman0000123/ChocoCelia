@@ -6,66 +6,29 @@ import { Star, Quote } from 'lucide-react';
 
 interface TestimonialsProps {
   locale: string;
-  testimonials?: any[];
+  testimonials?: Array<{
+    customerName: string;
+    city: string;
+    quoteAr: string;
+    quoteEn: string;
+    rating: number;
+  }>;
 }
 
 export function Testimonials({ locale, testimonials = [] }: TestimonialsProps) {
   const isAr = locale === 'ar';
 
   const title = isAr ? 'آراء عملائنا' : 'What Our Customers Say';
-  const subtitle = isAr 
-    ? 'سعداء بثقة أكثر من 500 عميل في القاهرة والجيزة وبني سويف' 
-    : 'Proud to be trusted by 500+ happy customers across Egypt';
-
-  const testimonialsData = testimonials.length > 0
-    ? testimonials.map((t) => ({
-        name: t.customerName,
-        city: t.city,
-        quote: isAr ? t.quoteAr : t.quoteEn,
-        rating: t.rating || 5,
-      }))
-    : [
-        {
-          name: isAr ? 'فاطمة' : 'Fatma',
-          city: isAr ? 'بني سويف' : 'Beni Suef',
-          quote: isAr 
-            ? 'شوكولاتة رائعة وطعم مميز جداً، التغليف شيك والتعامل راقي وسريع. أكيد هطلب تاني!'
-            : 'Amazing chocolate and very unique taste, elegant packaging and professional service. Will definitely order again!',
-          rating: 5,
-        },
-    {
-      name: isAr ? 'أحمد' : 'Ahmed',
-      city: isAr ? 'القاهرة' : 'Cairo',
-      quote: isAr 
-        ? 'بجد من أفضل الأماكن اللي جربت منها شوكولاتة هاند ميد. التفاصيل واللمعان والنكهات مختلفة تماماً عن السوق.'
-        : 'One of the best handmade chocolate shops I have ever tried. The details, shine, and flavors are absolutely distinct.',
-      rating: 5,
-    },
-    {
-      name: isAr ? 'سارة' : 'Sarah',
-      city: isAr ? 'الجيزة' : 'Giza',
-      quote: isAr 
-        ? 'الهدية كانت تحفة وصاحبتها فرحت بيها جداً. شكل العلبة فخم ويشرف.'
-        : 'The gift was wonderful and the recipient loved it. The box presentation is premium and impressive.',
-      rating: 5,
-    },
-    {
-      name: isAr ? 'منى' : 'Mona',
-      city: isAr ? 'بني سويف' : 'Beni Suef',
-      quote: isAr 
-        ? 'سرعة في التوصيل وجودة ممتازة. الكراميل المملح والقهوة طعمهم وهمي!'
-        : 'Fast delivery and excellent quality. The salted caramel and coffee flavors are out of this world!',
-      rating: 5,
-    },
-    {
-      name: isAr ? 'كريم' : 'Karim',
-      city: isAr ? 'القاهرة' : 'Cairo',
-      quote: isAr 
-        ? 'شغل احترافي وطعم غني جداً. الشوكولاتة بتدوب في البق والتمبنج ممتاز.'
-        : 'Professional work and very rich taste. The chocolate melts beautifully and has the perfect snap.',
-      rating: 5,
-    },
-  ];
+  const subtitle = isAr
+    ? 'آراء العملاء التي شاركوها معنا'
+    : 'Feedback shared with us by our customers';
+  const testimonialsData = testimonials.map((testimonial) => ({
+    name: testimonial.customerName,
+    city: testimonial.city,
+    quote: isAr ? testimonial.quoteAr : testimonial.quoteEn,
+    rating: testimonial.rating,
+  }));
+  if (testimonialsData.length === 0) return null;
 
   return (
     <section className="py-16 bg-chocolate-50/50 dark:bg-chocolate-950/20 overflow-hidden">
@@ -117,7 +80,7 @@ export function Testimonials({ locale, testimonials = [] }: TestimonialsProps) {
 
                   {/* Quote */}
                   <p className="text-chocolate-700 dark:text-chocolate-200 text-sm md:text-base leading-relaxed mb-6 font-medium relative z-10 italic">
-                    "{item.quote}"
+                    “{item.quote}”
                   </p>
                 </div>
 

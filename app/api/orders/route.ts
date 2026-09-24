@@ -1,7 +1,21 @@
 import { prisma } from '@/app/lib/db';
 import { NextResponse } from 'next/server';
 import { getSession } from '@/app/lib/auth';
-import { validateOrderInput } from '@/app/lib/validation';
+import { normalizePhoneNumber, validateOrderInput } from '@/app/lib/validation';
+import { toPublicProduct } from '@/app/lib/productImages';
+
+interface OrderLineInput { productId: string; quantity: number; price?: number }
+interface OrderRequest {
+  customerName: string;
+  customerPhone: string;
+  customerEmail?: string | null;
+  customerAddress: string;
+  preferredContact?: 'whatsapp' | 'call';
+  specialRequests?: string | null;
+  paymentMethod?: 'cash_on_delivery' | 'online_payment';
+  deliveryArea: 'beniSuef' | 'eastNile';
+  items: OrderLineInput[];
+}
 
 // GET all orders (Admin only)
 export async function GET(request: Request) {
@@ -25,7 +39,10 @@ export async function GET(request: Request) {
       orderBy: { createdAt: 'desc' }
     });
 
-    return NextResponse.json(orders);
+    return NextResponse.json(orders.map((order) => ({
+      ...order,
+      items: order.items.map((item) => ({ ...item, product: toPublicProduct(item.product) })),
+    })));
   } catch (error) {
     console.error('Failed to fetch orders:', error);
     return NextResponse.json(
@@ -38,7 +55,15 @@ export async function GET(request: Request) {
 // POST create new order
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const contentLength = Number(request.headers.get('content-length') || 0);
+    if (contentLength > 64 * 1024) {
+      return NextResponse.json({ error: 'Order details are too large.' }, { status: 413 });
+    }
+    const body: Record<string, unknown> = await request.json();
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      return NextResponse.json({ error: 'Invalid order details.' }, { status: 400 });
+    }
+    const input = body as unknown as OrderRequest;
     const {
       customerName,
       customerPhone,
@@ -48,37 +73,59 @@ export async function POST(request: Request) {
       specialRequests,
       paymentMethod,
       items,
-      total
-    } = body;
+      deliveryArea
+    } = input;
+    const normalizedCustomerPhone = typeof customerPhone === 'string'
+      ? normalizePhoneNumber(customerPhone)
+      : customerPhone;
 
     // Validate input
     try {
       validateOrderInput(body);
-    } catch (error: any) {
+    } catch (error: unknown) {
       return NextResponse.json(
-        { error: error.message },
+        { error: error instanceof Error ? error.message : 'Invalid order details.' },
         { status: 400 }
       );
     }
 
-    // Validate that all products exist
-    const productIds = items.map((item: any) => item.productId);
+    if (!Array.isArray(items) || items.length > 50 ||
+        !items.every((item) => item !== null && typeof item === 'object' && typeof item.productId === 'string' &&
+          Number.isInteger(item.quantity) && item.quantity >= 1 && item.quantity <= 99) ||
+        !['beniSuef', 'eastNile'].includes(deliveryArea) ||
+        !['whatsapp', 'call'].includes(preferredContact || 'whatsapp') ||
+        !['cash_on_delivery', 'online_payment'].includes(paymentMethod || 'cash_on_delivery')) {
+      return NextResponse.json({ error: 'Invalid order details' }, { status: 400 });
+    }
+
+    const productIds = [...new Set(items.map((item) => item.productId))];
     const existingProducts = await prisma.product.findMany({
-      where: { id: { in: productIds } }
+      where: { id: { in: productIds }, isAvailable: true },
+      select: { id: true, price: true }
     });
 
-    if (existingProducts.length !== productIds.length) {
+    if (existingProducts.length !== productIds.length || items.length !== productIds.length) {
       return NextResponse.json(
         { error: 'One or more products not found. Please refresh the page and try again.' },
         { status: 400 }
       );
     }
 
+    const priceById = new Map(existingProducts.map((product) => [product.id, product.price]));
+    const subtotal = Math.round(items.reduce((sum, item) => sum + priceById.get(item.productId)! * item.quantity, 0) * 100) / 100;
+    const settings = await prisma.siteSettings.findFirst({
+      select: { deliveryFeeBeniSuef: true, deliveryFeeEastNile: true }
+    });
+    const deliveryFee = deliveryArea === 'beniSuef'
+      ? settings?.deliveryFeeBeniSuef ?? 20
+      : settings?.deliveryFeeEastNile ?? 40;
+    const total = subtotal + deliveryFee;
+
     // Create order with items
     const order = await prisma.order.create({
       data: {
         customerName,
-        customerPhone,
+        customerPhone: normalizedCustomerPhone,
         customerEmail,
         customerAddress,
         preferredContact: preferredContact || 'whatsapp',
@@ -87,10 +134,10 @@ export async function POST(request: Request) {
         total,
         status: 'PENDING',
         items: {
-          create: items.map((item: any) => ({
+          create: items.map((item) => ({
             productId: item.productId,
             quantity: item.quantity,
-            price: item.price
+            price: priceById.get(item.productId)!
           }))
         }
       },
@@ -103,12 +150,11 @@ export async function POST(request: Request) {
       }
     });
 
-    return NextResponse.json(order);
-  } catch (error: any) {
+    return NextResponse.json({ ...order, subtotal, deliveryFee, total });
+  } catch (error: unknown) {
     console.error('Failed to create order:', error);
-    console.error('Error details:', error.message);
     return NextResponse.json(
-      { error: 'Failed to create order', details: error.message },
+      { error: 'Failed to create order' },
       { status: 500 }
     );
   }

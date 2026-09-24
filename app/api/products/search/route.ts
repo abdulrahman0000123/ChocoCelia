@@ -1,5 +1,6 @@
 import { prisma } from '@/app/lib/db';
 import { NextResponse } from 'next/server';
+import { toPublicProduct } from '@/app/lib/productImages';
 
 export async function GET(request: Request) {
   try {
@@ -30,7 +31,7 @@ export async function GET(request: Request) {
       take: 20,
     });
 
-    return NextResponse.json(products);
+    return NextResponse.json(products.map(toPublicProduct));
   } catch (error) {
     console.error('Search API error:', error);
     return NextResponse.json({ error: 'Failed to search products' }, { status: 500 });

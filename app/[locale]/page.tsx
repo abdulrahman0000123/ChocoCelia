@@ -5,11 +5,12 @@ import { Hero } from '../components/Hero';
 import { HomeClient } from '../components/HomeClient';
 import { HowToOrder } from '../components/HowToOrder';
 import { Testimonials } from '../components/Testimonials';
-import { LocalBusinessSchema } from '../components/schemas/LocalBusinessSchema';
 import { getProducts, getSettings } from '@/app/lib/products';
 import { RecentlyViewed } from '../components/RecentlyViewed';
 import { FAQSection } from '../components/FAQSection';
 import { prisma } from '@/app/lib/db';
+import { toPublicProduct } from '@/app/lib/productImages';
+import { getSiteUrl } from '@/app/lib/productImages';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -26,23 +27,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     ? 'تذوق السحر مع شوكولاتة شوكو سيليا الفاخرة المصنوعة يدوياً. نوفر تشكيلة مميزة من الهدايا وبوكسات الشوكولاتة لجميع المناسبات. التوصيل حالياً في محافظة بني سويف وقريباً في جميع المحافظات.'
     : 'Experience the magic of premium handmade chocolates by ChocoCelia. Discover our customized chocolate boxes and gifts for all occasions. Currently serving Beni Suef Governorate, and coming soon to all governorates.';
 
-  const ogImageUrl = `https://choco-celia.com/api/og?name=${encodeURIComponent(locale === 'ar' ? 'شوكولاتة فاخرة' : 'Premium Handmade Chocolate')}`;
+  const siteUrl = getSiteUrl();
+  const ogImageUrl = `${siteUrl}/logo.png`;
 
   return {
     title,
     description,
     alternates: {
-      canonical: `https://choco-celia.com/${locale}`,
+      canonical: `${siteUrl}/${locale}`,
       languages: {
-        'en': 'https://choco-celia.com/en',
-        'ar': 'https://choco-celia.com/ar',
-        'x-default': 'https://choco-celia.com/en',
+        'en': `${siteUrl}/en`,
+        'ar': `${siteUrl}/ar`,
+        'x-default': `${siteUrl}/en`,
       },
     },
     openGraph: {
       title,
       description,
-      url: `https://choco-celia.com/${locale}`,
+      url: `${siteUrl}/${locale}`,
       siteName: 'ChocoCelia',
       images: [
         {
@@ -72,8 +74,8 @@ export default async function HomePage({ params }: PageProps) {
   const settings = await getSettings();
   const rawProducts = await getProducts();
 
-  let activeCampaign: any = null;
-  let testimonials: any[] = [];
+  let activeCampaign: Awaited<ReturnType<typeof prisma.campaign.findFirst>> = null;
+  let testimonials: Awaited<ReturnType<typeof prisma.testimonial.findMany>> = [];
   try {
     activeCampaign = await prisma.campaign.findFirst({
       where: { isActive: true },
@@ -87,7 +89,7 @@ export default async function HomePage({ params }: PageProps) {
   }
 
   // Process featured products: find items with "Best Seller" or "New" in their tags
-  const products = rawProducts as any[];
+  const products = rawProducts.map(toPublicProduct);
   const featured = products
     .filter((p) => p.isAvailable && (p.tags?.includes('Best Seller') || p.tags?.includes('New')))
     .slice(0, 3);
@@ -110,7 +112,6 @@ export default async function HomePage({ params }: PageProps) {
   return (
     <div className="flex flex-col gap-16 pb-16 bg-gradient-to-b from-transparent via-chocolate-50/10 to-transparent">
       {/* Schema.org Structured Data */}
-      <LocalBusinessSchema />
 
       {/* 1. Hero Banner */}
       <Hero settings={settings} locale={locale} activeCampaign={activeCampaign} />
@@ -120,7 +121,7 @@ export default async function HomePage({ params }: PageProps) {
 
       {/* Recently Viewed Products */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <RecentlyViewed products={rawProducts as any} />
+        <RecentlyViewed products={products} />
       </div>
 
       {/* 3. Products Grid and Brand Features */}

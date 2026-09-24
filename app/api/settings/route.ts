@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/app/lib/auth';
 import { prisma } from '@/app/lib/db';
+import type { Prisma } from '@prisma/client';
+import { validateUrl } from '@/app/lib/validation';
 
 // Initialize default settings in database if they don't exist
 async function ensureSettings() {
@@ -9,7 +11,7 @@ async function ensureSettings() {
   if (!settings) {
     settings = await prisma.siteSettings.create({
       data: {
-        phone: '+1 (555) 123-4567',
+        phone: null,
         deliveryFeeBeniSuef: 20,
         deliveryFeeEastNile: 40,
       },
@@ -21,7 +23,7 @@ async function ensureSettings() {
 
 // In-memory settings for non-DB fields (Hero, Story, Features, etc.)
 let extraSettings = {
-  email: 'hello@choco-celia.com',
+  email: '',
   address: '123 Chocolate Lane',
   city: 'Sweet City, SC 12345',
   workingHours: 'Mon-Fri 9am-6pm',
@@ -91,21 +93,41 @@ export async function POST(request: Request) {
       );
     }
 
-    const body = await request.json();
+    const body: Record<string, unknown> = await request.json();
     
     // Update database fields
-    const dbUpdates: any = {};
-    if (body.phone !== undefined) dbUpdates.phone = body.phone;
-    if (body.facebook !== undefined) dbUpdates.facebook = body.facebook;
-    if (body.instagram !== undefined) dbUpdates.instagram = body.instagram;
+    const dbUpdates: Prisma.SiteSettingsUpdateInput = {};
+    if (body.phone !== undefined) {
+      if (body.phone !== null && typeof body.phone !== 'string') return NextResponse.json({ error: 'Invalid phone number.' }, { status: 400 });
+      dbUpdates.phone = body.phone;
+    }
+    for (const socialField of ['facebook', 'instagram'] as const) {
+      const value = body[socialField];
+      if (value !== undefined) {
+        if (typeof value !== 'string' || (value !== '' && !validateUrl(value))) {
+          return NextResponse.json({ error: `Invalid ${socialField} URL.` }, { status: 400 });
+        }
+        dbUpdates[socialField] = value || null;
+      }
+    }
     if (body.deliveryFeeBeniSuef !== undefined) {
-      dbUpdates.deliveryFeeBeniSuef = parseFloat(body.deliveryFeeBeniSuef);
+      const fee = Number(body.deliveryFeeBeniSuef);
+      if (!Number.isFinite(fee) || fee < 0) return NextResponse.json({ error: 'Invalid delivery fee.' }, { status: 400 });
+      dbUpdates.deliveryFeeBeniSuef = fee;
     }
     if (body.deliveryFeeEastNile !== undefined) {
-      dbUpdates.deliveryFeeEastNile = parseFloat(body.deliveryFeeEastNile);
+      const fee = Number(body.deliveryFeeEastNile);
+      if (!Number.isFinite(fee) || fee < 0) return NextResponse.json({ error: 'Invalid delivery fee.' }, { status: 400 });
+      dbUpdates.deliveryFeeEastNile = fee;
     }
-    if (body.instaPayLink !== undefined) dbUpdates.instaPayLink = body.instaPayLink;
-    if (body.cashWalletNumber !== undefined) dbUpdates.cashWalletNumber = body.cashWalletNumber;
+    if (body.instaPayLink !== undefined) {
+      if (typeof body.instaPayLink !== 'string' || (body.instaPayLink !== '' && !validateUrl(body.instaPayLink))) return NextResponse.json({ error: 'Invalid payment link.' }, { status: 400 });
+      dbUpdates.instaPayLink = body.instaPayLink || null;
+    }
+    if (body.cashWalletNumber !== undefined) {
+      if (typeof body.cashWalletNumber !== 'string' || body.cashWalletNumber.length > 40) return NextResponse.json({ error: 'Invalid wallet number.' }, { status: 400 });
+      dbUpdates.cashWalletNumber = body.cashWalletNumber || null;
+    }
 
     // Update database if there are DB field changes
     let dbSettings;
@@ -138,7 +160,6 @@ export async function POST(request: Request) {
     console.error('Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
     return NextResponse.json({ 
       error: 'Failed to update settings',
-      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }

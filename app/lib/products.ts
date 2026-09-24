@@ -1,4 +1,5 @@
 import { prisma } from './db';
+import type { Prisma } from '@prisma/client';
 
 export interface Product {
   id: string;
@@ -25,7 +26,7 @@ export interface Category {
 }
 
 export const extraSettings = {
-  email: 'hello@choco-celia.com',
+  email: '',
   address: '123 Chocolate Lane',
   city: 'Sweet City, SC 12345',
   workingHours: 'Mon-Fri 9am-6pm',
@@ -65,7 +66,7 @@ export async function ensureSettings() {
   if (!settings) {
     settings = await prisma.siteSettings.create({
       data: {
-        phone: '+1 (555) 123-4567',
+        phone: null,
         deliveryFeeBeniSuef: 20,
         deliveryFeeEastNile: 40,
       },
@@ -89,7 +90,7 @@ export async function getSettings() {
   };
 }
 
-export async function getProducts(where: any = {}) {
+export async function getProducts(where: Prisma.ProductWhereInput = {}) {
   try {
     return await prisma.product.findMany({
       where,

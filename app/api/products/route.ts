@@ -2,6 +2,7 @@ import { prisma } from '@/app/lib/db';
 import { NextResponse } from 'next/server';
 import { getSession } from '@/app/lib/auth';
 import { validateProductInput } from '@/app/lib/validation';
+import { toPublicProduct } from '@/app/lib/productImages';
 
 // GET all products
 export async function GET(request: Request) {
@@ -19,7 +20,7 @@ export async function GET(request: Request) {
       orderBy: { createdAt: 'desc' },
     });
 
-    return NextResponse.json(products);
+    return NextResponse.json(products.map(toPublicProduct));
   } catch (error) {
     console.error('Failed to fetch products:', error);
     return NextResponse.json(
@@ -72,9 +73,9 @@ export async function POST(request: Request) {
         ...body,
         price: parsedPrice
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       return NextResponse.json(
-        { error: error.message },
+        { error: error instanceof Error ? error.message : 'Invalid product details.' },
         { status: 400 }
       );
     }
@@ -110,7 +111,7 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json(product, { status: 201 });
+    return NextResponse.json(toPublicProduct(product), { status: 201 });
   } catch (error) {
     console.error('Failed to create product:', error);
     return NextResponse.json(
