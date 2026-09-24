@@ -7,6 +7,11 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ['@prisma/client', 'prisma'],
   images: {
     formats: ['image/avif', 'image/webp'],
+    localPatterns: [
+      {
+        pathname: '/api/products/*/image',
+      },
+    ],
     remotePatterns: [
       {
         protocol: 'https',
