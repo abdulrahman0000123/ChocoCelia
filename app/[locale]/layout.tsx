@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Noto_Sans_Arabic, Playfair_Display } from "next/font/google";
 import "../globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import ClientLayout from "../components/ClientLayout";
@@ -14,18 +13,6 @@ import { OrganizationSchema } from "@/app/components/schemas/OrganizationSchema"
 import { PromoBanner } from "@/app/components/PromoBanner";
 import { prisma } from "@/app/lib/db";
 import { getSiteUrl } from "@/app/lib/productImages";
-
-const notoSansArabic = Noto_Sans_Arabic({
-  subsets: ["latin", "arabic"],
-  variable: "--font-noto-arabic",
-  weight: ["400", "500", "600", "700"],
-});
-
-const playfairDisplay = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-playfair-display",
-  weight: ["400", "500", "600", "700"],
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
@@ -88,7 +75,7 @@ export default async function LocaleLayout({
         }} />
       </head>
       <body
-        className={`${notoSansArabic.variable} ${playfairDisplay.variable} antialiased min-h-screen flex flex-col font-cairo`}
+        className="antialiased min-h-screen flex flex-col font-cairo"
       >
         <NextIntlClientProvider messages={messages} locale={locale}>
           <AnalyticsProvider />
