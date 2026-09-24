@@ -17,7 +17,7 @@ export function OrganizationSchema({
   const schema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": isAr ? "شوكو سيليا" : "ChocoCelia",
+    "name": isAr ? "شوكو سيليا" : "Choco Celia",
     "url": process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://choco-celia2.vercel.app',
     "logo": `${(process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://choco-celia2.vercel.app').replace(/\/$/, '')}/logo.png`,
     "sameAs": [

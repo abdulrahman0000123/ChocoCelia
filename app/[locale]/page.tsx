@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     
   const description = locale === 'ar'
     ? 'تذوق السحر مع شوكولاتة شوكو سيليا الفاخرة المصنوعة يدوياً. نوفر تشكيلة مميزة من الهدايا وبوكسات الشوكولاتة لجميع المناسبات. التوصيل حالياً في محافظة بني سويف وقريباً في جميع المحافظات.'
-    : 'Experience the magic of premium handmade chocolates by ChocoCelia. Discover our customized chocolate boxes and gifts for all occasions. Currently serving Beni Suef Governorate, and coming soon to all governorates.';
+    : 'Experience the magic of premium handmade chocolates by Choco Celia. Discover our customized chocolate boxes and gifts for all occasions. Currently serving Beni Suef Governorate, and coming soon to all governorates.';
 
   const siteUrl = getSiteUrl();
   const ogImageUrl = `${siteUrl}/logo.png`;

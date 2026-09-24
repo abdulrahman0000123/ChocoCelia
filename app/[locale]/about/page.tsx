@@ -11,10 +11,10 @@ interface AboutPageProps {
 export async function generateMetadata({ params }: AboutPageProps): Promise<Metadata> {
   const { locale } = await params;
   const siteUrl = getSiteUrl();
-  const title = locale === 'ar' ? 'قصتنا | شوكو سيليا' : 'Our Story | ChocoCelia';
+  const title = locale === 'ar' ? 'قصتنا | شوكو سيليا' : 'Our Story | Choco Celia';
   const description = locale === 'ar'
     ? 'تعرف على شوكو سيليا وشغفنا بصناعة الشوكولاتة اليدوية والهدايا المميزة.'
-    : 'Learn about ChocoCelia and our passion for handcrafted chocolates and thoughtful gifts.';
+    : 'Learn about Choco Celia and our passion for handcrafted chocolates and thoughtful gifts.';
   return {
     title,
     description,

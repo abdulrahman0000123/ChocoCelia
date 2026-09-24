@@ -33,11 +33,11 @@ let extraSettings = {
   ourStoryTitle: 'Our Story',
   ourStorySubtitle: 'Crafting moments of joy, one chocolate at a time.',
   ourStoryBeginningTitle: 'The Beginning',
-  ourStoryBeginning: 'Founded with a passion for the art of chocolatiering, CHOCO-CELIA started as a small kitchen experiment. Our founder, driven by a love for pure, high-quality ingredients, sought to create chocolates that were not only delicious but also visually stunning.',
+  ourStoryBeginning: 'Founded with a passion for the art of chocolatiering, Choco Celia started as a small kitchen experiment. Our founder, driven by a love for pure, high-quality ingredients, sought to create chocolates that were not only delicious but also visually stunning.',
   ourStoryPhilosophyTitle: 'Our Philosophy',
   ourStoryPhilosophy: 'We believe in the power of handmade. Every piece of chocolate that leaves our workshop is crafted by hand, ensuring the perfect temper, snap, and shine. We source our cocoa beans from sustainable farms and pair them with the finest local ingredients to create unique flavor profiles.',
   // Hero Section
-  heroTitle: 'ChocoCelia',
+  heroTitle: 'Choco Celia',
   heroHighlight: 'Your Daily Dose Of Happiness',
   heroSubtitle: 'Experience the finest handmade chocolates, crafted with passion and premium ingredients.',
   heroSlides: [

@@ -2,7 +2,6 @@ import React from 'react';
 import { prisma } from '@/app/lib/db';
 import { FAQClient } from './FAQClient';
 import { FAQSchema } from './schemas/FAQSchema';
-import { getTranslations } from 'next-intl/server';
 
 const defaultFaqs = [
   {
@@ -35,7 +34,7 @@ const defaultFaqs = [
   },
   {
     id: 'default-5',
-    questionEn: 'How should I store ChocoCelia chocolates?',
+    questionEn: 'How should I store Choco Celia chocolates?',
     questionAr: 'كيف يجب أن أحفظ شوكولاتة شوكو سيليا؟',
     answerEn: 'We recommend storing our chocolates in a cool, dry place between 16-20°C. Avoid direct sunlight and refrigeration unless the weather is extremely hot.',
     answerAr: 'نوصي بحفظ الشوكولاتة في مكان بارد وجاف تتراوح درجة حرارته بين 16-20 درجة مئوية. تجنب أشعة الشمس المباشرة والثلاجة إلا في حالة الطقس شديد الحرارة.'
@@ -47,10 +46,9 @@ interface FAQSectionProps {
 }
 
 export async function FAQSection({ locale }: FAQSectionProps) {
-  const t = await getTranslations();
   const isAr = locale === 'ar';
 
-  let faqs: any[] = [];
+  let faqs: Awaited<ReturnType<typeof prisma.fAQ.findMany>> = [];
   try {
     faqs = await prisma.fAQ.findMany({
       orderBy: { order: 'asc' },

@@ -21,14 +21,14 @@ export async function generateMetadata({ params }: ProductDetailPageProps): Prom
 
   if (!product) {
     return {
-      title: 'Product Not Found | ChocoCelia',
+      title: 'Product Not Found | Choco Celia',
     };
   }
 
   const isAr = locale === 'ar';
   const name = isAr && product.nameAr ? product.nameAr : product.name;
   const description = isAr && product.descriptionAr ? product.descriptionAr : product.description;
-  const title = `${name} | ChocoCelia`;
+  const title = `${name} | Choco Celia`;
   
   // Dynamic OG image URL pointing to edge route
   const siteUrl = getSiteUrl();
@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: ProductDetailPageProps): Prom
       title,
       description,
       url: `${siteUrl}/${locale}/menu/${id}`,
-      siteName: 'ChocoCelia',
+      siteName: 'Choco Celia',
       images: [
         {
           url: ogImageUrl,

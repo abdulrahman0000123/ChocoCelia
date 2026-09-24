@@ -66,7 +66,7 @@ export function ProductSchema({ product, reviews = [], locale }: ProductSchemaPr
       "availability": product.isAvailable ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       "seller": {
         "@type": "Organization",
-        "name": isAr ? "شوكو سيليا" : "ChocoCelia",
+        "name": isAr ? "شوكو سيليا" : "Choco Celia",
         "url": siteUrl
       }
     }

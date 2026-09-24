@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: MenuPageProps): Promise<Metad
   
   const title = locale === 'ar' 
     ? 'قائمة الشوكولاتة | شوكو سيليا - طعم السعادة اليدوية 🍫' 
-    : 'Chocolate Menu | ChocoCelia - Taste Handcrafted Happiness 🍫';
+    : 'Chocolate Menu | Choco Celia - Taste Handcrafted Happiness 🍫';
     
   const description = locale === 'ar'
     ? 'تصفح قائمتنا الغنية بقطع الشوكولاتة البلجيكية الفاخرة المصنوعة يدوياً، بارات الشوكولاتة المخصصة، وبوكسات هدايا المناسبات مع التوصيل المبرد السريع.'

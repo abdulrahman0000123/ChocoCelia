@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from '@/i18n/routing';
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Sparkles, TrendingUp } from 'lucide-react';
-import { useTranslations } from 'next-intl';
 
 interface HeroProps {
   settings: {
@@ -15,11 +14,17 @@ interface HeroProps {
     phone?: string | null;
   };
   locale: string;
-  activeCampaign?: any;
+  activeCampaign?: {
+    heroImage: string;
+    heroTitleAr: string;
+    heroTitleEn: string;
+    heroCtaAr: string;
+    heroCtaEn: string;
+    heroCtaLink: string;
+  } | null;
 }
 
 export function Hero({ settings, locale, activeCampaign }: HeroProps) {
-  const t = useTranslations();
   const isAr = locale === 'ar';
   
   // Rotating occasion-anchored/seasonal taglines
@@ -74,7 +79,7 @@ export function Hero({ settings, locale, activeCampaign }: HeroProps) {
 
   const heroTitle = activeCampaign 
     ? (isAr ? activeCampaign.heroTitleAr : activeCampaign.heroTitleEn)
-    : settings.heroTitle || (isAr ? 'شوكو سيليا' : 'ChocoCelia');
+    : settings.heroTitle || (isAr ? 'شوكو سيليا' : 'Choco Celia');
   const heroHighlight = activeCampaign
     ? ''
     : settings.heroHighlight || (isAr ? 'جرعة سعادتك اليومية' : 'Your Daily Dose Of Happiness');
