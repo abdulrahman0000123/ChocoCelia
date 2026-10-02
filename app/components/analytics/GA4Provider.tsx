@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, Suspense } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import Script from 'next/script';
 import { usePathname, useSearchParams } from 'next/navigation';
 
@@ -11,7 +11,8 @@ function GA4Tracker({ measurementId }: { measurementId: string }) {
   useEffect(() => {
     if (typeof window !== 'undefined' && (window as any).gtag) {
       const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
-      (window as any).gtag('config', measurementId, {
+      (window as any).gtag('event', 'page_view', {
+        page_location: window.location.origin + url,
         page_path: url,
       });
     }
@@ -20,8 +21,9 @@ function GA4Tracker({ measurementId }: { measurementId: string }) {
   return null;
 }
 
-export function GA4Provider() {
-  const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+export function GA4Provider({measurementId: configuredId}: {measurementId?: string} = {}) {
+  const measurementId = configuredId || process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+  const [ready, setReady] = useState(false);
 
   if (!measurementId) return null;
 
@@ -33,6 +35,7 @@ export function GA4Provider() {
       />
       <Script
         id="google-analytics"
+        onReady={() => setReady(true)}
         strategy="afterInteractive"
         dangerouslySetInnerHTML={{
           __html: `
@@ -40,14 +43,14 @@ export function GA4Provider() {
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', '${measurementId}', {
-              page_path: window.location.pathname,
+              send_page_view: false,
             });
           `,
         }}
       />
-      <Suspense fallback={null}>
+      {ready && <Suspense fallback={null}>
         <GA4Tracker measurementId={measurementId} />
-      </Suspense>
+      </Suspense>}
     </>
   );
 }

@@ -1,4 +1,5 @@
 'use client';
+import { trackWhatsAppClick } from '@/app/lib/analytics';
 
 import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
@@ -91,6 +92,7 @@ export function QuickContactMenu({
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={trackWhatsAppClick}
             aria-label="WhatsApp"
             style={{
               display: 'flex',

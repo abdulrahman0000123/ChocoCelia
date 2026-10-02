@@ -105,6 +105,8 @@ export const trackCheckoutStart = (items: any[], total: number) => {
 };
 
 export const trackPurchase = (order: any) => {
+  if (!order?.id) return;
+  try {const key = `tracked-order:${order.id}`; if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, '1');} catch {}
   trackEvent('purchase', {
     transaction_id: order.id,
     currency: 'EGP',

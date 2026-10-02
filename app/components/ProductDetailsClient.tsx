@@ -15,9 +15,14 @@ import { ProductBadge } from './ProductBadge';
 import { StockStatus } from './StockStatus';
 import { EstimatedDelivery } from './EstimatedDelivery';
 import { ShippingInfo } from './ShippingInfo';
+import { trackProductView } from '@/app/lib/analytics';
 
 interface Product {
   id: string;
+  isAvailable?: boolean;
+  published?: boolean;
+  imageAltAr?: string | null;
+  imageAltEn?: string | null;
   name: string;
   nameAr?: string | null;
   description: string;
@@ -52,6 +57,8 @@ export function ProductDetailsClient({ product, reviews = [], locale }: ProductD
   const [isAdded, setIsAdded] = useState(false);
   const [showStickyBar, setShowStickyBar] = useState(false);
   
+  const viewedRef = useRef('');
+  useEffect(() => {if (viewedRef.current !== product.id) {viewedRef.current = product.id; trackProductView(product);}}, [product]);
   const mainAddToCartRef = useRef<HTMLButtonElement>(null);
 
   const averageRating = reviews.length > 0
@@ -107,6 +114,7 @@ export function ProductDetailsClient({ product, reviews = [], locale }: ProductD
   };
 
   const handleAddToCart = () => {
+    if (product.published === false || product.isAvailable === false || product.stock === 0) return;
     addItem({
       id: product.id,
       name: displayName,
@@ -122,6 +130,7 @@ export function ProductDetailsClient({ product, reviews = [], locale }: ProductD
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 mt-8">
+      {(product.published === false || product.isAvailable === false || product.stock === 0) && <p className="md:col-span-2 rounded-lg border border-chocolate-300 dark:border-chocolate-700 p-4">{isAr ? 'هذا المنتج غير متاح للشراء حاليًا.' : 'This product is currently unavailable for purchase.'}</p>}
       {/* Image Gallery Column */}
       <motion.div 
         initial={{ opacity: 0, x: isAr ? 20 : -20 }}
@@ -131,7 +140,7 @@ export function ProductDetailsClient({ product, reviews = [], locale }: ProductD
       >
         <div className="absolute inset-0 bg-gradient-to-br from-gold-500/10 to-chocolate-500/10 rounded-3xl blur-xl" />
         <div className="relative">
-          <ProductImageGallery mainImage={product.image} images={product.images} name={displayName} locale={locale} />
+          <ProductImageGallery mainImage={product.image} images={product.images} name={(isAr ? product.imageAltAr : product.imageAltEn) || displayName} locale={locale} unoptimized={product.published === false} />
           {product.tags && (
             <div className={`absolute top-6 ${isAr ? 'right-6' : 'left-6'} z-20`}>
               <span className="px-4 py-2 bg-gradient-to-r from-gold-500 to-gold-600 text-white text-sm font-bold rounded-full uppercase tracking-wider shadow-lg">
@@ -231,7 +240,8 @@ export function ProductDetailsClient({ product, reviews = [], locale }: ProductD
         <div className="flex gap-4 w-full">
           <motion.button 
             ref={mainAddToCartRef}
-            onClick={handleAddToCart}
+            disabled={product.published === false || product.isAvailable === false || product.stock === 0}
+              onClick={handleAddToCart}
             animate={isAdded ? { scale: [1, 1.02, 1] } : {}}
             className={`flex-1 py-4.5 rounded-2xl font-bold text-lg transition-all transform hover:scale-[1.01] active:scale-[0.99] shadow-xl flex items-center justify-center gap-3 cursor-pointer min-h-[50px] ${
               isAdded
@@ -303,6 +313,7 @@ export function ProductDetailsClient({ product, reviews = [], locale }: ProductD
             </div>
             
             <button
+              disabled={product.published === false || product.isAvailable === false || product.stock === 0}
               onClick={handleAddToCart}
               className={`flex-1 py-3 px-5 rounded-xl font-bold text-sm shadow-md flex items-center justify-center gap-2 cursor-pointer ${
                 isAdded

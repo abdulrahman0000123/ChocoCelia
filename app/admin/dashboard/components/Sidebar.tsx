@@ -14,6 +14,8 @@ const MENU_ITEMS = [
   { name: 'Testimonials', href: '/admin/dashboard/testimonials', icon: Quote },
   { name: 'FAQs', href: '/admin/dashboard/faq', icon: HelpCircle },
   { name: 'Marketing', href: '/admin/dashboard/marketing', icon: Megaphone },
+  { name: 'Content', href: '/admin/dashboard/content', icon: FolderTree },
+  { name: 'SEO & Visibility', href: '/admin/dashboard/seo', icon: Megaphone },
   { name: 'Settings', href: '/admin/dashboard/settings', icon: Settings },
   { name: 'Security', href: '/admin/dashboard/security', icon: Shield },
 ];

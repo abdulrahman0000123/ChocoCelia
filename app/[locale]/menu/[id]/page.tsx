@@ -1,7 +1,9 @@
+import { pageMetadata } from '@/app/lib/seo';
+import { getSession } from '@/app/lib/auth';
 import React from 'react';
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { ProductDetailsClient } from '../../../components/ProductDetailsClient';
@@ -13,17 +15,15 @@ import { toPublicProduct, getSiteUrl } from '@/app/lib/productImages';
 
 interface ProductDetailPageProps {
   params: Promise<{ id: string; locale: string }>;
+  searchParams: Promise<{preview?: string}>;
 }
 
-export async function generateMetadata({ params }: ProductDetailPageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: ProductDetailPageProps): Promise<Metadata> {
   const { id, locale } = await params;
-  const product = await getProduct(id);
+  const preview = (await searchParams).preview === '1' && !!await getSession();
+  const product = await getProduct(id, preview);
 
-  if (!product) {
-    return {
-      title: 'Product Not Found | Choco Celia',
-    };
-  }
+  if (!product) return {title: 'Product Not Found | Choco Celia', robots: {index: false}};
 
   const isAr = locale === 'ar';
   const name = isAr && product.nameAr ? product.nameAr : product.name;
@@ -35,40 +35,7 @@ export async function generateMetadata({ params }: ProductDetailPageProps): Prom
   const publicProduct = toPublicProduct(product);
   const ogImageUrl = publicProduct.image.startsWith('/') ? `${siteUrl}${publicProduct.image}` : publicProduct.image;
 
-  return {
-    title,
-    description: description.slice(0, 160),
-    alternates: {
-      canonical: `${siteUrl}/${locale}/menu/${id}`,
-      languages: {
-        'en': `${siteUrl}/en/menu/${id}`,
-        'ar': `${siteUrl}/ar/menu/${id}`,
-        'x-default': `${siteUrl}/en/menu/${id}`,
-      },
-    },
-    openGraph: {
-      title,
-      description,
-      url: `${siteUrl}/${locale}/menu/${id}`,
-      siteName: 'Choco Celia',
-      images: [
-        {
-          url: ogImageUrl,
-          width: 1200,
-          height: 630,
-          alt: name,
-        },
-      ],
-      locale: isAr ? 'ar_EG' : 'en_US',
-      type: 'website',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [ogImageUrl],
-    },
-  };
+  return pageMetadata({locale, path: `/menu/${product.slug || product.id}`, entityType: 'product', entityId: product.id, title, description, image: ogImageUrl, preview});
 }
 
 import { prisma } from '@/app/lib/db';
@@ -77,17 +44,21 @@ import { RelatedProducts } from '../../../components/RelatedProducts';
 import { RecentlyViewed } from '../../../components/RecentlyViewed';
 import { Breadcrumb } from '../../../components/Breadcrumb';
 
-export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
+export default async function ProductDetailPage({ params, searchParams }: ProductDetailPageProps) {
   const { id, locale } = await params;
   const t = await getTranslations();
 
   // Fetch product and all products from the database
-  const product = await getProduct(id);
+  const preview = (await searchParams).preview === '1' && !!await getSession();
+  const product = await getProduct(id, preview);
 
   if (!product) {
+    const legacy = await prisma.urlRedirect.findUnique({where: {fromPath: `/${locale}/menu/${id}`}});
+    if(legacy) permanentRedirect(legacy.toPath);
     notFound();
   }
 
+  if (product.slug && id !== product.slug) permanentRedirect(`/${locale}/menu/${product.slug}${preview ? '?preview=1' : ''}`);
   const allProducts = await getProducts();
   const publicProduct = toPublicProduct(product);
   const publicProducts = allProducts.map(toPublicProduct);
@@ -95,7 +66,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
   // Fetch approved reviews for the product
   const reviews = await prisma.review.findMany({
     where: {
-      productId: id,
+      productId: product.id,
       approved: true,
     },
     orderBy: {
@@ -123,13 +94,14 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
   const breadcrumbItems = [
     { name: isAr ? 'الرئيسية' : 'Home', item: `${getSiteUrl()}/${locale}` },
     { name: isAr ? 'القائمة' : 'Menu', item: `${getSiteUrl()}/${locale}/menu` },
-    { name: displayName, item: `${getSiteUrl()}/${locale}/menu/${product.id}` },
+    { name: displayName, item: `${getSiteUrl()}/${locale}/menu/${product.slug || product.id}` },
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-chocolate-50 via-white to-chocolate-50/50 dark:from-chocolate-950 dark:via-chocolate-900 dark:to-chocolate-950 pb-20 pt-28">
       {/* Schema.org Structured Data */}
-      <ProductSchema product={publicProduct} reviews={formattedReviews} locale={locale} />
+      {!preview && <ProductSchema product={publicProduct} reviews={formattedReviews} locale={locale} />}
+      {preview && <p className="max-w-7xl mx-auto px-4 pt-5 text-gold-700 dark:text-gold-300">Private preview / معاينة خاصة غير مفهرسة</p>}
       <BreadcrumbSchema items={breadcrumbItems} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

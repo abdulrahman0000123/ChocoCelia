@@ -80,6 +80,7 @@ export async function getSettings() {
   const dbSettings = await ensureSettings();
   return {
     ...extraSettings,
+    ...(dbSettings.extra as Partial<typeof extraSettings>),
     phone: dbSettings.phone,
     facebook: dbSettings.facebook || 'https://www.facebook.com/profile.php?id=61582630209700',
     instagram: dbSettings.instagram || 'https://www.instagram.com/chococelia2025/',
@@ -93,7 +94,7 @@ export async function getSettings() {
 export async function getProducts(where: Prisma.ProductWhereInput = {}) {
   try {
     return await prisma.product.findMany({
-      where,
+      where: {published: true, ...where},
       include: {
         category: true,
       },
@@ -105,10 +106,10 @@ export async function getProducts(where: Prisma.ProductWhereInput = {}) {
   }
 }
 
-export async function getProduct(id: string) {
+export async function getProduct(id: string, allowUnpublished = false) {
   try {
-    return await prisma.product.findUnique({
-      where: { id },
+    return await prisma.product.findFirst({
+      where: { OR: [{id}, {slug: id}], ...(!allowUnpublished ? {published: true} : {}) },
       include: {
         category: true,
       },

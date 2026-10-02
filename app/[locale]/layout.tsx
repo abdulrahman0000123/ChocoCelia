@@ -1,3 +1,4 @@
+import { getSeoSettings } from '@/app/lib/seo';
 import type { Metadata } from "next";
 import "../globals.css";
 import { Analytics } from "@vercel/analytics/next";
@@ -14,19 +15,12 @@ import { PromoBanner } from "@/app/components/PromoBanner";
 import { prisma } from "@/app/lib/db";
 import { getSiteUrl } from "@/app/lib/productImages";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(getSiteUrl()),
-  title: "Choco Celia | Handmade Chocolate",
-  description: "Where Every Bite Melts Your Heart. Discover our exquisite collection of handmade chocolates.",
-  icons: {
-    icon: [
-      { url: "/brand/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/brand/icon-512.png", sizes: "512x512", type: "image/png" },
-    ],
-    shortcut: "/brand/icon-192.png",
-    apple: "/brand/apple-touch-icon.png",
-  },
-};
+export async function generateMetadata({params}: {params: Promise<{locale: string}>}): Promise<Metadata> {
+  const {locale} = await params;
+  const values = await getSeoSettings();
+  const lang = locale === 'ar' ? 'Ar' : 'En';
+  return {metadataBase: new URL(getSiteUrl()), title: values[`title${lang}`] || 'Choco Celia | Handmade Chocolate', description: values[`description${lang}`] || 'Discover handmade chocolate and gifts.', verification: {google: values.googleVerification || undefined, other: values.bingVerification ? {'msvalidate.01': values.bingVerification} : undefined}};
+}
 
 export default async function LocaleLayout({
   children,
@@ -47,6 +41,7 @@ export default async function LocaleLayout({
   
   // Get database settings for the phone number
   const settings = await getSettings();
+  const seoSettings = await getSeoSettings();
 
   // Get active marketing banner
   let activeBanner: Awaited<ReturnType<typeof prisma.banner.findFirst>> = null;
@@ -78,7 +73,7 @@ export default async function LocaleLayout({
         className="antialiased min-h-screen flex flex-col font-cairo"
       >
         <NextIntlClientProvider messages={messages} locale={locale}>
-          <AnalyticsProvider />
+          <AnalyticsProvider measurementId={seoSettings.gaMeasurementId} />
           <PromoBanner activeBanner={activeBanner} locale={locale} />
           <OrganizationSchema 
             locale={locale} 

@@ -1,3 +1,4 @@
+import { pageMetadata } from '@/app/lib/seo';
 import React from 'react';
 import { AboutClient } from '../../components/AboutClient';
 import { getSettings } from '@/app/lib/products';
@@ -15,15 +16,7 @@ export async function generateMetadata({ params }: AboutPageProps): Promise<Meta
   const description = locale === 'ar'
     ? 'تعرف على شوكو سيليا وشغفنا بصناعة الشوكولاتة اليدوية والهدايا المميزة.'
     : 'Learn about Choco Celia and our passion for handcrafted chocolates and thoughtful gifts.';
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: `${siteUrl}/${locale}/about`,
-      languages: { en: `${siteUrl}/en/about`, ar: `${siteUrl}/ar/about`, 'x-default': `${siteUrl}/en/about` },
-    },
-    openGraph: { title, description, url: `${siteUrl}/${locale}/about`, type: 'website' },
-  };
+  return pageMetadata({locale, path: '/about', entityType: 'page', entityId: 'about', title, description});
 }
 
 export default async function AboutPage({ params }: AboutPageProps) {

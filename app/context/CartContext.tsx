@@ -1,4 +1,5 @@
 'use client';
+import { trackAddToCart, trackRemoveFromCart } from '@/app/lib/analytics';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
@@ -62,6 +63,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [items, hasLoadedCart]);
 
   const addItem = (newItem: CartItem) => {
+    trackAddToCart(newItem, newItem.quantity);
     setItems((currentItems) => {
       const existingItem = currentItems.find((item) => item.id === newItem.id);
       if (existingItem) {
@@ -77,6 +79,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const removeItem = (id: string) => {
+    const removed = items.find(item => item.id === id);
+    if (removed) trackRemoveFromCart(removed);
     setItems((currentItems) => currentItems.filter((item) => item.id !== id));
   };
 

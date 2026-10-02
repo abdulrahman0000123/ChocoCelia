@@ -1,3 +1,4 @@
+import { pageMetadata } from '@/app/lib/seo';
 import React from 'react';
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
@@ -26,40 +27,7 @@ export async function generateMetadata({ params }: MenuPageProps): Promise<Metad
   const siteUrl = getSiteUrl();
   const ogImageUrl = `${siteUrl}/logo.png`;
 
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: `${siteUrl}/${locale}/menu`,
-      languages: {
-        'en': `${siteUrl}/en/menu`,
-        'ar': `${siteUrl}/ar/menu`,
-        'x-default': `${siteUrl}/en/menu`,
-      },
-    },
-    openGraph: {
-      title,
-      description,
-      url: `${siteUrl}/${locale}/menu`,
-      siteName: 'Choco Celia',
-      images: [
-        {
-          url: ogImageUrl,
-          width: 512,
-          height: 512,
-          alt: 'Choco Celia handmade chocolate emblem',
-        },
-      ],
-      locale: locale === 'ar' ? 'ar_EG' : 'en_US',
-      type: 'website',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [ogImageUrl],
-    },
-  };
+  return pageMetadata({locale, path: '/menu', entityType: 'page', entityId: 'menu', title, description});
 }
 
 export default async function MenuPage({ params, searchParams }: MenuPageProps) {

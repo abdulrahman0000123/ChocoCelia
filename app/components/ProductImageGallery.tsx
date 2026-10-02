@@ -10,9 +10,10 @@ interface ProductImageGalleryProps {
   images?: string[];
   name: string;
   locale: string;
+  unoptimized?: boolean;
 }
 
-export function ProductImageGallery({ mainImage, images = [], name, locale }: ProductImageGalleryProps) {
+export function ProductImageGallery({ mainImage, images = [], name, locale, unoptimized = false }: ProductImageGalleryProps) {
   const isAr = locale === 'ar';
   const [activeIndex, setActiveIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -42,6 +43,7 @@ export function ProductImageGallery({ mainImage, images = [], name, locale }: Pr
             className="w-full h-full relative"
           >
             <Image
+              unoptimized={unoptimized}
               src={allImages[activeIndex]}
               alt={`${name} - View ${activeIndex + 1}`}
               fill
@@ -92,6 +94,7 @@ export function ProductImageGallery({ mainImage, images = [], name, locale }: Pr
               }`}
             >
               <Image
+              unoptimized={unoptimized}
                 src={img}
                 alt="Thumbnail"
                 fill
@@ -117,6 +120,7 @@ export function ProductImageGallery({ mainImage, images = [], name, locale }: Pr
 
             <div className="w-full max-w-4xl aspect-square relative rounded-3xl overflow-hidden shadow-2xl border border-white/10">
               <Image
+              unoptimized={unoptimized}
                 src={allImages[activeIndex]}
                 alt={`${name} - Fullscreen`}
                 fill

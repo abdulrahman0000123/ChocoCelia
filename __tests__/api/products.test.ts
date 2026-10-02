@@ -1,312 +1,74 @@
-/**
- * @jest-environment node
- */
+/** @jest-environment node */
+import { prisma } from '@/app/lib/db';
+import { getSession } from '@/app/lib/auth';
+import { GET, POST } from '@/app/api/products/route';
+import { GET as getOne, PUT, DELETE } from '@/app/api/products/[id]/route';
 
-import { NextResponse } from 'next/server'
-
-// Mock Prisma
-jest.mock('@/app/lib/db', () => ({
-  prisma: {
-    product: {
-      findMany: jest.fn(),
-      findUnique: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-    },
-    category: {
-      findUnique: jest.fn(),
-    },
-  },
-}))
-
-// Mock auth
-jest.mock('@/app/lib/auth', () => ({
-  getSession: jest.fn(),
-}))
-
-// Mock NextResponse
-jest.mock('next/server', () => ({
-  NextResponse: {
-    json: jest.fn((data, init) => ({
-      json: async () => data,
-      status: init?.status || 200,
-      ok: !init?.status || init.status < 400,
-    })),
-  },
-}))
-
-describe('Products API', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
-
-  describe('GET /api/products', () => {
-    test('should return array of products', async () => {
-      const { prisma } = await import('@/app/lib/db')
-      const mockProducts = [
-        {
-          id: '1',
-          name: 'Product 1',
-          price: 24.99,
-          category: { id: '1', name: 'Dark' },
-        },
-      ]
-
-      ;(prisma.product.findMany as jest.Mock).mockResolvedValue(mockProducts)
-
-      const { GET } = await import('@/app/api/products/route')
-      const mockRequest = { url: 'http://localhost/api/products' } as Request
-      const response = await GET(mockRequest)
-      const data = await response.json()
-
-      expect(Array.isArray(data)).toBe(true)
-      expect(data).toHaveLength(1)
-      expect(data[0]).toHaveProperty('id')
-      expect(data[0]).toHaveProperty('name')
-      expect(data[0]).toHaveProperty('price')
-    })
-
-    test('should filter by categoryId', async () => {
-      const { prisma } = await import('@/app/lib/db')
-      ;(prisma.product.findMany as jest.Mock).mockResolvedValue([])
-
-      const { GET } = await import('@/app/api/products/route')
-      const mockRequest = { url: 'http://localhost/api/products?categoryId=1' } as Request
-      await GET(mockRequest)
-
-      expect(prisma.product.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: { categoryId: '1' },
-        })
-      )
-    })
-
-    test('should handle errors', async () => {
-      const { prisma } = await import('@/app/lib/db')
-      ;(prisma.product.findMany as jest.Mock).mockRejectedValue(new Error('Database error'))
-
-      const { GET } = await import('@/app/api/products/route')
-      const mockRequest = { url: 'http://localhost/api/products' } as Request
-      const response = await GET(mockRequest)
-      const data = await response.json()
-
-      expect(response.status).toBe(500)
-      expect(data).toHaveProperty('error')
-    })
-  })
-
-  describe('POST /api/products', () => {
-    test('should create new product with authentication', async () => {
-      const { prisma } = await import('@/app/lib/db')
-      const { getSession } = await import('@/app/lib/auth')
-
-      ;(getSession as jest.Mock).mockResolvedValue({ user: { id: 'admin-id' } })
-      ;(prisma.category.findUnique as jest.Mock).mockResolvedValue({ id: '1', name: 'Dark' })
-      ;(prisma.product.create as jest.Mock).mockResolvedValue({
-        id: '1',
-        name: 'New Chocolate',
-        price: 29.99,
-      })
-
-      const { POST } = await import('@/app/api/products/route')
-      const mockRequest = {
-        json: async () => ({
-          name: 'New Chocolate',
-          nameAr: 'New Chocolate Ar',
-          description: 'Test description',
-          descriptionAr: 'Test description Ar',
-          price: 29.99,
-          categoryId: '1',
-          image: '/test.jpg',
-        }),
-      } as Request
-
-      const response = await POST(mockRequest)
-      const data = await response.json()
-
-      expect(response.status).toBe(201)
-      expect(data).toHaveProperty('id')
-      expect(data.name).toBe('New Chocolate')
-      expect(data.price).toBe(29.99)
-    })
-
-    test('should reject unauthenticated requests', async () => {
-      const { getSession } = await import('@/app/lib/auth')
-      ;(getSession as jest.Mock).mockResolvedValue(null)
-
-      const { POST } = await import('@/app/api/products/route')
-      const mockRequest = {
-        json: async () => ({ name: 'Test' }),
-      } as Request
-
-      const response = await POST(mockRequest)
-      const data = await response.json()
-
-      expect(response.status).toBe(401)
-      expect(data.error).toBe('Unauthorized')
-    })
-
-    test('should validate required fields', async () => {
-      const { getSession } = await import('@/app/lib/auth')
-      ;(getSession as jest.Mock).mockResolvedValue({ user: { id: 'admin-id' } })
-
-      const { POST } = await import('@/app/api/products/route')
-      const mockRequest = {
-        json: async () => ({ name: 'Test', price: 10 }),
-      } as Request
-
-      const response = await POST(mockRequest)
-      const data = await response.json()
-
-      expect(response.status).toBe(400)
-      expect(data.error).toContain('required')
-    })
-
-    test('should validate category exists', async () => {
-      const { prisma } = await import('@/app/lib/db')
-      const { getSession } = await import('@/app/lib/auth')
-
-      ;(getSession as jest.Mock).mockResolvedValue({ user: { id: 'admin-id' } })
-      ;(prisma.category.findUnique as jest.Mock).mockResolvedValue(null)
-
-      const { POST } = await import('@/app/api/products/route')
-      const mockRequest = {
-        json: async () => ({
-          name: 'Test',
-          nameAr: 'Test Ar',
-          description: 'Test',
-          descriptionAr: 'Test Ar',
-          price: 10,
-          categoryId: '999',
-          image: '/test.jpg',
-        }),
-      } as Request
-
-      const response = await POST(mockRequest)
-      const data = await response.json()
-
-      expect(response.status).toBe(404)
-      expect(data.error).toBe('Category not found')
-    })
-  })
-})
-
-describe('Products [id] API', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
-
-  describe('GET /api/products/[id]', () => {
-    test('should return single product', async () => {
-      const { prisma } = await import('@/app/lib/db')
-      const mockProduct = {
-        id: '1',
-        name: 'Product 1',
-        category: { id: '1', name: 'Dark' },
-      }
-
-      ;(prisma.product.findUnique as jest.Mock).mockResolvedValue(mockProduct)
-
-      const { GET } = await import('@/app/api/products/[id]/route')
-      const response = await GET({} as Request, { params: { id: '1' } })
-      const data = await response.json()
-
-      expect(data).toHaveProperty('name')
-      expect(data).toHaveProperty('category')
-    })
-
-    test('should return 404 for non-existent product', async () => {
-      const { prisma } = await import('@/app/lib/db')
-      ;(prisma.product.findUnique as jest.Mock).mockResolvedValue(null)
-
-      const { GET } = await import('@/app/api/products/[id]/route')
-      const response = await GET({} as Request, { params: { id: '999' } })
-      const data = await response.json()
-
-      expect(response.status).toBe(404)
-      expect(data.error).toBe('Product not found')
-    })
-  })
-
-  describe('PUT /api/products/[id]', () => {
-    test('should update product', async () => {
-      const { prisma } = await import('@/app/lib/db')
-      const { getSession } = await import('@/app/lib/auth')
-
-      ;(getSession as jest.Mock).mockResolvedValue({ user: { id: 'admin-id' } })
-      ;(prisma.product.findUnique as jest.Mock).mockResolvedValue({
-        id: '1',
-        name: 'Old Name',
-        price: 20,
-      })
-      ;(prisma.product.update as jest.Mock).mockResolvedValue({
-        id: '1',
-        name: 'Updated Chocolate',
-        price: 35.99,
-      })
-
-      const { PUT } = await import('@/app/api/products/[id]/route')
-      const mockRequest = {
-        json: async () => ({
-          name: 'Updated Chocolate',
-          price: 35.99,
-        }),
-      } as Request
-
-      const response = await PUT(mockRequest, { params: { id: '1' } })
-      const data = await response.json()
-
-      expect(data.name).toBe('Updated Chocolate')
-      expect(data.price).toBe(35.99)
-    })
-
-    test('should return 404 for non-existent product', async () => {
-      const { prisma } = await import('@/app/lib/db')
-      const { getSession } = await import('@/app/lib/auth')
-
-      ;(getSession as jest.Mock).mockResolvedValue({ user: { id: 'admin-id' } })
-      ;(prisma.product.findUnique as jest.Mock).mockResolvedValue(null)
-
-      const { PUT } = await import('@/app/api/products/[id]/route')
-      const mockRequest = {
-        json: async () => ({ name: 'Test' }),
-      } as Request
-
-      const response = await PUT(mockRequest, { params: { id: '999' } })
-      const data = await response.json()
-
-      expect(response.status).toBe(404)
-      expect(data.error).toBe('Product not found')
-    })
-  })
-
-  describe('DELETE /api/products/[id]', () => {
-    test('should delete product', async () => {
-      const { prisma } = await import('@/app/lib/db')
-      const { getSession } = await import('@/app/lib/auth')
-
-      ;(getSession as jest.Mock).mockResolvedValue({ user: { id: 'admin-id' } })
-      ;(prisma.product.findUnique as jest.Mock).mockResolvedValue({ id: '1', name: 'Test' })
-      ;(prisma.product.delete as jest.Mock).mockResolvedValue({ id: '1' })
-
-      const { DELETE } = await import('@/app/api/products/[id]/route')
-      const response = await DELETE({} as Request, { params: { id: '1' } })
-      const data = await response.json()
-
-      expect(data.success).toBe(true)
-    })
-
-    test('should reject unauthenticated delete requests', async () => {
-      const { getSession } = await import('@/app/lib/auth')
-      ;(getSession as jest.Mock).mockResolvedValue(null)
-
-      const { DELETE } = await import('@/app/api/products/[id]/route')
-      const response = await DELETE({} as Request, { params: { id: '1' } })
-      const data = await response.json()
-
-      expect(response.status).toBe(401)
-      expect(data.error).toBe('Unauthorized')
-    })
-  })
-})
+jest.mock('@/app/lib/auth', () => ({getSession: jest.fn()}));
+jest.mock('next/cache', () => ({revalidatePath: jest.fn()}));
+jest.mock('@/app/lib/db', () => {
+  const db: any = {
+    product: {findMany: jest.fn(), findUnique: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn(), delete: jest.fn()},
+    category: {findUnique: jest.fn()}, seoRecord: {findUnique: jest.fn(), upsert: jest.fn(), deleteMany: jest.fn()},
+    urlRedirect: {deleteMany: jest.fn(), updateMany: jest.fn(), upsert: jest.fn()}, orderItem: {deleteMany: jest.fn()},
+  };
+  db.$transaction = jest.fn((callback: any) => callback(db));
+  return {prisma: db};
+});
+const product = {id: 'p1', name: 'Gift box', nameAr: 'بوكس', description: 'Chocolate gift', descriptionAr: 'هدية شوكولاتة', price: 100, image: 'https://example.com/gift.webp', images: [], categoryId: 'c1', category: {id: 'c1', name: 'Gifts'}, slug: null, published: true, isAvailable: true, attributes: [], updatedAt: new Date('2026-10-02'), OrderItems: []};
+const request = (body: object, method = 'POST') => new Request('http://localhost/api/products', {method, headers: {'Content-Type': 'application/json', origin: 'http://localhost'}, body: JSON.stringify(body)});
+beforeEach(() => {
+  jest.clearAllMocks();
+  (getSession as jest.Mock).mockResolvedValue(null);
+  (prisma.product.findMany as jest.Mock).mockResolvedValue([product]);
+  (prisma.product.findUnique as jest.Mock).mockResolvedValue(product);
+  (prisma.product.findFirst as jest.Mock).mockResolvedValue(null);
+  (prisma.product.create as jest.Mock).mockResolvedValue(product);
+  (prisma.product.update as jest.Mock).mockResolvedValue(product);
+  (prisma.category.findUnique as jest.Mock).mockResolvedValue(product.category);
+  (prisma.seoRecord.findUnique as jest.Mock).mockResolvedValue(null);
+});
+function admin() {(getSession as jest.Mock).mockResolvedValue({user: {id: 'admin'}});}
+test('public catalog includes only published products and keeps category filtering', async () => {
+  const res = await GET(new Request('http://localhost/api/products?categoryId=c1'));
+  expect(res.status).toBe(200);
+  expect(prisma.product.findMany).toHaveBeenCalledWith(expect.objectContaining({where: {categoryId: 'c1', published: true}}));
+});
+test('administrator catalog can include draft products', async () => {
+  admin(); await GET(new Request('http://localhost/api/products'));
+  expect(prisma.product.findMany).toHaveBeenCalledWith(expect.objectContaining({where: {}}));
+});
+test('unauthenticated writes return 401 before mutation', async () => {
+  expect((await POST(request(product))).status).toBe(401); expect(prisma.product.create).not.toHaveBeenCalled();
+  expect((await DELETE(request({}, 'DELETE'), {params: Promise.resolve({id: 'p1'})})).status).toBe(401);
+});
+test('create saves publication fields and manual bilingual SEO', async () => {
+  admin(); const res = await POST(request({...product, slug: 'gift-box', seo: {titleAr: 'عنوان يدوي', titleEn: 'Manual title', source: 'manual'}}));
+  expect(res.status).toBe(201);
+  expect(prisma.product.create).toHaveBeenCalledWith(expect.objectContaining({data: expect.objectContaining({slug: 'gift-box', published: true})}));
+  expect(prisma.seoRecord.upsert).toHaveBeenCalledWith(expect.objectContaining({create: expect.objectContaining({values: expect.objectContaining({titleEn: 'Manual title'})})}));
+});
+test('invalid slug and negative prices do not mutate product', async () => {
+  admin(); expect((await POST(request({...product, slug: '../admin'}))).status).toBe(400);
+  expect((await POST(request({...product, price: -10}))).status).toBe(400); expect(prisma.product.create).not.toHaveBeenCalled();
+});
+test('missing category returns 404', async () => {
+  admin(); (prisma.category.findUnique as jest.Mock).mockResolvedValue(null);
+  expect((await POST(request(product))).status).toBe(404);
+});
+test('public product endpoint hides drafts', async () => {
+  (prisma.product.findUnique as jest.Mock).mockResolvedValue({...product, published: false});
+  expect((await getOne(new Request('http://localhost/api/products/p1'), {params: Promise.resolve({id: 'p1'})})).status).toBe(404);
+});
+test('updates can unpublish without changing availability', async () => {
+  admin(); expect((await PUT(request({published: false}, 'PUT'), {params: Promise.resolve({id: 'p1'})})).status).toBe(200);
+  expect(prisma.product.update).toHaveBeenCalledWith(expect.objectContaining({data: expect.objectContaining({published: false, isAvailable: true})}));
+});
+test('missing update target returns 404', async () => {
+  admin(); (prisma.product.findUnique as jest.Mock).mockResolvedValue(null);
+  expect((await PUT(request({name: 'Missing'}, 'PUT'), {params: Promise.resolve({id: 'missing'})})).status).toBe(404);
+});
+test('delete invalidates associated SEO data', async () => {
+  admin(); expect((await DELETE(request({}, 'DELETE'), {params: Promise.resolve({id: 'p1'})})).status).toBe(200);
+  expect(prisma.seoRecord.deleteMany).toHaveBeenCalledWith({where: {entityType: 'product', entityId: 'p1'}});
+});

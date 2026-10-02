@@ -11,13 +11,14 @@ export async function GET(request: Request) {
       return NextResponse.json([]);
     }
 
-    const cleanQuery = query.trim();
+    const cleanQuery = query.trim().slice(0, 200);
 
     // Fetch products that match the query in English or Arabic name/description
     const products = await prisma.product.findMany({
       where: {
-        isAvailable: true,
+        isAvailable: true, published: true,
         OR: [
+          {attributeSearch: {contains: cleanQuery, mode: 'insensitive'}},
           { name: { contains: cleanQuery, mode: 'insensitive' } },
           { nameAr: { contains: cleanQuery, mode: 'insensitive' } },
           { description: { contains: cleanQuery, mode: 'insensitive' } },

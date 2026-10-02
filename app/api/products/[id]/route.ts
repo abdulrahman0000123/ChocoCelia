@@ -3,6 +3,10 @@ import { NextResponse } from 'next/server';
 import { getSession } from '@/app/lib/auth';
 import { restoreStoredProductImage, toPublicProduct } from '@/app/lib/productImages';
 import { validateImageValue } from '@/app/lib/validation';
+import { productSeoInput, validateProductSlug } from '@/app/lib/product-seo';
+import { saveSeo } from '@/app/lib/seo';
+import { requireAdmin, invalidateSeo, apiError } from '@/app/lib/seo-admin';
+import { localSeo, type SeoValues } from '@/app/lib/seo-shared';
 
 // GET single product
 export async function GET(
@@ -18,7 +22,7 @@ export async function GET(
       },
     });
 
-    if (!product) {
+    if (!product || (!product.published && !await getSession())) {
       return NextResponse.json(
         { error: 'Product not found' },
         { status: 404 }
@@ -43,7 +47,7 @@ export async function PUT(
   try {
     const { id } = await params;
     // Check authentication
-    const session = await getSession();
+    const session = await requireAdmin(request);
     if (!session) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -52,6 +56,8 @@ export async function PUT(
     }
 
     const body = await request.json();
+    const seoInput = productSeoInput(body);
+    await validateProductSlug(seoInput.fields.slug, id);
     const {
       name,
       nameAr,
@@ -108,11 +114,12 @@ export async function PUT(
     const product = await prisma.product.update({
       where: { id },
       data: {
+        ...seoInput.fields,
         name: name || existingProduct.name,
         nameAr: nameAr !== undefined ? nameAr : existingProduct.nameAr,
         description: description || existingProduct.description,
         descriptionAr: descriptionAr !== undefined ? descriptionAr : existingProduct.descriptionAr,
-        price: price ? parseFloat(price) : existingProduct.price,
+        price: price !== undefined ? Number(price) : existingProduct.price,
         image: typeof image === 'string' ? restoreStoredProductImage(image, existingProduct) : existingProduct.image,
         images: images !== undefined && Array.isArray(images)
           ? images.map((value: string) => restoreStoredProductImage(value, existingProduct))
@@ -126,9 +133,25 @@ export async function PUT(
       },
     });
 
+    const previousSeo = (await prisma.seoRecord.findUnique({where: {entityType_entityId: {entityType: 'product', entityId: id}}}))?.values as SeoValues | undefined;
+    const submittedSeo = seoInput.seo || previousSeo;
+    if (submittedSeo?.source === 'local' && ['name', 'nameAr', 'description', 'descriptionAr', 'image'].some(key => body[key] !== undefined)) {
+      await saveSeo('product', id, {...submittedSeo, ...localSeo({titleAr: product.nameAr || product.name, titleEn: product.name, bodyAr: product.descriptionAr || product.description, bodyEn: product.description, image: toPublicProduct(product).image.replace(/&v=\d+/, '')})}, session.user!.id);
+    } else if (seoInput.seo) await saveSeo('product', id, seoInput.seo, session.user!.id);
+    if (existingProduct.slug && existingProduct.slug !== product.slug) {
+      for (const locale of ['ar', 'en']) {
+        const fromPath = `/${locale}/menu/${existingProduct.slug}`;
+        const toPath = `/${locale}/menu/${product.slug || id}`;
+        await prisma.urlRedirect.deleteMany({where: {fromPath: toPath}});
+        await prisma.urlRedirect.updateMany({where: {toPath: fromPath}, data: {toPath}});
+        await prisma.urlRedirect.upsert({where: {fromPath}, create: {fromPath, toPath}, update: {toPath}});
+      }
+    }
+    invalidateSeo();
     return NextResponse.json(toPublicProduct(product));
   } catch (error) {
-    console.error('Failed to update product:', error);
+    if (error instanceof Error && /^(Invalid |Slug )/.test(error.message)) return apiError(error);
+    console.error('Failed to update product');
     return NextResponse.json(
       { error: 'Failed to update product' },
       { status: 500 }
@@ -144,7 +167,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     // Check authentication
-    const session = await getSession();
+    const session = await requireAdmin(request);
     if (!session) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -179,6 +202,8 @@ export async function DELETE(
       where: { id },
     });
 
+    await prisma.seoRecord.deleteMany({where: {entityType: 'product', entityId: id}});
+    invalidateSeo();
     return NextResponse.json({ success: true, message: 'Product deleted successfully' });
   } catch (error: unknown) {
     console.error('Failed to delete product:', error);

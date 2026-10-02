@@ -1,5 +1,6 @@
 import { prisma } from '@/app/lib/db';
 import { NextResponse } from 'next/server';
+import { getSession } from '@/app/lib/auth';
 
 export const runtime = 'nodejs';
 
@@ -13,9 +14,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
   const product = await prisma.product.findUnique({
     where: { id },
-    select: { image: true, images: true, updatedAt: true },
+    select: { image: true, images: true, updatedAt: true, published: true },
   });
-  if (!product) return new NextResponse('Not found', { status: 404 });
+  if (!product || (!product.published && !await getSession())) return new NextResponse('Not found', { status: 404 });
 
   const image = index === 0 ? product.image : product.images[index - 1];
   if (!image) return new NextResponse('Not found', { status: 404 });
@@ -36,7 +37,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   return new NextResponse(bytes, {
     headers: {
       'Content-Type': dataUri?.[1].toLowerCase() || 'image/jpeg',
-      'Cache-Control': version ? 'public, max-age=31536000, immutable' : 'public, max-age=300, s-maxage=300, stale-while-revalidate=1800',
+      'Cache-Control': product.published ? 'public, max-age=300, s-maxage=300, stale-while-revalidate=300' : 'private, no-store',
       'X-Content-Type-Options': 'nosniff',
     },
   });

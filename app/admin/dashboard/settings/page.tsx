@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 
 import { useState, useEffect } from 'react';
 import { Save, Loader2, Upload, X } from 'lucide-react';
@@ -156,6 +157,7 @@ export default function SettingsPage() {
     <div className="max-w-6xl mx-auto space-y-6">
       <div>
         <h1 className="text-3xl font-display font-bold text-white tracking-wide">Site Settings</h1>
+        <Link className="inline-block mt-3 text-sm text-gold-300 underline" href="/admin/dashboard/seo">SEO settings & AI API key / إعدادات الظهور ومفتاح AI</Link>
         <p className="text-sm text-chocolate-300 mt-1">Configure delivery fees, contact channels, hero media, and landing page content</p>
       </div>
 

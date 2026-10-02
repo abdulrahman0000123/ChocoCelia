@@ -3,6 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { Upload, X } from 'lucide-react';
 import { compressImage } from '@/app/lib/imageUtils';
+import { SeoEditor } from './SeoEditor';
+import { AttributesEditor } from './AttributesEditor';
+import type { ProductAttribute } from '@/app/lib/product-seo';
+import type { SeoValues } from '@/app/lib/seo-shared';
 
 interface Category {
   id: string;
@@ -28,11 +32,19 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
     image: initialData?.image || '',
     images: Array.isArray(initialData?.images) ? initialData.images : [],
     isAvailable: initialData?.isAvailable ?? true,
+    published: initialData?.published ?? true,
+    slug: initialData?.slug || '',
+    tags: initialData?.tags || '',
+    imageAltAr: initialData?.imageAltAr || '',
+    imageAltEn: initialData?.imageAltEn || '',
+    attributes: (Array.isArray(initialData?.attributes) ? initialData.attributes : []) as ProductAttribute[],
   });
 
   const [imagePreview, setImagePreview] = useState<string>(initialData?.image || '');
   const [uploading, setUploading] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
+  const [seo, setSeo] = useState<SeoValues>({});
+  useEffect(() => {if(initialData?.id) fetch(`/api/admin/seo?entityType=product&entityId=${initialData.id}`).then(r => r.json()).then(r => setSeo(r.values || {}));}, [initialData?.id]);
 
   useEffect(() => {
     fetchCategories();
@@ -118,7 +130,7 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    onSubmit({ ...formData, ...(Object.keys(seo).length ? {seo} : {}) });
   };
 
   const inputClasses = "w-full px-4 py-2.5 bg-chocolate-950/60 border border-chocolate-800 rounded-xl focus:ring-2 focus:ring-gold-500 focus:border-transparent outline-none transition-all text-white text-sm";
@@ -307,6 +319,14 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
           </label>
         </div>
       </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        {(['slug', 'tags', 'imageAltAr', 'imageAltEn'] as const).map(field => <label key={field} className="text-sm"><span className="block mb-1">{{slug: 'URL name (optional)', tags: 'Labels: New, Best Seller', imageAltAr: 'وصف الصورة بالعربي', imageAltEn: 'Image description (English)'}[field]}</span><input className={inputClasses} dir={field === 'imageAltAr' ? 'rtl' : 'ltr'} value={formData[field]} onChange={e => setFormData({...formData, [field]: e.target.value})}/></label>)}
+        <label className="text-sm"><input type="checkbox" checked={formData.published} onChange={e => setFormData({...formData, published: e.target.checked})}/> Published / ظاهر للجمهور</label>
+      </div>
+      {initialData?.id && <a className="inline-block text-sm text-gold-300 underline" href={`/ar/menu/${initialData.slug || initialData.id}?preview=1`} target="_blank" rel="noreferrer">Preview product / معاينة المنتج</a>}
+      <AttributesEditor value={formData.attributes} onChange={attributes => setFormData({...formData, attributes})}/>
+      <SeoEditor value={seo} onChange={setSeo} entity={initialData?.id ? {type: 'product', id: initialData.id} : undefined} source={{titleAr: formData.nameAr, titleEn: formData.name, bodyAr: formData.descriptionAr, bodyEn: formData.description}}/>
 
       <div className="flex justify-end gap-3 pt-4 border-t border-chocolate-850/40">
         <button

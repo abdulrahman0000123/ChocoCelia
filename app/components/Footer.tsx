@@ -95,6 +95,12 @@ export function Footer() {
               <div className="h-[2px] flex-1 bg-gradient-to-r from-gold-500 to-transparent" />
             </h4>
             <ul className="space-y-3 font-cairo">
+              <li><Link href="/journal" className="text-chocolate-300 hover:text-gold-400">{isAr ? 'دليل الشوكولاتة' : 'Chocolate journal'}</Link></li>
+              <li><Link href="/collections" className="text-chocolate-300 hover:text-gold-400">{isAr ? 'المجموعات' : 'Collections'}</Link></li>
+              <li><Link href="/occasions" className="text-chocolate-300 hover:text-gold-400">{isAr ? 'المناسبات' : 'Occasions'}</Link></li>
+              <li><Link href="/categories" className="text-chocolate-300 hover:text-gold-400">{isAr ? 'التصنيفات' : 'Categories'}</Link></li>
+              <li><Link href="/campaigns" className="text-chocolate-300 hover:text-gold-400">{isAr ? 'الحملات' : 'Campaigns'}</Link></li>
+              <li><Link href="/pages" className="text-chocolate-300 hover:text-gold-400">{isAr ? 'معلومات إضافية' : 'Information'}</Link></li>
               <li>
                 <Link href="/menu" className="text-chocolate-300 hover:text-gold-400 transition-all hover:translate-x-1 inline-block">
                   → {t('menu')}

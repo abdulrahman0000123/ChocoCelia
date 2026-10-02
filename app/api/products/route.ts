@@ -3,6 +3,10 @@ import { NextResponse } from 'next/server';
 import { getSession } from '@/app/lib/auth';
 import { validateProductInput } from '@/app/lib/validation';
 import { toPublicProduct } from '@/app/lib/productImages';
+import { productSeoInput, validateProductSlug } from '@/app/lib/product-seo';
+import { saveSeo } from '@/app/lib/seo';
+import { localSeo } from '@/app/lib/seo-shared';
+import { requireAdmin, invalidateSeo, apiError } from '@/app/lib/seo-admin';
 
 // GET all products
 export async function GET(request: Request) {
@@ -10,7 +14,8 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const categoryId = searchParams.get('categoryId');
 
-    const where = categoryId ? { categoryId } : {};
+    const admin = await getSession();
+    const where = { ...(categoryId ? { categoryId } : {}), ...(!admin ? { published: true } : {}) };
 
     const products = await prisma.product.findMany({
       where,
@@ -34,7 +39,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     // Check authentication
-    const session = await getSession();
+    const session = await requireAdmin(request);
     if (!session) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -43,6 +48,8 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
+    const seoInput = productSeoInput(body);
+    await validateProductSlug(seoInput.fields.slug);
     const {
       name,
       nameAr,
@@ -95,6 +102,7 @@ export async function POST(request: Request) {
     // Create product
     const product = await prisma.product.create({
       data: {
+        ...seoInput.fields,
         name,
         nameAr: nameAr || null,
         description,
@@ -111,9 +119,12 @@ export async function POST(request: Request) {
       },
     });
 
+    await saveSeo('product', product.id, seoInput.seo || localSeo({titleAr: nameAr || name, titleEn: name, bodyAr: descriptionAr || description, bodyEn: description, image: toPublicProduct(product).image.replace(/&v=\d+/, '')}), session.user!.id);
+    invalidateSeo();
     return NextResponse.json(toPublicProduct(product), { status: 201 });
   } catch (error) {
-    console.error('Failed to create product:', error);
+    if (error instanceof Error && /^(Invalid |Slug )/.test(error.message)) return apiError(error);
+    console.error('Failed to create product');
     return NextResponse.json(
       { error: 'Failed to create product' },
       { status: 500 }

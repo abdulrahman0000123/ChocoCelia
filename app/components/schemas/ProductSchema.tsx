@@ -14,6 +14,8 @@ interface SchemaReview {
 interface ProductSchemaProps {
   product: {
     id: string;
+    slug?: string | null;
+    stock?: number | null;
     name: string;
     description: string;
     nameAr?: string | null;
@@ -33,7 +35,7 @@ interface ProductSchemaProps {
 export function ProductSchema({ product, reviews = [], locale }: ProductSchemaProps) {
   const isAr = locale === 'ar';
   const siteUrl = getSiteUrl();
-  const productUrl = `${siteUrl}/${locale}/menu/${product.id}`;
+  const productUrl = `${siteUrl}/${locale}/menu/${product.slug || product.id}`;
   const imageUrls = [product.image, ...(product.images || [])].map((image) =>
     image.startsWith('/') ? `${siteUrl}${image}` : image,
   ).filter(Boolean);
@@ -63,7 +65,7 @@ export function ProductSchema({ product, reviews = [], locale }: ProductSchemaPr
       "priceCurrency": "EGP",
       "price": product.price,
       "itemCondition": "https://schema.org/NewCondition",
-      "availability": product.isAvailable ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "availability": product.isAvailable && product.stock !== 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       "seller": {
         "@type": "Organization",
         "name": isAr ? "شوكو سيليا" : "Choco Celia",

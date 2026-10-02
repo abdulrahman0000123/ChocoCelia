@@ -5,7 +5,7 @@ import { toPublicProduct } from '@/app/lib/productImages';
 export async function GET() {
   try {
     const products = await prisma.product.findMany({
-      where: { isAvailable: true },
+      where: { isAvailable: true, published: true },
       select: {
         id: true,
         name: true,

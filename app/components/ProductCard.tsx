@@ -11,6 +11,10 @@ import { WishlistButton } from './WishlistButton';
 
 interface Product {
   id: string;
+  slug?: string | null;
+  isAvailable?: boolean;
+  imageAltAr?: string | null;
+  imageAltEn?: string | null;
   name: string;
   nameAr?: string | null;
   description: string;
@@ -43,6 +47,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (product.isAvailable === false) return;
     addItem({
       id: product.id,
       name: displayName,
@@ -57,7 +62,7 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <Link href={`/menu/${product.id}`} className="block group">
+    <Link href={`/menu/${product.slug || product.id}`} className="block group">
       <motion.div
         initial={{ opacity: 0, y: 15 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -71,7 +76,7 @@ export function ProductCard({ product }: ProductCardProps) {
           {product.image ? (
             <Image 
               src={product.image} 
-              alt={displayName}
+              alt={(isAr ? product.imageAltAr : product.imageAltEn) || displayName}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -99,6 +104,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
           {/* Quick Add to Cart Button */}
           <button 
+            disabled={product.isAvailable === false}
             onClick={handleAddToCart}
             className={`absolute bottom-4 ${isAr ? 'left-4' : 'right-4'} p-3.5 rounded-full shadow-lg z-20 transition-all duration-300 hover:scale-110 active:scale-95 ${
               isAdded 

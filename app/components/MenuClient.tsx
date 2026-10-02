@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ProductCard } from './ProductCard';
 import { useLocale, useTranslations } from 'next-intl';
 import { ProductFilters, FilterState } from './ProductFilters';
 import { SlidersHorizontal } from 'lucide-react';
 import { Breadcrumb } from './Breadcrumb';
+import { trackSearchEvent } from '@/app/lib/analytics';
+import type { ProductAttribute } from '@/app/lib/product-seo';
 
 interface Category {
   id: string;
@@ -28,6 +30,7 @@ interface Product {
   };
   tags?: string | null;
   createdAt?: Date | string;
+  attributes?: unknown;
 }
 
 interface MenuClientProps {
@@ -53,6 +56,11 @@ export function MenuClient({ products, categories, initialCategory = 'All', init
   });
 
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const [attribute, setAttribute] = useState('');
+  const attributeOptions = new Map<string, string>();
+  products.forEach(p => {if (Array.isArray(p.attributes)) p.attributes.forEach((a: ProductAttribute) => attributeOptions.set(a.key, isAr ? a.valueAr : a.valueEn));});
+  useEffect(() => {if (!search.trim()) return; const timer = setTimeout(() => trackSearchEvent(search.trim()), 700); return () => clearTimeout(timer);}, [search]);
 
   // Filtering Logic
   let filtered = products.filter((p) => {
@@ -65,7 +73,10 @@ export function MenuClient({ products, categories, initialCategory = 'All', init
       filters.tag === 'All' ||
       (p.tags && p.tags.toLowerCase().includes(filters.tag.toLowerCase()));
 
-    return catMatch && priceMatch && tagMatch;
+    const attrs = Array.isArray(p.attributes) ? p.attributes as ProductAttribute[] : [];
+    const attributeMatch = !attribute || attrs.some(a => a.key === attribute);
+    const text = [p.name, p.nameAr, p.description, p.descriptionAr, ...attrs.flatMap(a => [a.valueAr, a.valueEn, a.aliases])].join(' ').toLocaleLowerCase();
+    return catMatch && priceMatch && tagMatch && attributeMatch && text.includes(search.toLocaleLowerCase());
   });
 
   // Sorting Logic
@@ -97,6 +108,10 @@ export function MenuClient({ products, categories, initialCategory = 'All', init
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
       <Breadcrumb items={breadcrumbs} locale={locale} />
+      <div className="grid gap-3 md:grid-cols-2 my-5">
+        <label className="text-sm text-chocolate-900 dark:text-chocolate-100">{isAr ? 'ابحث عن شوكولاتة' : 'Search chocolates'}<input className="block mt-1 w-full rounded-lg border border-chocolate-300 dark:border-chocolate-700 bg-chocolate-50 dark:bg-chocolate-900 p-3" value={search} onChange={e => setSearch(e.target.value)}/></label>
+        {!!attributeOptions.size && <label className="text-sm text-chocolate-900 dark:text-chocolate-100">{isAr ? 'خصائص المنتج' : 'Product attributes'}<select className="block mt-1 w-full rounded-lg border border-chocolate-300 dark:border-chocolate-700 bg-chocolate-50 dark:bg-chocolate-900 p-3" value={attribute} onChange={e => setAttribute(e.target.value)}><option value="">{isAr ? 'كل الخصائص' : 'All attributes'}</option>{[...attributeOptions].map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>}
+      </div>
       {/* Mobile filter toggle bar */}
       <div className="flex md:hidden justify-between items-center bg-white/80 dark:bg-chocolate-900/90 backdrop-blur-md p-4 rounded-2xl shadow-md mb-6 border border-chocolate-100/50 dark:border-chocolate-800/80">
         <span className="text-sm font-bold text-chocolate-700 dark:text-chocolate-200 font-cairo">

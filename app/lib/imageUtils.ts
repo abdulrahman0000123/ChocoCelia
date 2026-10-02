@@ -69,7 +69,7 @@ export async function compressImage(
           // Draw and compress
           ctx.drawImage(img, 0, 0, width, height);
           
-          const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+          const compressedBase64 = canvas.toDataURL('image/webp', quality);
           
           resolve({ success: true, data: compressedBase64 });
         } catch (error) {

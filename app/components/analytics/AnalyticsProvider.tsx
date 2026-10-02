@@ -6,10 +6,10 @@ import { ClarityProvider } from './ClarityProvider';
 import { MetaPixelProvider } from './MetaPixelProvider';
 import { TikTokPixelProvider } from './TikTokPixelProvider';
 
-export function AnalyticsProvider() {
+export function AnalyticsProvider({measurementId}: {measurementId?: string} = {}) {
   return (
     <>
-      <GA4Provider />
+      <GA4Provider measurementId={measurementId} />
       <ClarityProvider />
       <MetaPixelProvider />
       <TikTokPixelProvider />

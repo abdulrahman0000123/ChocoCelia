@@ -1,3 +1,4 @@
+import { getSiteUrl } from '@/app/lib/productImages';
 import React from 'react';
 import { serializeJsonLd } from '@/app/lib/jsonLd';
 
@@ -18,8 +19,8 @@ export function OrganizationSchema({
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": isAr ? "شوكو سيليا" : "Choco Celia",
-    "url": process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://choco-celia2.vercel.app',
-    "logo": `${(process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://choco-celia2.vercel.app').replace(/\/$/, '')}/logo.png`,
+    "url": getSiteUrl(),
+    "logo": `${(getSiteUrl()).replace(/\/$/, '')}/logo.png`,
     "sameAs": [
       facebook,
       instagram

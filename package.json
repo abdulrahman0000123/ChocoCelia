@@ -4,13 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && prisma db push && next build",
+    "build": "prisma generate && prisma db execute --file scripts/ensure-login-attempts.sql --schema prisma/schema.prisma && prisma db execute --file scripts/ensure-seo.sql --schema prisma/schema.prisma && next build",
     "start": "next start",
     "lint": "eslint",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "test:seo": "node scripts/test-seo-integration.cjs"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

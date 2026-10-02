@@ -1,44 +1,21 @@
 import { prisma } from './db';
-
-export async function getRelatedProducts(productId: string, categoryId: string, limit: number = 4) {
+import { toPublicProduct } from './productImages';
+function attributeKeys(attributes: unknown): string[] {
+  return Array.isArray(attributes) ? attributes.filter(a => a && typeof a.key === 'string').map(a => a.key) : [];
+}
+export async function getRelatedProducts(productId: string, categoryId: string, limit = 4) {
   try {
-    // 1. Try to fetch products from the same category, excluding current product
-    let related = await prisma.product.findMany({
-      where: {
-        categoryId,
-        id: { not: productId },
-        isAvailable: true,
-      },
-      include: {
-        category: true,
-      },
-      take: limit,
-      orderBy: { createdAt: 'desc' },
-    });
-
-    // 2. If we don't have enough related products, fetch other available products
-    if (related.length < limit) {
-      const needed = limit - related.length;
-      const excludeIds = [productId, ...related.map((p) => p.id)];
-      
-      const fillProducts = await prisma.product.findMany({
-        where: {
-          id: { notIn: excludeIds },
-          isAvailable: true,
-        },
-        include: {
-          category: true,
-        },
-        take: needed,
-        orderBy: { createdAt: 'desc' },
-      });
-      
-      related = [...related, ...fillProducts];
+    const current = await prisma.product.findUnique({where: {id: productId}, select: {attributes: true}});
+    const keys = attributeKeys(current?.attributes);
+    const candidates = await prisma.product.findMany({where: {published: true, isAvailable: true, id: {not: productId}, OR: [{categoryId}, ...keys.map(key => ({attributes: {array_contains: [{key}]}}))]}, include: {category: true}, take: 30, orderBy: {createdAt: 'desc'}});
+    const ranked = candidates.sort((a, b) => {
+      const score = (p: typeof a) => attributeKeys(p.attributes).filter(key => keys.includes(key)).length * 2 + (p.categoryId === categoryId ? 1 : 0);
+      return score(b) - score(a);
+    }).slice(0, limit);
+    if (ranked.length < limit) {
+      const fill = await prisma.product.findMany({where: {published: true, isAvailable: true, id: {notIn: [productId, ...ranked.map(p => p.id)]}}, include: {category: true}, take: limit - ranked.length, orderBy: {createdAt: 'desc'}});
+      ranked.push(...fill);
     }
-
-    return related;
-  } catch (error) {
-    console.error('Error fetching related products:', error);
-    return [];
-  }
+    return ranked.map(toPublicProduct);
+  } catch {return [];}
 }

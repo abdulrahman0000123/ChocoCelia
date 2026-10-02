@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, useRef, use } from 'react';
 import { useCart } from '../../context/CartContext';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { PaymentConfirmation } from '../../components/PaymentConfirmation';
 import { OrderComplete } from '../../components/OrderComplete';
+import { trackCheckoutStart, trackPurchase } from '@/app/lib/analytics';
 
 interface CheckoutPageProps {
   params: Promise<{ locale: string }>;
@@ -119,6 +120,9 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
     setGrandTotal(checkoutSubtotal + fee);
   }, [formData.deliveryArea, deliveryFees, checkoutSubtotal]);
 
+  const checkoutTracked = useRef(false);
+  useEffect(() => {if(catalogReady && items.length && !checkoutTracked.current) {checkoutTracked.current = true; trackCheckoutStart(items.map(item => ({...item, price: catalog.find(p => p.id === item.id)?.price ?? item.price})), checkoutSubtotal);}}, [catalogReady, items, catalog, checkoutSubtotal]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!catalogReady || catalogError || unavailableItems) {
@@ -156,6 +160,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
 
       if (res.ok) {
         const orderResult = await res.json();
+        trackPurchase(orderResult);
         
         const orderDataForConfirmation = {
           customerName: formData.name,

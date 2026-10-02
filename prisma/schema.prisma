@@ -45,6 +45,12 @@ model Product {
   updatedAt   DateTime @updatedAt
   OrderItems  OrderItem[]
   reviews     Review[]
+  slug        String? @unique
+  published   Boolean @default(true)
+  imageAltAr  String?
+  imageAltEn  String?
+  attributes  Json @default("[]")
+  attributeSearch String @default("")
 
   @@index([categoryId])
 }
@@ -97,6 +103,7 @@ model SiteSettings {
   deliveryFeeEastNile   Float    @default(40) @map("deliveryfeeastnile")
   instaPayLink          String?  @map("instapaylink")
   cashWalletNumber      String?  @map("cashwalletnumber")
+  extra                 Json @default("{}")
   updatedAt             DateTime @updatedAt @map("updatedat")
   
   @@map("sitesettings")
@@ -176,4 +183,74 @@ model Coupon {
   expiry      DateTime?
   isActive    Boolean   @default(true)
   createdAt   DateTime  @default(now())
+}
+
+model SeoRecord {
+  id         String @id @default(cuid())
+  entityType String
+  entityId   String
+  values     Json @default("{}")
+  history    Json @default("[]")
+  updatedAt  DateTime @updatedAt
+  @@unique([entityType, entityId])
+}
+
+model SeoSettings {
+  id        Int @id @default(1)
+  values    Json @default("{}")
+  updatedAt DateTime @updatedAt
+}
+
+model AiSettings {
+  id           Int @id @default(1)
+  encryptedKey String?
+  encryptedGoogle String?
+  enabled      Boolean @default(false)
+  model        String @default("gpt-4o-mini")
+  updatedAt    DateTime @updatedAt
+}
+
+model ContentPage {
+  id          String @id @default(cuid())
+  kind        String @default("ARTICLE")
+  slug        String @unique
+  titleAr     String
+  titleEn     String
+  summaryAr   String @default("")
+  summaryEn   String @default("")
+  bodyAr      String @default("")
+  bodyEn      String @default("")
+  image       String @default("")
+  imageAltAr  String @default("")
+  imageAltEn  String @default("")
+  status      String @default("DRAFT")
+  publishAt   DateTime?
+  productIds  String[] @default([])
+  categoryId  String?
+  attributeKeys String[] @default([])
+  history     Json @default("[]")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@index([status, publishAt])
+}
+
+model UrlRedirect {
+  fromPath String @id
+  toPath   String
+  createdAt DateTime @default(now())
+}
+
+model TargetKeyword {
+  id         String @id @default(cuid())
+  term       String
+  locale     String
+  entityType String
+  entityId   String
+  intent     String @default("")
+  clicks     Int?
+  impressions Int?
+  position   Float?
+  source     String @default("manual")
+  updatedAt  DateTime @updatedAt
+  @@unique([term, locale, entityType, entityId])
 }
