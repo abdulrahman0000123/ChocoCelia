@@ -111,4 +111,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS "TargetKeyword_term_locale_entityType_entityId
 -- CreateIndex
 CREATE UNIQUE INDEX IF NOT EXISTS "Product_slug_key" ON "Product"("slug");
 
+-- Optional AI providers. Existing OpenAI key stays compatible.
+ALTER TABLE "AiSettings" ADD COLUMN IF NOT EXISTS "provider" TEXT NOT NULL DEFAULT 'openai',
+ADD COLUMN IF NOT EXISTS "providerKeys" JSONB NOT NULL DEFAULT '{}';
+
 COMMIT;

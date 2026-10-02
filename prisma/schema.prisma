@@ -205,6 +205,8 @@ model AiSettings {
   id           Int @id @default(1)
   encryptedKey String?
   encryptedGoogle String?
+  provider     String @default("openai")
+  providerKeys Json @default("{}")
   enabled      Boolean @default(false)
   model        String @default("gpt-4o-mini")
   updatedAt    DateTime @updatedAt

@@ -6,6 +6,7 @@ import { saveSeo } from '@/app/lib/seo';
 import { sealSecret } from '@/app/lib/secret-store';
 import { randomBytes } from 'node:crypto';
 import { contentPath, isPublished } from '@/app/lib/seo-shared';
+import {aiProviders, isAiProvider, validAiModel, providerKey} from '@/app/lib/ai-providers';
 
 export async function GET(request: Request) {
   if (!await requireAdmin()) return NextResponse.json({error: 'Unauthorized'}, {status: 401});
@@ -25,7 +26,9 @@ export async function GET(request: Request) {
     for (const product of products) if (!records.some(r => r.entityType === 'product' && r.entityId === product.id)) records.push({id: `missing:${product.id}`, entityType: 'product', entityId: product.id, values: {}, history: [], updatedAt: new Date(0)});
     const titles = new Map<string, number>();
     records.forEach(r => { const v = validateSeo(r.values); for (const t of [v.titleAr, v.titleEn]) if (t) titles.set(t, (titles.get(t) || 0) + 1); });
-    return NextResponse.json({settings: settings?.values || {}, ai: {enabled: ai?.enabled || false, model: ai?.model || 'gpt-4o-mini', hasKey: !!ai?.encryptedKey, hasGoogle: !!ai?.encryptedGoogle}, records: records.map(r => {const values = validateSeo(r.values); const audit = seoAudit(values); return {...r, audit: {...audit, issues: [...audit.issues, ...[values.titleAr, values.titleEn].filter(t => t && (titles.get(t) || 0) > 1).map(() => 'Duplicate title')]}};}), products: products.map(p => ({id: p.id, name: p.name, nameAr: p.nameAr, published: p.published})), content, keywords});
+    const provider = ai && isAiProvider(ai.provider) ? ai.provider : 'openai';
+    const configuredProviders = Object.keys(aiProviders).filter(p => ai && isAiProvider(p) && providerKey(ai, p));
+    return NextResponse.json({settings: settings?.values || {}, ai: {enabled: ai?.enabled || false, provider, configuredProviders, model: ai?.model || 'gpt-4o-mini', hasKey: !!ai && !!providerKey(ai, provider), hasGoogle: !!ai?.encryptedGoogle}, records: records.map(r => {const values = validateSeo(r.values); const audit = seoAudit(values); return {...r, audit: {...audit, issues: [...audit.issues, ...[values.titleAr, values.titleEn].filter(t => t && (titles.get(t) || 0) > 1).map(() => 'Duplicate title')]}};}), products: products.map(p => ({id: p.id, name: p.name, nameAr: p.nameAr, published: p.published})), content, keywords});
   } catch (error) { return apiError(error); }
 }
 export async function POST(request: Request) {
@@ -52,14 +55,23 @@ export async function POST(request: Request) {
       await prisma.urlRedirect.create({data: {fromPath, toPath: `/${locale}${path}`}});
       return NextResponse.json({path: fromPath});
     } else if (body.action === 'ai') {
-      if (typeof body.enabled !== 'boolean' || typeof body.model !== 'string' || !/^[a-zA-Z0-9._-]{1,100}$/.test(body.model)) throw new Error('Invalid AI settings');
-      const updates: {enabled: boolean; model: string; encryptedKey?: string | null} = {enabled: body.enabled, model: body.model};
-      if (body.clearKey === true) {updates.encryptedKey = null; updates.enabled = false;}
-      else if (body.apiKey) {
-        if (typeof body.apiKey !== 'string' || !/^sk-[a-zA-Z0-9_-]{20,}$/.test(body.apiKey) || body.apiKey.length > 500) throw new Error('Invalid API key');
-        updates.encryptedKey = sealSecret(body.apiKey);
-      }
-      await prisma.aiSettings.upsert({where: {id: 1}, create: {id: 1, ...updates}, update: updates});
+      // Update only the selected provider's key; preserve other provider keys.
+      await prisma.$transaction(async tx => {
+        const existing = await tx.aiSettings.findUnique({where: {id: 1}});
+        const provider = body.provider ?? existing?.provider ?? 'openai';
+        const model = typeof body.model === 'string' ? body.model.trim() : body.model;
+        if (!isAiProvider(provider) || !validAiModel(provider, model) || typeof body.enabled !== 'boolean') throw new Error('Invalid AI settings');
+        const keys: Record<string, string> = {};
+        for (const p of Object.keys(aiProviders)) if (existing && isAiProvider(p)) {const saved = providerKey(existing, p); if (saved) keys[p] = saved;}
+        if (body.clearKey === true) delete keys[provider];
+        else if (body.apiKey !== undefined && body.apiKey !== '') {
+          if (typeof body.apiKey !== 'string' || body.apiKey.trim().length < 20 || body.apiKey.trim().length > 1000 || /\s/.test(body.apiKey.trim())) throw new Error('Invalid API key');
+          keys[provider] = sealSecret(body.apiKey.trim());
+        }
+        if (body.enabled && body.clearKey !== true && !keys[provider]) throw new Error('Missing API key for selected provider');
+        const updates = {provider, model, enabled: body.clearKey === true ? false : body.enabled, providerKeys: keys, encryptedKey: keys.openai || null};
+        await tx.aiSettings.upsert({where: {id: 1}, create: {id: 1, ...updates}, update: updates});
+      });
     } else if (body.action === 'record') {
       const entityType = String(body.entityType), entityId = String(body.entityId);
       if (!['product', 'content', 'page'].includes(entityType) || entityId.length > 160) throw new Error('Invalid SEO target');
