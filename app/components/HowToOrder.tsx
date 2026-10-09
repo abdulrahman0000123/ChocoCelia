@@ -69,7 +69,7 @@ export function HowToOrder({ locale }: HowToOrderProps) {
         </div>
 
         {/* Steps Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
+        <div className="grid grid-cols-3 gap-2 md:gap-12 relative">
           {/* Connection line for desktop */}
           <div className="hidden md:block absolute top-1/4 left-[15%] right-[15%] h-0.5 bg-gradient-to-r from-gold-500/20 via-chocolate-200 dark:via-chocolate-800 to-gold-500/20 z-0" />
 
@@ -80,11 +80,11 @@ export function HowToOrder({ locale }: HowToOrderProps) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.15 }}
-              className="relative z-10 flex flex-col items-center text-center px-4"
+              className="relative z-10 flex flex-col items-center text-center px-1 md:px-4"
             >
               {/* Icon Container */}
-              <div className="relative mb-6">
-                <div className="w-20 h-20 bg-chocolate-50 dark:bg-chocolate-800 rounded-3xl flex items-center justify-center border-2 border-gold-500/30 shadow-md group-hover:scale-105 transition-transform duration-300">
+              <div className="relative mb-2 md:mb-6">
+                <div className="w-12 h-12 md:w-20 md:h-20 bg-chocolate-50 dark:bg-chocolate-800 rounded-3xl flex items-center justify-center border-2 border-gold-500/30 shadow-md group-hover:scale-105 transition-transform duration-300">
                   {step.icon}
                 </div>
                 {/* Number Badge */}
@@ -94,12 +94,12 @@ export function HowToOrder({ locale }: HowToOrderProps) {
               </div>
 
               {/* Title */}
-              <h3 className="text-xl font-bold text-chocolate-900 dark:text-white font-cairo mb-3">
+              <h3 className="text-xs md:text-xl font-bold text-chocolate-900 dark:text-white font-cairo mb-1 md:mb-3">
                 {step.title}
               </h3>
 
               {/* Description */}
-              <p className="text-chocolate-600 dark:text-chocolate-300 text-sm leading-relaxed max-w-sm">
+              <p className="hidden md:block text-chocolate-600 dark:text-chocolate-300 text-sm leading-relaxed max-w-sm">
                 {step.description}
               </p>
             </motion.div>

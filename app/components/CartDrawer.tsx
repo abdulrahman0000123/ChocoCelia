@@ -37,7 +37,7 @@ export function CartDrawer() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={toggleCart}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70]"
           />
 
           {/* Modern Drawer */}
@@ -51,10 +51,10 @@ export function CartDrawer() {
             aria-label={t('yourCart')}
             className={`fixed inset-y-0 ${
               isAr ? 'left-0' : 'right-0'
-            } w-full max-w-md bg-gradient-to-b from-white to-chocolate-50/30 dark:from-chocolate-900 dark:to-chocolate-950 shadow-2xl z-50 flex flex-col overflow-hidden`}
+            } w-full max-w-md bg-gradient-to-b from-white to-chocolate-50/30 dark:from-chocolate-900 dark:to-chocolate-950 shadow-2xl z-[70] flex flex-col overflow-hidden`}
           >
             {/* Header with gradient */}
-            <div className="relative bg-gradient-to-r from-chocolate-600 via-chocolate-700 to-chocolate-800 dark:from-gold-600 dark:via-gold-700 dark:to-gold-800 p-6 pb-8">
+            <div className="relative bg-gradient-to-r from-chocolate-600 via-chocolate-700 to-chocolate-800 dark:from-gold-600 dark:via-gold-700 dark:to-gold-800 p-3 md:p-6 pb-3 md:pb-8">
               <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMDUiIHN0cm9rZS13aWR0aD0iMScvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-30"></div>
               
               <div className="relative flex items-center justify-between">
@@ -79,7 +79,7 @@ export function CartDrawer() {
             </div>
 
             {/* Items List */}
-            <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
+            <div className="flex-1 overflow-y-auto px-3 py-3 md:px-4 md:py-6 space-y-3 md:space-y-4">
               {items.length === 0 ? (
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
@@ -111,11 +111,11 @@ export function CartDrawer() {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ delay: index * 0.05 }}
-                    className="bg-white dark:bg-chocolate-800 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow border border-chocolate-50 dark:border-chocolate-850"
+                    className="bg-white dark:bg-chocolate-800 rounded-2xl p-2.5 md:p-4 shadow-sm hover:shadow-md transition-shadow border border-chocolate-50 dark:border-chocolate-850"
                   >
                     <div className="flex gap-4">
                       {/* Product Image */}
-                      <div className="relative w-24 h-24 bg-gradient-to-br from-chocolate-100 to-chocolate-200 dark:from-chocolate-700 dark:to-chocolate-800 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden group">
+                      <div className="relative w-16 h-16 md:w-24 md:h-24 bg-gradient-to-br from-chocolate-100 to-chocolate-200 dark:from-chocolate-700 dark:to-chocolate-800 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden group">
                         {item.image ? (
                           <Image 
                             src={item.image} 
@@ -130,7 +130,7 @@ export function CartDrawer() {
                         <div className="absolute top-2 right-2 z-10">
                           <button
                             onClick={() => removeItem(item.id)}
-                            className="bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-full transition-all shadow-lg active:scale-90 cursor-pointer min-h-[28px] min-w-[28px] flex items-center justify-center"
+                            className="bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-full transition-all shadow-lg active:scale-90 cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
                             aria-label="Remove item"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -155,17 +155,17 @@ export function CartDrawer() {
                           <div className="flex items-center bg-chocolate-100 dark:bg-chocolate-700 rounded-full shadow-inner">
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                              className="p-2 hover:bg-chocolate-200 dark:hover:bg-chocolate-600 rounded-full text-chocolate-700 dark:text-chocolate-200 transition-all active:scale-90 cursor-pointer min-h-[32px] min-w-[32px] flex items-center justify-center"
+                              className="p-2 hover:bg-chocolate-200 dark:hover:bg-chocolate-600 rounded-full text-chocolate-700 dark:text-chocolate-200 transition-all active:scale-90 cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
                               aria-label="Decrease quantity"
                             >
                               <Minus className="w-3.5 h-3.5" />
                             </button>
-                            <span className="w-10 text-center text-sm font-bold text-chocolate-900 dark:text-chocolate-100">
+                            <span className="w-7 md:w-10 text-center text-sm font-bold text-chocolate-900 dark:text-chocolate-100">
                               {item.quantity}
                             </span>
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="p-2 hover:bg-chocolate-200 dark:hover:bg-chocolate-600 rounded-full text-chocolate-700 dark:text-chocolate-200 transition-all active:scale-90 cursor-pointer min-h-[32px] min-w-[32px] flex items-center justify-center"
+                              className="p-2 hover:bg-chocolate-200 dark:hover:bg-chocolate-600 rounded-full text-chocolate-700 dark:text-chocolate-200 transition-all active:scale-90 cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
                               aria-label="Increase quantity"
                             >
                               <Plus className="w-3.5 h-3.5" />
@@ -189,9 +189,9 @@ export function CartDrawer() {
 
             {/* Footer with Total */}
             {items.length > 0 && (
-              <div className="border-t border-chocolate-200 dark:border-chocolate-800 bg-white dark:bg-chocolate-900 p-6 space-y-4">
+              <div className="border-t border-chocolate-200 dark:border-chocolate-800 bg-white dark:bg-chocolate-900 p-3 md:p-6 space-y-3 md:space-y-4">
                 {/* Subtotal */}
-                <div className="bg-gradient-to-r from-chocolate-50 to-chocolate-100 dark:from-chocolate-800 dark:to-chocolate-700 rounded-2xl p-4 font-cairo">
+                <div className="bg-gradient-to-r from-chocolate-50 to-chocolate-100 dark:from-chocolate-800 dark:to-chocolate-700 rounded-2xl p-3 md:p-4 font-cairo">
                   <div className="flex justify-between items-center mb-2 text-sm font-semibold">
                     <span className="text-chocolate-600 dark:text-chocolate-300">
                       {isAr ? 'المجموع الفرعي' : 'Subtotal'}

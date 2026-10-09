@@ -62,23 +62,23 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <Link href={`/menu/${product.slug || product.id}`} className="block group">
+    <Link href={`/menu/${product.slug || product.id}`} className="block group h-full min-w-0">
       <motion.div
         initial={{ opacity: 0, y: 15 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         whileHover={{ y: -6 }}
         transition={{ duration: 0.4 }}
-        className="bg-white dark:bg-chocolate-900 rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-chocolate-100/50 dark:border-chocolate-800/80 cursor-pointer flex flex-col h-full"
+        className="bg-white dark:bg-chocolate-900 rounded-2xl md:rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-chocolate-100/50 dark:border-chocolate-800/80 cursor-pointer flex flex-col h-full"
       >
-        <div className="relative h-64 w-full overflow-hidden bg-chocolate-50 dark:bg-chocolate-800">
+        <div className="relative aspect-square max-h-[150px] md:max-h-none md:aspect-auto md:h-64 w-full overflow-hidden bg-chocolate-50 dark:bg-chocolate-800">
           {/* Product Image */}
           {product.image ? (
             <Image 
               src={product.image} 
               alt={(isAr ? product.imageAltAr : product.imageAltEn) || displayName}
               fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 33vw"
               className="object-cover group-hover:scale-105 transition-transform duration-500"
               priority={false}
             />
@@ -90,23 +90,23 @@ export function ProductCard({ product }: ProductCardProps) {
           
           {/* Tags */}
           {product.tags && (
-            <div className={`absolute top-4 ${isAr ? 'right-4' : 'left-4'}`}>
-              <span className="px-3.5 py-1 bg-gradient-to-r from-gold-500 to-gold-600 text-white text-xs font-bold rounded-full shadow-md">
+            <div className={`absolute top-2 md:top-4 ${isAr ? 'right-2 md:right-4' : 'left-2 md:left-4'}`}>
+              <span className="max-w-[calc(100%_-_3.5rem)] truncate inline-block px-2 md:px-3.5 py-1 bg-gradient-to-r from-gold-500 to-gold-600 text-white text-xs font-bold rounded-full shadow-md">
                 {product.tags}
               </span>
             </div>
           )}
 
           {/* Wishlist Heart Overlay */}
-          <div className={`absolute top-4 ${isAr ? 'left-4' : 'right-4'} z-20`}>
-            <WishlistButton productId={product.id} size={18} />
+          <div className={`absolute top-2 md:top-4 ${isAr ? 'left-2 md:left-4' : 'right-2 md:right-4'} z-20`}>
+            <WishlistButton productId={product.id} size={18} className="min-h-[44px] min-w-[44px]" />
           </div>
 
           {/* Quick Add to Cart Button */}
           <button 
             disabled={product.isAvailable === false}
             onClick={handleAddToCart}
-            className={`absolute bottom-4 ${isAr ? 'left-4' : 'right-4'} p-3.5 rounded-full shadow-lg z-20 transition-all duration-300 hover:scale-110 active:scale-95 ${
+            className={`absolute bottom-2 md:bottom-4 ${isAr ? 'left-2 md:left-4' : 'right-2 md:right-4'} p-3 md:p-3.5 min-h-[44px] min-w-[44px] rounded-full shadow-lg z-20 transition-all duration-300 hover:scale-110 active:scale-95 ${
               isAdded 
                 ? 'bg-green-500 text-white' 
                 : 'bg-white dark:bg-chocolate-800 hover:bg-gold-600 hover:text-white text-chocolate-700 dark:text-chocolate-100'
@@ -118,23 +118,23 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Card Details */}
-        <div className="p-6 flex flex-col flex-grow justify-between">
+        <div className="p-2.5 md:p-6 flex flex-col flex-grow justify-between">
           <div>
-            <div className="text-xs text-gold-600 dark:text-gold-400 font-bold uppercase tracking-wider mb-2">
+            <div className="text-xs text-gold-600 dark:text-gold-400 font-bold uppercase tracking-wider mb-1 md:mb-2 truncate">
               {displayCategory}
             </div>
             
-            <h3 className="text-xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-2 font-cairo group-hover:text-gold-600 dark:group-hover:text-gold-500 transition-colors line-clamp-1">
+            <h3 className="text-sm md:text-xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-1 md:mb-2 font-cairo group-hover:text-gold-600 dark:group-hover:text-gold-500 transition-colors line-clamp-2 md:line-clamp-1 min-h-[2.5rem] md:min-h-0 leading-5 md:leading-normal">
               {displayName}
             </h3>
             
-            <p className="text-chocolate-600 dark:text-chocolate-300 text-sm mb-4 line-clamp-2 leading-relaxed">
+            <p className="hidden md:block text-chocolate-600 dark:text-chocolate-300 text-sm mb-4 line-clamp-2 leading-relaxed">
               {displayDescription}
             </p>
           </div>
 
-          <div className="flex items-center border-t border-chocolate-50 dark:border-chocolate-800/40 pt-4 mt-auto">
-            <span className="text-xl font-extrabold text-chocolate-900 dark:text-white">
+          <div className="flex items-center border-t border-chocolate-50 dark:border-chocolate-800/40 pt-2 md:pt-4 mt-auto">
+            <span className="text-sm md:text-xl font-extrabold tabular-nums text-chocolate-900 dark:text-white">
               {Number(product.price).toFixed(2)} EGP
             </span>
           </div>

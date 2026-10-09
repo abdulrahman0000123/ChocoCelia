@@ -106,7 +106,7 @@ export function ProductFilters({
   };
 
   const filterContent = (
-    <div className="space-y-8">
+    <div className="space-y-5 md:space-y-8">
       {/* Header */}
       <div className="flex justify-between items-center pb-4 border-b border-chocolate-100 dark:border-chocolate-850">
         <div className="flex items-center gap-2 font-bold text-chocolate-900 dark:text-white text-lg font-cairo">
@@ -255,8 +255,8 @@ export function ProductFilters({
 
       {/* Mobile Modal Drawer Sheet filter view */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 bg-chocolate-950/40 backdrop-blur-md flex justify-end md:hidden" role="presentation" onClick={onClose}>
-          <div ref={dialogRef} className="w-full max-w-xs bg-white dark:bg-chocolate-900 h-dvh p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl flex flex-col overflow-hidden animate-slide-in" role="dialog" aria-modal="true" aria-label={isAr ? 'تصفية المنتجات' : 'Filter products'} onClick={(event) => event.stopPropagation()}>
+        <div className="fixed inset-0 z-[70] bg-chocolate-950/40 backdrop-blur-md flex items-end justify-center md:hidden" role="presentation" onClick={onClose}>
+          <div ref={dialogRef} className="w-full bg-white dark:bg-chocolate-900 max-h-[85dvh] rounded-t-3xl p-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl flex flex-col overflow-hidden animate-slide-in" role="dialog" aria-modal="true" aria-label={isAr ? 'تصفية المنتجات' : 'Filter products'} onClick={(event) => event.stopPropagation()}>
             <div className="flex-1 min-h-0 overflow-y-auto">
               <div className="flex justify-end mb-4">
                 <button

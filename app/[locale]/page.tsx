@@ -3,6 +3,7 @@ import React from 'react';
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { Hero } from '../components/Hero';
+import { HomeCategoryShortcuts } from '../components/HomeCategoryShortcuts';
 import { HomeClient } from '../components/HomeClient';
 import { HowToOrder } from '../components/HowToOrder';
 import { Testimonials } from '../components/Testimonials';
@@ -78,25 +79,26 @@ export default async function HomePage({ params }: PageProps) {
   ];
 
   return (
-    <div className="flex flex-col gap-16 pb-16 bg-gradient-to-b from-transparent via-chocolate-50/10 to-transparent">
+    <div className="flex flex-col gap-5 md:gap-16 pb-6 md:pb-16 bg-gradient-to-b from-transparent via-chocolate-50/10 to-transparent">
       {/* Schema.org Structured Data */}
 
       {/* 1. Hero Banner */}
       <Hero settings={settings} locale={locale} activeCampaign={activeCampaign} />
       
-      {/* 2. How To Order (Visual Guide) */}
-      <HowToOrder locale={locale} />
-
-      {/* Recently Viewed Products */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <RecentlyViewed products={products} />
-      </div>
+      <HomeCategoryShortcuts locale={locale} categories={Array.from(new Map(products.filter(p => p.category).map(p => [p.category.id, { ...p.category, image: p.image }])).values())} />
 
       {/* 3. Products Grid and Brand Features */}
       <HomeClient 
         featuredProducts={featured} 
         featureCards={featureCards} 
       />
+
+      <HowToOrder locale={locale} />
+
+      {/* Recently Viewed Products */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <RecentlyViewed products={products} />
+      </div>
 
       {/* 4. Testimonials (Social Proof) */}
       <Testimonials locale={locale} testimonials={testimonials} />

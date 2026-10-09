@@ -32,7 +32,7 @@ export function ProductImageGallery({ mainImage, images = [], name, locale, unop
   return (
     <div className="flex flex-col gap-4 w-full">
       {/* Main Image Viewport */}
-      <div className="relative bg-white dark:bg-chocolate-850 rounded-3xl aspect-square flex items-center justify-center overflow-hidden shadow-2xl border border-chocolate-100/50 dark:border-chocolate-800/80 group">
+      <div className="relative bg-white dark:bg-chocolate-850 rounded-2xl md:rounded-3xl aspect-[4/3] max-h-[220px] md:max-h-none md:aspect-square flex items-center justify-center overflow-hidden shadow-2xl border border-chocolate-100/50 dark:border-chocolate-800/80 group">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeIndex}
@@ -49,7 +49,7 @@ export function ProductImageGallery({ mainImage, images = [], name, locale, unop
               fill
               priority={activeIndex === 0}
               sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-cover"
+              className="object-contain md:object-cover"
             />
           </motion.div>
         </AnimatePresence>
@@ -57,7 +57,7 @@ export function ProductImageGallery({ mainImage, images = [], name, locale, unop
         {/* Lightbox Trigger Button */}
         <button
           onClick={() => setIsLightboxOpen(true)}
-          className="absolute top-4 right-4 p-2.5 rounded-full bg-white/80 dark:bg-chocolate-900/85 backdrop-blur-sm shadow-md hover:bg-white text-chocolate-700 dark:text-chocolate-200 transition-all opacity-0 group-hover:opacity-100 active:scale-95 cursor-pointer min-h-[40px] min-w-[40px] flex items-center justify-center z-10"
+          className="absolute top-4 right-4 p-2.5 rounded-full bg-white/80 dark:bg-chocolate-900/85 backdrop-blur-sm shadow-md hover:bg-white text-chocolate-700 dark:text-chocolate-200 transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100 active:scale-95 cursor-pointer min-h-[40px] min-w-[40px] flex items-center justify-center z-10"
           aria-label="Zoom image"
         >
           <Maximize2 className="w-5 h-5" />
@@ -82,12 +82,12 @@ export function ProductImageGallery({ mainImage, images = [], name, locale, unop
 
       {/* Thumbnails strip */}
       {allImages.length > 1 && (
-        <div className="flex gap-3 justify-center">
+        <div className="flex gap-2 md:gap-3 overflow-x-auto py-1">
           {allImages.map((img, idx) => (
             <button
               key={idx}
               onClick={() => setActiveIndex(idx)}
-              className={`w-16 h-16 rounded-xl overflow-hidden relative border-2 bg-white dark:bg-chocolate-850 cursor-pointer transition-all active:scale-95 min-h-[64px] min-w-[64px] ${
+              className={`w-12 h-12 md:w-16 md:h-16 shrink-0 rounded-xl overflow-hidden relative border-2 bg-white dark:bg-chocolate-850 cursor-pointer transition-all active:scale-95 min-h-[48px] min-w-[48px] md:min-h-[64px] md:min-w-[64px] ${
                 idx === activeIndex
                   ? 'border-gold-500 shadow-md scale-105'
                   : 'border-chocolate-100/50 dark:border-chocolate-800/40 opacity-70 hover:opacity-100'
@@ -99,7 +99,7 @@ export function ProductImageGallery({ mainImage, images = [], name, locale, unop
                 alt="Thumbnail"
                 fill
                 sizes="64px"
-                className="object-cover"
+                className="object-contain md:object-cover"
               />
             </button>
           ))}

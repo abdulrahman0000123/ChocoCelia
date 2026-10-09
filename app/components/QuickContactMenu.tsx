@@ -62,9 +62,10 @@ export function QuickContactMenu({
 
       {/* Fixed wrapper — anchored to bottom corner */}
       <div
+        className="storefront-contact"
         style={{
           position: 'fixed',
-          bottom: 'calc(16px + env(safe-area-inset-bottom, 0px))',
+          bottom: 'calc(var(--storefront-contact-bottom, 16px) + env(safe-area-inset-bottom, 0px))',
           ...(isRtl ? { left: 'calc(16px + env(safe-area-inset-left, 0px))' } : { right: 'calc(16px + env(safe-area-inset-right, 0px))' }),
           zIndex: 40,
           display: 'flex',
@@ -85,6 +86,7 @@ export function QuickContactMenu({
             opacity: isOpen ? 1 : 0,
             transform: isOpen ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.85)',
             pointerEvents: isOpen ? 'auto' : 'none',
+            visibility: isOpen ? 'visible' : 'hidden',
           }}
         >
           {/* WhatsApp */}
@@ -193,6 +195,7 @@ export function QuickContactMenu({
           )}
           <button
             onClick={() => setIsOpen(o => !o)}
+            aria-expanded={isOpen}
             aria-label={isRtl ? 'تواصل معنا' : 'Contact Us'}
             title={isRtl ? 'تواصل معنا' : 'Contact Us'}
             style={{
@@ -200,8 +203,8 @@ export function QuickContactMenu({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: '58px',
-              height: '58px',
+              width: 'var(--storefront-contact-size, 58px)',
+              height: 'var(--storefront-contact-size, 58px)',
               borderRadius: '50%',
               border: 'none',
               cursor: 'pointer',

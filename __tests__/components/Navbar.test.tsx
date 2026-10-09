@@ -1,87 +1,45 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, within } from '@testing-library/react'
 import { Navbar } from '@/app/components/Navbar'
-import { CartProvider } from '@/app/context/CartContext'
-import { LanguageProvider } from '@/app/context/LanguageContext'
-import { ThemeProvider } from '@/app/components/ThemeProvider'
 
-const renderNavbar = () => {
-  return render(
-    <LanguageProvider>
-      <ThemeProvider attribute="class" defaultTheme="system">
-        <CartProvider>
-          <Navbar />
-        </CartProvider>
-      </ThemeProvider>
-    </LanguageProvider>
-  )
-}
+const mockReplace = jest.fn()
+const mockToggleCart = jest.fn()
+jest.mock('next-intl', () => ({
+  useLocale: () => 'en',
+  useTranslations: () => (key: string) => require('../../messages/en.json')[key] || key,
+}))
+jest.mock('@/i18n/routing', () => ({
+  Link: ({ children, ...props }: React.ComponentProps<'a'>) => <a {...props}>{children}</a>,
+  usePathname: () => '/menu',
+  useRouter: () => ({ replace: mockReplace }),
+}))
+jest.mock('@/app/context/CartContext', () => ({ useCart: () => ({ toggleCart: mockToggleCart, items: [{ quantity: 2 }] }) }))
+jest.mock('@/app/hooks/useWishlist', () => ({ useWishlist: () => ({ wishlist: [] }) }))
+jest.mock('@/app/components/SearchBar', () => ({ SearchBar: () => <div role="dialog" aria-label="Search products" /> }))
 
-describe('Navbar Component', () => {
-  test('should render brand name', () => {
-    renderNavbar()
-    
-    expect(screen.getByText('CHOCO-CELIA')).toBeInTheDocument()
-  })
+beforeEach(() => jest.clearAllMocks())
 
-  test('should render navigation links', () => {
-    renderNavbar()
-    
-    expect(screen.getByText('Home')).toBeInTheDocument()
-    expect(screen.getByText('Menu')).toBeInTheDocument()
-    expect(screen.getByText('About')).toBeInTheDocument()
-    expect(screen.getByText('Contact')).toBeInTheDocument()
-  })
-
-  test('should have correct href attributes', () => {
-    renderNavbar()
-    
-    const homeLink = screen.getAllByRole('link', { name: /home/i })[0]
-    expect(homeLink).toHaveAttribute('href', '/')
-  })
-
-  test('should render cart icon', () => {
-    renderNavbar()
-    
-    const cartButtons = screen.getAllByRole('button')
-    expect(cartButtons.length).toBeGreaterThan(0)
-  })
-
-  test('should render language toggle button', () => {
-    renderNavbar()
-    
-    const langButtons = screen.getAllByText('AR')
-    expect(langButtons.length).toBeGreaterThan(0)
-  })
-
-  test('should toggle language when button clicked', () => {
-    renderNavbar()
-    
-    const langButtons = screen.getAllByText('AR')
-    fireEvent.click(langButtons[0])
-    
-    // After clicking, buttons should show 'EN' (since we switched to Arabic)
-    const enButtons = screen.getAllByText('EN')
-    expect(enButtons.length).toBeGreaterThan(0)
-  })
-
-  test('should toggle mobile menu', () => {
-    renderNavbar()
-    
-    // Find menu button (should be present for mobile)
-    const menuButtons = screen.getAllByRole('button')
-    const menuButton = menuButtons.find(btn => 
-      btn.querySelector('svg') !== null
-    )
-    
-    expect(menuButton).toBeInTheDocument()
-  })
-
-  test('should show cart item count when items exist', () => {
-    // This would require adding items to cart first
-    renderNavbar()
-    
-    // Initially should be 0 items
-    const cartButtons = screen.getAllByRole('button')
-    expect(cartButtons).toBeTruthy()
-  })
+test('mobile navigation exposes shopping destinations and the active page', () => {
+  render(<Navbar />)
+  expect(screen.getByText('Choco Celia')).toBeInTheDocument()
+  const nav = screen.getByRole('navigation', { name: 'Main navigation' })
+  expect(within(nav).getByRole('link', { name: 'Shop' })).toHaveAttribute('href', '/menu')
+  expect(within(nav).getByRole('link', { name: 'Shop' })).toHaveAttribute('aria-current', 'page')
+  expect(within(nav).getByRole('link', { name: /wishlist/i })).toHaveAttribute('href', '/wishlist')
+})
+test('More opens secondary navigation and language switching preserves the current route', () => {
+  render(<Navbar />)
+  const more = screen.getByRole('button', { name: 'More' })
+  fireEvent.click(more)
+  expect(more).toHaveAttribute('aria-expanded', 'true')
+  fireEvent.click(screen.getByRole('button', { name: /Language/ }))
+  expect(mockReplace).toHaveBeenCalledWith('/menu', { locale: 'ar' })
+  expect(more).toHaveAttribute('aria-expanded', 'false')
+})
+test('bottom cart opens the existing cart and the header search opens search', () => {
+  render(<Navbar />)
+  const nav = screen.getByRole('navigation', { name: 'Main navigation' })
+  fireEvent.click(within(nav).getByRole('button', { name: /Cart/ }))
+  expect(mockToggleCart).toHaveBeenCalledTimes(1)
+  fireEvent.click(screen.getAllByRole('button', { name: /Search/ })[0])
+  expect(screen.getByRole('dialog', { name: 'Search products' })).toBeInTheDocument()
 })

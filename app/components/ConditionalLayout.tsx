@@ -30,7 +30,7 @@ export default function ConditionalLayout({
       <ChocolatePreloader />
       <Navbar />
       <CartDrawer />
-      <main className="flex-grow">
+      <main className="storefront-content flex-grow">
         {children}
       </main>
       <Footer />

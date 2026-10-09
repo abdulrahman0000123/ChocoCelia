@@ -230,7 +230,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-chocolate-50/20 dark:bg-chocolate-950/10 py-16">
+    <div className="checkout-compact min-h-screen bg-chocolate-50/20 dark:bg-chocolate-950/10 py-5 md:py-16">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <Link 
           href="/menu" 
@@ -240,10 +240,10 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
           {t('backToMenu')}
         </Link>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
           {/* Order Summary */}
-          <div className="bg-white dark:bg-chocolate-900 p-6 rounded-3xl shadow-lg border border-chocolate-100/50 dark:border-chocolate-800/80 h-fit">
-            <h2 className="text-xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-6 font-cairo border-b border-chocolate-50 dark:border-chocolate-800 pb-3">{t('orderSummary')}</h2>
+          <div className="bg-white dark:bg-chocolate-900 p-3 md:p-6 rounded-2xl md:rounded-3xl shadow-lg border border-chocolate-100/50 dark:border-chocolate-800/80 h-fit">
+            <h2 className="text-lg md:text-xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-6 font-cairo border-b border-chocolate-50 dark:border-chocolate-800 pb-3">{t('orderSummary')}</h2>
             {!catalogReady && !catalogError && <p role="status" className="mb-4 text-sm text-chocolate-600 dark:text-chocolate-300">{locale === 'ar' ? 'جارٍ تحديث الأسعار…' : 'Refreshing prices…'}</p>}
             {catalogError && <p role="alert" className="mb-4 rounded-xl bg-red-50 p-3 text-sm font-semibold text-red-800 dark:bg-red-950/40 dark:text-red-200">{locale === 'ar' ? 'تعذر تحديث الأسعار. تحقق من اتصالك ثم أعد تحميل الصفحة.' : 'Could not refresh prices. Check your connection and reload the page.'}</p>}
             {unavailableItems && <p role="alert" className="mb-4 rounded-xl bg-red-50 p-3 text-sm font-semibold text-red-800 dark:bg-red-950/40 dark:text-red-200">{locale === 'ar' ? 'أحد المنتجات لم يعد متاحاً. أزله من السلة ثم أعد المحاولة.' : 'A product is no longer available. Remove it from your cart before continuing.'}</p>}
@@ -287,8 +287,8 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
           </div>
 
           {/* Contact Details Form */}
-          <div className="bg-white dark:bg-chocolate-900 p-6 rounded-3xl shadow-lg border border-chocolate-100/50 dark:border-chocolate-800/80">
-            <h2 className="text-xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-6 font-cairo border-b border-chocolate-50 dark:border-chocolate-800 pb-3">{t('contactDetails')}</h2>
+          <div className="bg-white dark:bg-chocolate-900 p-3 md:p-6 rounded-2xl md:rounded-3xl shadow-lg border border-chocolate-100/50 dark:border-chocolate-800/80">
+            <h2 className="text-lg md:text-xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-6 font-cairo border-b border-chocolate-50 dark:border-chocolate-800 pb-3">{t('contactDetails')}</h2>
             <form onSubmit={handleSubmit} className="space-y-4 font-cairo">
               <div>
                 <label htmlFor="checkout-name" className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-2">{t('name')}</label>

@@ -106,14 +106,14 @@ export function MenuClient({ products, categories, initialCategory = 'All', init
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 mt-3 md:-mt-8 relative">
       <Breadcrumb items={breadcrumbs} locale={locale} />
-      <div className="grid gap-3 md:grid-cols-2 my-5">
-        <label className="text-sm text-chocolate-900 dark:text-chocolate-100">{isAr ? 'ابحث عن شوكولاتة' : 'Search chocolates'}<input className="block mt-1 w-full rounded-lg border border-chocolate-300 dark:border-chocolate-700 bg-chocolate-50 dark:bg-chocolate-900 p-3" value={search} onChange={e => setSearch(e.target.value)}/></label>
-        {!!attributeOptions.size && <label className="text-sm text-chocolate-900 dark:text-chocolate-100">{isAr ? 'خصائص المنتج' : 'Product attributes'}<select className="block mt-1 w-full rounded-lg border border-chocolate-300 dark:border-chocolate-700 bg-chocolate-50 dark:bg-chocolate-900 p-3" value={attribute} onChange={e => setAttribute(e.target.value)}><option value="">{isAr ? 'كل الخصائص' : 'All attributes'}</option>{[...attributeOptions].map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>}
+      <div className="grid gap-3 md:grid-cols-2 my-3 md:my-5">
+        <label className="text-sm text-chocolate-900 dark:text-chocolate-100">{isAr ? 'ابحث عن شوكولاتة' : 'Search chocolates'}<input className="block mt-1 w-full rounded-lg border border-chocolate-300 dark:border-chocolate-700 bg-chocolate-50 dark:bg-chocolate-900 p-2.5 text-base" value={search} onChange={e => setSearch(e.target.value)}/></label>
+        {!!attributeOptions.size && <label className="text-sm text-chocolate-900 dark:text-chocolate-100">{isAr ? 'خصائص المنتج' : 'Product attributes'}<select className="block mt-1 w-full rounded-lg border border-chocolate-300 dark:border-chocolate-700 bg-chocolate-50 dark:bg-chocolate-900 p-2.5 text-base" value={attribute} onChange={e => setAttribute(e.target.value)}><option value="">{isAr ? 'كل الخصائص' : 'All attributes'}</option>{[...attributeOptions].map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>}
       </div>
       {/* Mobile filter toggle bar */}
-      <div className="flex md:hidden justify-between items-center bg-white/80 dark:bg-chocolate-900/90 backdrop-blur-md p-4 rounded-2xl shadow-md mb-6 border border-chocolate-100/50 dark:border-chocolate-800/80">
+      <div className="flex md:hidden justify-between items-center bg-white/80 dark:bg-chocolate-900/90 backdrop-blur-md p-2.5 md:p-4 rounded-2xl shadow-md mb-3 md:mb-6 border border-chocolate-100/50 dark:border-chocolate-800/80">
         <span className="text-sm font-bold text-chocolate-700 dark:text-chocolate-200 font-cairo">
           {isAr
             ? `تم العثور على ${filtered.length} منتج`
@@ -128,9 +128,9 @@ export function MenuClient({ products, categories, initialCategory = 'All', init
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2.5 sm:gap-8">
         {/* Sidebar Filters */}
-        <div className="col-span-1">
+        <div className="contents md:block md:col-span-1">
           <ProductFilters
             categories={categories}
             filters={filters}
@@ -153,7 +153,7 @@ export function MenuClient({ products, categories, initialCategory = 'All', init
           </div>
 
           {/* Product Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-6">
             {filtered.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

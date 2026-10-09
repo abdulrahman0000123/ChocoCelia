@@ -2,14 +2,12 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Minus, Plus, ArrowLeft, Check, Award, Truck, ShieldCheck } from 'lucide-react';
+import { ShoppingCart, Minus, Plus, Check, Award, Truck, ShieldCheck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/routing';
 import { StarRating } from './StarRating';
 import { useRecentlyViewed } from '../hooks/useRecentlyViewed';
 import { WishlistButton } from './WishlistButton';
-import Image from 'next/image';
 import { ProductImageGallery } from './ProductImageGallery';
 import { ProductBadge } from './ProductBadge';
 import { StockStatus } from './StockStatus';
@@ -44,7 +42,7 @@ interface Product {
 
 interface ProductDetailsClientProps {
   product: Product;
-  reviews?: any[];
+  reviews?: { rating: number }[];
   locale: string;
 }
 
@@ -89,6 +87,7 @@ export function ProductDetailsClient({ product, reviews = [], locale }: ProductD
 
     window.addEventListener('scroll', handleScroll);
     window.addEventListener('resize', handleScroll);
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
@@ -128,8 +127,36 @@ export function ProductDetailsClient({ product, reviews = [], locale }: ProductD
     setTimeout(() => setIsAdded(false), 2000);
   };
 
+  const productInformation = (
+    <>
+      <p className="text-base sm:text-lg text-chocolate-600 dark:text-chocolate-300 mb-8 leading-relaxed">
+          {displayDescription}
+        </p>
+
+        {/* Specifications */}
+        {(product.weight || product.ingredients) && (
+          <div className="border border-chocolate-100/70 dark:border-chocolate-800/60 rounded-2xl p-6 mb-8 space-y-4 bg-chocolate-50/20 dark:bg-chocolate-900/10">
+            {product.weight && (
+              <div className="flex justify-between items-center text-chocolate-900 dark:text-chocolate-100 text-sm">
+                <span className="font-bold">{t('weight')}:</span>
+                <span className="text-chocolate-600 dark:text-chocolate-300 font-medium">{product.weight}</span>
+              </div>
+            )}
+            {product.ingredients && (
+              <div className="flex justify-between items-start text-chocolate-900 dark:text-chocolate-100 text-sm gap-4">
+                <span className="font-bold flex-shrink-0">{t('ingredients')}:</span>
+                <span className={`text-chocolate-600 dark:text-chocolate-300 font-medium ${isAr ? 'text-left' : 'text-right'}`}>
+                  {product.ingredients}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+    </>
+  );
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 mt-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-12 lg:gap-20 mt-3 md:mt-8">
       {(product.published === false || product.isAvailable === false || product.stock === 0) && <p className="md:col-span-2 rounded-lg border border-chocolate-300 dark:border-chocolate-700 p-4">{isAr ? 'هذا المنتج غير متاح للشراء حاليًا.' : 'This product is currently unavailable for purchase.'}</p>}
       {/* Image Gallery Column */}
       <motion.div 
@@ -166,7 +193,7 @@ export function ProductDetailsClient({ product, reviews = [], locale }: ProductD
           <StockStatus stock={product.stock !== undefined ? product.stock : null} locale={locale} />
         </div>
         
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-chocolate-900 dark:text-white mb-4 font-cairo leading-tight">
+        <h1 className="text-xl md:text-5xl font-extrabold text-chocolate-900 dark:text-white mb-4 font-cairo leading-tight">
           {displayName}
         </h1>
         
@@ -179,32 +206,10 @@ export function ProductDetailsClient({ product, reviews = [], locale }: ProductD
           </div>
         )}
         
-        <p className="text-base sm:text-lg text-chocolate-600 dark:text-chocolate-300 mb-8 leading-relaxed">
-          {displayDescription}
-        </p>
-
-        {/* Specifications */}
-        {(product.weight || product.ingredients) && (
-          <div className="border border-chocolate-100/70 dark:border-chocolate-800/60 rounded-2xl p-6 mb-8 space-y-4 bg-chocolate-50/20 dark:bg-chocolate-900/10">
-            {product.weight && (
-              <div className="flex justify-between items-center text-chocolate-900 dark:text-chocolate-100 text-sm">
-                <span className="font-bold">{t('weight')}:</span>
-                <span className="text-chocolate-600 dark:text-chocolate-300 font-medium">{product.weight}</span>
-              </div>
-            )}
-            {product.ingredients && (
-              <div className="flex justify-between items-start text-chocolate-900 dark:text-chocolate-100 text-sm gap-4">
-                <span className="font-bold flex-shrink-0">{t('ingredients')}:</span>
-                <span className={`text-chocolate-600 dark:text-chocolate-300 font-medium ${isAr ? 'text-left' : 'text-right'}`}>
-                  {product.ingredients}
-                </span>
-              </div>
-            )}
-          </div>
-        )}
+        <div className="hidden md:block">{productInformation}</div>
 
         {/* Quantity & Price Card */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8 bg-white dark:bg-chocolate-900/60 border border-chocolate-100/50 dark:border-chocolate-800/80 p-6 rounded-3xl shadow-lg">
+        <div className="flex flex-row items-center justify-between gap-2 md:gap-6 mb-8 bg-white dark:bg-chocolate-900/60 border border-chocolate-100/50 dark:border-chocolate-800/80 p-6 rounded-3xl shadow-lg">
           <div>
             <div className="text-xs text-chocolate-500 dark:text-chocolate-400 font-bold uppercase tracking-wider mb-1">
               {t('totalPrice')}
@@ -223,7 +228,7 @@ export function ProductDetailsClient({ product, reviews = [], locale }: ProductD
             >
               <Minus className="w-4 h-4" />
             </button>
-            <span className="w-12 text-center font-extrabold text-lg text-chocolate-950 dark:text-chocolate-100 select-none">
+            <span className="w-8 md:w-12 text-center font-extrabold text-lg text-chocolate-950 dark:text-chocolate-100 select-none">
               {quantity}
             </span>
             <button 
@@ -265,6 +270,13 @@ export function ProductDetailsClient({ product, reviews = [], locale }: ProductD
           <WishlistButton productId={product.id} className="border border-chocolate-100 dark:border-chocolate-800" size={24} />
         </div>
 
+        <details className="product-information md:hidden mt-4 border-b border-border pb-3">
+          <summary className="cursor-pointer min-h-[44px] flex items-center font-bold text-sm text-foreground">
+            {isAr ? 'تفاصيل المنتج والمكونات' : 'Product details & ingredients'}
+          </summary>
+          {productInformation}
+        </details>
+
         {/* Delivery Estimates */}
         <div className="mt-8">
           <EstimatedDelivery locale={locale} />
@@ -300,8 +312,8 @@ export function ProductDetailsClient({ product, reviews = [], locale }: ProductD
             animate={{ y: 0 }}
             exit={{ y: 80 }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-chocolate-900/95 backdrop-blur-md border-t border-chocolate-100 dark:border-chocolate-800/60 p-4 shadow-2xl flex items-center justify-between gap-4 pb-safe md:hidden"
-            style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}
+            className="product-sticky-purchase fixed left-0 right-0 z-40 bg-white/95 dark:bg-chocolate-900/95 backdrop-blur-md border-t border-chocolate-100 dark:border-chocolate-800/60 p-4 shadow-2xl flex items-center justify-between gap-4 pb-safe md:hidden"
+            style={{ bottom: 'calc(72px + env(safe-area-inset-bottom, 0px))' }}
           >
             <div className="flex flex-col">
               <span className="text-xs text-chocolate-500 dark:text-chocolate-400 font-bold uppercase truncate max-w-[150px]">

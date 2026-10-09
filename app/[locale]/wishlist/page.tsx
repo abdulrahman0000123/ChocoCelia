@@ -71,7 +71,7 @@ export default function WishlistPage() {
         {loading ? (
           <ProductGridSkeleton count={4} />
         ) : wishlistedItems.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 animate-fade-in">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-6 animate-fade-in">
             {wishlistedItems.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

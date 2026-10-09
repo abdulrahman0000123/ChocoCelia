@@ -1,6 +1,6 @@
 'use client';
 
-import { ShoppingCart, Menu, X, Home, UtensilsCrossed, Info, Mail, Heart, Search } from 'lucide-react';
+import { ShoppingCart, X, Home, UtensilsCrossed, Info, Mail, Heart, Search, Grid2X2, MoreHorizontal } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../context/CartContext';
@@ -31,6 +31,13 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === 'Escape') setIsOpen(false); };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [isOpen]);
+
   const handleLanguageSwitch = () => {
     const nextLocale = locale === 'en' ? 'ar' : 'en';
     router.replace(pathname, { locale: nextLocale });
@@ -38,7 +45,7 @@ export function Navbar() {
 
   return (
     <div 
-      className="fixed w-full z-50 pt-3 px-2 sm:pt-4 sm:px-6 lg:px-8 transition-all duration-300"
+      className="fixed w-full z-50 pt-1 px-2 sm:pt-4 sm:px-6 lg:px-8 transition-all duration-300"
       style={{ top: 'var(--promo-banner-height, 0px)' }}
     >
       <motion.nav 
@@ -51,7 +58,7 @@ export function Navbar() {
             : 'bg-background/95 backdrop-blur-lg shadow-lg shadow-chocolate-900/5 ring-1 ring-border/60'
         }`}
       >
-        <div className="px-2 sm:px-8 lg:px-10 flex justify-between items-center h-16 sm:h-20">
+        <div className="px-2 sm:px-8 lg:px-10 flex justify-between items-center h-14 md:h-20">
           {/* Logo with glow effect */}
           <Link
             href="/"
@@ -138,52 +145,17 @@ export function Navbar() {
             </motion.button>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Compact mobile header; secondary actions live in More. */}
           <div className="md:hidden flex items-center gap-1">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleLanguageSwitch}
-              className="px-3 py-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold text-xs shadow-md cursor-pointer min-h-[44px] flex items-center"
-            >
-              {locale === 'en' ? 'AR' : 'EN'}
-            </motion.button>
-            
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setIsSearchOpen(true)}
-              aria-label={t('searchPlaceholder')}
-              className="p-2 rounded-full bg-surface text-chocolate-700 dark:text-chocolate-100 shadow-sm border border-border min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
-            >
-              <Search className="w-4 h-4" />
-            </motion.button>
-
-            <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={toggleCart}
-              aria-label={locale === 'ar' ? 'سلة التسوق' : 'Shopping cart'}
-              className="relative p-2 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-sm cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
-            >
-              <ShoppingCart className="w-4 h-4" />
-              {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center ring-1 ring-white">
-                  {itemCount}
-                </span>
-              )}
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setIsOpen(!isOpen)}
-              aria-label={isOpen ? (locale === 'ar' ? 'إغلاق القائمة' : 'Close menu') : (locale === 'ar' ? 'فتح القائمة' : 'Open menu')}
-              aria-expanded={isOpen}
-              aria-controls="mobile-navigation"
-              className="p-2 rounded-full bg-surface/90 backdrop-blur-sm text-foreground shadow-sm border border-border cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
-            >
-              {isOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-            </motion.button>
+            <button type="button" onClick={() => { setIsOpen(false); setIsSearchOpen(true); }}
+              aria-label={t('searchPlaceholder')} className="mobile-header-action">
+              <Search className="w-5 h-5" />
+            </button>
+            <button type="button" onClick={toggleCart}
+              aria-label={locale === 'ar' ? 'سلة التسوق' : 'Shopping cart'} className="mobile-header-action relative">
+              <ShoppingCart className="w-5 h-5" />
+              {itemCount > 0 && <span className="mobile-cart-count">{itemCount}</span>}
+            </button>
           </div>
         </div>
       </motion.nav>
@@ -198,7 +170,11 @@ export function Navbar() {
             id="mobile-navigation"
             className="md:hidden mt-2 bg-background/95 backdrop-blur-xl rounded-3xl overflow-hidden shadow-xl shadow-chocolate-900/10 border border-border"
           >
-            <div className="px-4 pt-2 pb-4 space-y-1">
+            <div className="px-3 py-2 space-y-1">
+              <button type="button" onClick={() => { setIsOpen(false); handleLanguageSwitch(); }}
+                className="flex items-center justify-between w-full px-3 min-h-[44px] text-sm font-bold text-foreground rounded-xl hover:bg-surface-muted">
+                <span>{locale === 'ar' ? 'اللغة' : 'Language'}</span><span>{locale === 'ar' ? 'English' : 'العربية'}</span>
+              </button>
               <MobileNavLink href="/" label={t('home')} icon={<Home className="w-5 h-5" />} onClick={() => setIsOpen(false)} />
               <MobileNavLink href="/menu" label={t('menu')} icon={<UtensilsCrossed className="w-5 h-5" />} onClick={() => setIsOpen(false)} />
               <MobileNavLink href="/wishlist" label={t('wishlist')} icon={<Heart className="w-5 h-5" />} onClick={() => setIsOpen(false)} />
@@ -208,6 +184,27 @@ export function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <nav aria-label={locale === 'ar' ? 'التنقل الرئيسي' : 'Main navigation'} className="mobile-bottom-nav md:hidden">
+        {[
+          { href: '/', label: t('home'), icon: Home, active: pathname === '/' },
+          { href: '/menu', label: locale === 'ar' ? 'المنتجات' : 'Shop', icon: Grid2X2, active: pathname === '/menu' || pathname.startsWith('/menu/') },
+          { href: '/wishlist', label: t('wishlist'), icon: Heart, active: pathname === '/wishlist' },
+        ].map(({ href, label, icon: Icon, active }) => (
+          <Link key={href} href={href} aria-current={active ? 'page' : undefined} onClick={() => setIsOpen(false)}
+            className={`mobile-bottom-item ${active ? 'is-active' : ''}`}>
+            <Icon className="w-5 h-5" /><span>{label}</span>
+          </Link>
+        ))}
+        <button type="button" onClick={() => { setIsOpen(false); toggleCart(); }} className="mobile-bottom-item relative">
+          <span className="relative"><ShoppingCart className="w-5 h-5" />{itemCount > 0 && <span className="mobile-cart-count">{itemCount}</span>}</span>
+          <span>{locale === 'ar' ? 'السلة' : 'Cart'}</span>
+        </button>
+        <button type="button" onClick={() => setIsOpen(!isOpen)} className={`mobile-bottom-item ${isOpen ? 'is-active' : ''}`}
+          aria-expanded={isOpen} aria-controls="mobile-navigation" aria-label={locale === 'ar' ? 'المزيد' : 'More'}>
+          {isOpen ? <X className="w-5 h-5" /> : <MoreHorizontal className="w-5 h-5" />}<span>{locale === 'ar' ? 'المزيد' : 'More'}</span>
+        </button>
+      </nav>
 
       <AnimatePresence>
         {isSearchOpen && <SearchBar onClose={() => setIsSearchOpen(false)} />}
@@ -234,7 +231,7 @@ function MobileNavLink({ href, label, icon, onClick }: { href: string; label: st
   return (
     <Link
       href={href}
-      className="flex items-center gap-4 px-5 py-4 text-base text-foreground font-bold hover:bg-surface-muted rounded-xl transition-colors border border-transparent hover:border-border"
+      className="flex items-center gap-3 px-3 py-2.5 min-h-[44px] text-sm text-foreground font-bold hover:bg-surface-muted rounded-xl transition-colors border border-transparent hover:border-border"
       onClick={onClick}
     >
       {icon}

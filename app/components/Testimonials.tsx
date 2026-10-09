@@ -65,7 +65,7 @@ export function Testimonials({ locale, testimonials = [] }: TestimonialsProps) {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.05 }}
-                className="flex-shrink-0 w-80 md:w-96 bg-white dark:bg-chocolate-900 p-6 md:p-8 rounded-2xl shadow-lg border border-chocolate-100 dark:border-chocolate-800 snap-center flex flex-col justify-between hover:shadow-xl transition-shadow relative"
+                className="flex-shrink-0 w-60 md:w-96 bg-white dark:bg-chocolate-900 p-6 md:p-8 rounded-2xl shadow-lg border border-chocolate-100 dark:border-chocolate-800 snap-center flex flex-col justify-between hover:shadow-xl transition-shadow relative"
               >
                 {/* Quote Icon Background */}
                 <Quote className="absolute top-4 right-4 w-12 h-12 text-chocolate-100 dark:text-chocolate-800/40 pointer-events-none" />

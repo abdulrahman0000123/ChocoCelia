@@ -85,7 +85,7 @@ export function Hero({ settings, locale, activeCampaign }: HeroProps) {
     : settings.heroHighlight || (isAr ? 'جرعة سعادتك اليومية' : 'Your Daily Dose Of Happiness');
   
   return (
-    <section className="relative min-h-[95vh] flex items-center justify-center overflow-hidden">
+    <section className="storefront-hero relative min-h-0 h-[190px] md:h-auto md:min-h-[95vh] flex items-center justify-center overflow-hidden">
       {/* Image Slider Background */}
       <div className="absolute inset-0 z-0">
         <AnimatePresence mode="wait">
@@ -113,7 +113,7 @@ export function Hero({ settings, locale, activeCampaign }: HeroProps) {
         <>
           <button
             onClick={prevSlide}
-            className={`absolute z-20 p-3 rounded-full bg-white/10 hover:bg-white/25 backdrop-blur-md transition-all text-white active:scale-95 ${
+            className={`absolute hidden md:block z-20 p-3 rounded-full bg-white/10 hover:bg-white/25 backdrop-blur-md transition-all text-white active:scale-95 ${
               isAr ? 'right-4 md:right-8' : 'left-4 md:left-8'
             }`}
             aria-label="Previous Slide"
@@ -122,7 +122,7 @@ export function Hero({ settings, locale, activeCampaign }: HeroProps) {
           </button>
           <button
             onClick={nextSlide}
-            className={`absolute z-20 p-3 rounded-full bg-white/10 hover:bg-white/25 backdrop-blur-md transition-all text-white active:scale-95 ${
+            className={`absolute hidden md:block z-20 p-3 rounded-full bg-white/10 hover:bg-white/25 backdrop-blur-md transition-all text-white active:scale-95 ${
               isAr ? 'left-4 md:left-8' : 'right-4 md:right-8'
             }`}
             aria-label="Next Slide"
@@ -133,7 +133,7 @@ export function Hero({ settings, locale, activeCampaign }: HeroProps) {
       )}
 
       {/* Hero Content */}
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10 pt-20">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10 py-4 md:py-0 md:pt-20 w-full">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -145,7 +145,7 @@ export function Hero({ settings, locale, activeCampaign }: HeroProps) {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-gold-600/90 dark:bg-gold-500/95 backdrop-blur-md text-white text-xs sm:text-sm font-semibold rounded-full shadow-lg border border-gold-400/30 mb-8"
+            className="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-gold-600/90 dark:bg-gold-500/95 backdrop-blur-md text-white text-xs sm:text-sm font-semibold rounded-full shadow-lg border border-gold-400/30 mb-8"
           >
             <TrendingUp className="w-4 h-4 animate-bounce" />
             <span>
@@ -157,7 +157,7 @@ export function Hero({ settings, locale, activeCampaign }: HeroProps) {
 
           {/* Heading */}
           <h1 
-            className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold font-cairo text-white mb-6 px-4 tracking-tight leading-tight"
+            className="text-xl md:text-7xl lg:text-8xl font-bold font-cairo text-white mb-2 md:mb-6 px-4 tracking-tight leading-tight"
             style={{ 
               textShadow: '0 4px 20px rgba(0,0,0,0.6), 0 0 40px rgba(212,175,55,0.2)'
             }}
@@ -174,7 +174,7 @@ export function Hero({ settings, locale, activeCampaign }: HeroProps) {
           </h1>
 
           {/* Rotating Tagline */}
-          <div className="h-16 sm:h-12 relative mb-12 max-w-3xl mx-auto flex items-center justify-center">
+          <div className="hidden md:flex h-16 sm:h-12 relative mb-12 max-w-3xl mx-auto flex items-center justify-center">
             <AnimatePresence mode="wait">
               <motion.p
                 key={currentTaglineIndex}
@@ -191,10 +191,10 @@ export function Hero({ settings, locale, activeCampaign }: HeroProps) {
           </div>
           
           {/* Action CTAs */}
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center mt-8 px-4 max-w-md sm:max-w-2xl mx-auto">
+          <div className="flex flex-row gap-2 md:gap-6 justify-center mt-3 md:mt-8 px-4 max-w-md sm:max-w-2xl mx-auto">
             <Link 
               href={activeCampaign?.heroCtaLink || "/menu"}
-              className="group relative px-8 sm:px-12 py-4 sm:py-5 overflow-hidden rounded-full font-bold text-base sm:text-lg w-full sm:w-auto min-h-[44px] flex items-center justify-center"
+              className="group relative px-4 md:px-12 py-2 md:py-5 overflow-hidden rounded-full font-bold text-xs md:text-lg w-auto min-h-[44px] flex items-center justify-center"
             >
               {/* Premium Background Gradient */}
               <div className="absolute inset-0 bg-gradient-to-r from-gold-500 via-amber-500 to-gold-600 transition-all duration-500 group-hover:scale-110" />
@@ -207,7 +207,7 @@ export function Hero({ settings, locale, activeCampaign }: HeroProps) {
               {/* Glow */}
               <div className="absolute -inset-1 bg-gradient-to-r from-gold-400 to-amber-500 rounded-full blur-lg opacity-40 group-hover:opacity-70 transition-opacity duration-500 -z-10" />
               
-              <span className="relative z-10 flex items-center justify-center gap-3 text-white drop-shadow-md font-cairo">
+              <span className="relative z-10 flex items-center justify-center gap-1.5 md:gap-3 text-white drop-shadow-md font-cairo">
                 {activeCampaign
                   ? (isAr ? activeCampaign.heroCtaAr : activeCampaign.heroCtaEn)
                   : (isAr ? 'اختار هديتك 🎁' : 'Choose your gift 🎁')}
@@ -231,12 +231,12 @@ export function Hero({ settings, locale, activeCampaign }: HeroProps) {
             
             <Link 
               href="/about"
-              className="group relative px-8 sm:px-12 py-4 sm:py-5 overflow-hidden rounded-full font-bold text-base sm:text-lg w-full sm:w-auto min-h-[44px] flex items-center justify-center"
+              className="group relative px-4 md:px-12 py-2 md:py-5 overflow-hidden rounded-full font-bold text-xs md:text-lg w-auto min-h-[44px] flex items-center justify-center"
             >
               {/* Premium Glassmorphism */}
               <div className="absolute inset-0 bg-white/10 backdrop-blur-md border-2 border-white/20 rounded-full transition-all duration-500 group-hover:bg-white/20 group-hover:border-white/40" />
               
-              <span className="relative z-10 flex items-center justify-center gap-3 text-white drop-shadow-lg font-cairo">
+              <span className="relative z-10 flex items-center justify-center gap-1.5 md:gap-3 text-white drop-shadow-lg font-cairo">
                 <Sparkles className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12 text-gold-400" />
                 {isAr ? 'قصتنا 🤎' : 'Our Story 🤎'}
               </span>
@@ -248,7 +248,7 @@ export function Hero({ settings, locale, activeCampaign }: HeroProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1, duration: 0.8 }}
-            className="mt-6 text-sm sm:text-base text-chocolate-200/90 font-medium font-cairo"
+            className="hidden md:block mt-6 text-sm sm:text-base text-chocolate-200/90 font-medium font-cairo"
             style={{ textShadow: '0 2px 8px rgba(0,0,0,0.8)' }}
           >
             {isAr 

@@ -18,13 +18,13 @@ export async function RelatedProducts({ productId, categoryId, locale }: Related
   }
 
   return (
-    <div className="mt-16 border-t border-chocolate-100 dark:border-chocolate-850 pt-12">
-      <h2 className="text-2xl sm:text-3xl font-extrabold text-chocolate-950 dark:text-white font-cairo mb-8">
+    <div className="mt-6 sm:mt-16 border-t border-chocolate-100 dark:border-chocolate-850 pt-5 sm:pt-12">
+      <h2 className="text-lg sm:text-3xl font-extrabold text-chocolate-950 dark:text-white font-cairo mb-3 sm:mb-8">
         {t('relatedProducts')}
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-6">
         {related.map((product) => (
-          <ProductCard key={product.id} product={product as any} />
+          <ProductCard key={product.id} product={product} />
         ))}
       </div>
     </div>

@@ -33,7 +33,7 @@ export default async function ContentPage({params, searchParams}: Props) {
       {page.image && <div className="relative aspect-[16/7] my-8"><Image src={page.image} alt={(ar ? page.imageAltAr : page.imageAltEn) || title} fill sizes="(max-width: 768px) 100vw, 1100px" priority className="object-cover rounded-xl"/></div>}
       <div className="max-w-3xl space-y-5 my-8 leading-8 text-lg">{body.split(/\n\s*\n/).filter(Boolean).map((paragraph, i) => <p key={i} className="whitespace-pre-line">{paragraph}</p>)}</div>
     </article>
-    {!!products.length && <section className="mt-12"><h2 className="text-2xl font-semibold mb-6">{ar ? 'منتجات مرتبطة' : 'Related products'}</h2><div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">{products.map(p => <ProductCard key={p.id} product={toPublicProduct(p)}/>)}</div></section>}
+    {!!products.length && <section className="mt-12"><h2 className="text-2xl font-semibold mb-6">{ar ? 'منتجات مرتبطة' : 'Related products'}</h2><div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-6">{products.map(p => <ProductCard key={p.id} product={toPublicProduct(p)}/>)}</div></section>}
     {!!related.length && <section className="mt-12"><h2 className="text-2xl font-semibold mb-4">{ar ? 'اقرأ أيضًا' : 'Explore more'}</h2><ul className="space-y-3">{related.map(p => <li key={p.id}><Link className="underline text-gold-700 dark:text-gold-300" href={contentPath(p)}>{ar ? p.titleAr : p.titleEn}</Link></li>)}</ul></section>}
   </main>;
 }

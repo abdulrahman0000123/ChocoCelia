@@ -59,13 +59,13 @@ export default async function MenuPage({ params, searchParams }: MenuPageProps) 
       <BreadcrumbSchema items={breadcrumbItems} />
 
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-chocolate-900 to-chocolate-950 text-white py-24 text-center relative overflow-hidden">
+      <div className="bg-gradient-to-r from-chocolate-900 to-chocolate-950 text-white py-5 md:py-24 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-gold-500/5 via-transparent to-gold-500/5 pointer-events-none" />
         <div className="relative z-10 max-w-4xl mx-auto px-4">
-          <h1 className="text-4xl md:text-6xl font-extrabold font-cairo mb-4 tracking-tight drop-shadow-md">
+          <h1 className="text-xl md:text-6xl font-extrabold font-cairo mb-4 tracking-tight drop-shadow-md">
             {t('ourMenu')}
           </h1>
-          <p className="text-chocolate-200 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+          <p className="text-chocolate-200 text-sm md:text-lg max-w-2xl mx-auto leading-relaxed">
             {t('discoverHandcraftedCollection')}
           </p>
         </div>
