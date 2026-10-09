@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Match next-themes: the selected theme is applied to the HTML class. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @font-face {
   font-family: "Noto Sans Arabic";
   src: url("/fonts/noto-sans-arabic-arabic.woff2") format("woff2");
