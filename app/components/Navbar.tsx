@@ -148,7 +148,13 @@ export function Navbar() {
           </div>
 
           {/* Compact mobile header; secondary actions live in More. */}
-          <div className="md:hidden flex items-center gap-1">
+          <div className="md:hidden flex shrink-0 items-center gap-1">
+            <button type="button" onClick={() => { setIsOpen(false); handleLanguageSwitch(); }}
+              aria-label={locale === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
+              title={locale === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
+              className="mobile-header-action shrink-0 text-xs font-bold">
+              {locale === 'ar' ? 'EN' : 'عربي'}
+            </button>
             <ThemeToggle locale={locale} />
             <button type="button" onClick={() => { setIsOpen(false); setIsSearchOpen(true); }}
               aria-label={t('searchPlaceholder')} className="mobile-header-action">
@@ -174,10 +180,6 @@ export function Navbar() {
             className="md:hidden mt-2 bg-background/95 backdrop-blur-xl rounded-3xl overflow-hidden shadow-xl shadow-chocolate-900/10 border border-border"
           >
             <div className="px-3 py-2 space-y-1">
-              <button type="button" onClick={() => { setIsOpen(false); handleLanguageSwitch(); }}
-                className="flex items-center justify-between w-full px-3 min-h-[44px] text-sm font-bold text-foreground rounded-xl hover:bg-surface-muted">
-                <span>{locale === 'ar' ? 'اللغة' : 'Language'}</span><span>{locale === 'ar' ? 'English' : 'العربية'}</span>
-              </button>
               <MobileNavLink href="/" label={t('home')} icon={<Home className="w-5 h-5" />} onClick={() => setIsOpen(false)} />
               <MobileNavLink href="/menu" label={t('menu')} icon={<UtensilsCrossed className="w-5 h-5" />} onClick={() => setIsOpen(false)} />
               <MobileNavLink href="/wishlist" label={t('wishlist')} icon={<Heart className="w-5 h-5" />} onClick={() => setIsOpen(false)} />

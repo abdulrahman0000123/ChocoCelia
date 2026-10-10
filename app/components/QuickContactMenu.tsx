@@ -63,6 +63,7 @@ export function QuickContactMenu({
       {/* Fixed wrapper — anchored to bottom corner */}
       <div
         className="storefront-contact"
+        dir={isRtl ? 'rtl' : 'ltr'}
         style={{
           position: 'fixed',
           bottom: 'calc(var(--storefront-contact-bottom, 16px) + env(safe-area-inset-bottom, 0px))',
@@ -70,7 +71,7 @@ export function QuickContactMenu({
           zIndex: 40,
           display: 'flex',
           flexDirection: 'column',
-          alignItems: isRtl ? 'flex-start' : 'flex-end',
+          alignItems: 'flex-end',
           gap: '10px',
           pointerEvents: 'none', // container is non-interactive
         }}
@@ -81,7 +82,7 @@ export function QuickContactMenu({
             display: 'flex',
             flexDirection: 'column',
             gap: '10px',
-            alignItems: isRtl ? 'flex-start' : 'flex-end',
+            alignItems: 'flex-end',
             transition: 'opacity 0.3s ease, transform 0.3s ease',
             opacity: isOpen ? 1 : 0,
             transform: isOpen ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.85)',
