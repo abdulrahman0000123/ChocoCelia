@@ -32,6 +32,8 @@ integration('checkout with isolated Postgres transactions', () => {
     await prisma.siteSettings.create({ data: { deliveryFeeBeniSuef: 25 } });
   });
   beforeEach(async () => {
+    await prisma.financeEvent.deleteMany();
+    await prisma.orderFinance.deleteMany();
     await prisma.order.deleteMany();
     await prisma.coupon.deleteMany();
     await prisma.coupon.create({ data: { code: 'TEST10', discountPct: 10, maxUses: 1 } });

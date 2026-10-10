@@ -7,6 +7,7 @@ import { useState } from 'react';
 
 const MENU_ITEMS = [
   { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
+  { name: 'الحسابات · Finance', href: '/admin/dashboard/finance', icon: LayoutDashboard },
   { name: 'Products', href: '/admin/dashboard/products', icon: Package },
   { name: 'Categories', href: '/admin/dashboard/categories', icon: FolderTree },
   { name: 'Orders', href: '/admin/dashboard/orders', icon: ShoppingBag },

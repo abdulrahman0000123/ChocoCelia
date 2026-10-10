@@ -132,8 +132,9 @@ export default function ProductsPage() {
                   method: 'DELETE',
                 });
                 if (res.ok) {
+                  const data = await res.json();
                   setProducts(products.filter(p => p.id !== id));
-                  toast.success('Product deleted successfully! 🗑️', { id: loadingToast });
+                  toast.success(data.archived ? 'Product archived; sales history preserved.' : 'Product deleted successfully!', { id: loadingToast });
                 } else {
                   const data = await res.json();
                   toast.error(data.error || 'Failed to delete product', { id: loadingToast });
@@ -305,6 +306,7 @@ export default function ProductsPage() {
                           </td>
                           <td className="px-6 py-4 font-extrabold text-white">
                             {Number(product.price).toFixed(2)} EGP
+                            <span className="block text-xs font-normal text-chocolate-300 mt-2">{product.costing ? `Cost ${['chocolate','packaging','nuts','decoration'].reduce((sum,k) => sum + Number(product.costing[k]),0).toFixed(2)} · Margin ${(Number(product.price) - ['chocolate','packaging','nuts','decoration'].reduce((sum,k) => sum + Number(product.costing[k]),0)).toFixed(2)} EGP` : 'التكلفة غير مكتملة'}</span>
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex justify-center">
@@ -392,6 +394,7 @@ export default function ProductsPage() {
                           </span>
                           <span className="text-sm font-extrabold text-gold-400">
                             {Number(product.price).toFixed(2)} EGP
+                            <span className="block text-xs font-normal text-chocolate-300 mt-2">{product.costing ? `Cost ${['chocolate','packaging','nuts','decoration'].reduce((sum,k) => sum + Number(product.costing[k]),0).toFixed(2)} · Margin ${(Number(product.price) - ['chocolate','packaging','nuts','decoration'].reduce((sum,k) => sum + Number(product.costing[k]),0)).toFixed(2)} EGP` : 'التكلفة غير مكتملة'}</span>
                           </span>
                         </div>
                       </div>

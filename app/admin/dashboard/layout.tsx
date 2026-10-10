@@ -53,7 +53,7 @@ export default function AdminLayout({
         <OrderNotification />
       </div>
       {/* Main content with top padding on mobile for the fixed header */}
-      <main className="flex-1 p-4 lg:p-8 overflow-y-auto pt-16 lg:pt-8 pb-24 lg:pb-8">
+      <main className="flex-1 min-w-0 p-4 lg:p-8 overflow-y-auto pt-16 lg:pt-8 pb-24 lg:pb-8">
         {children}
       </main>
     </div>

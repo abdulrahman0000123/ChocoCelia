@@ -1,3 +1,4 @@
+import { parseCosts } from '@/app/lib/finance';
 import { prisma } from '@/app/lib/db';
 import { NextResponse } from 'next/server';
 import { getSession } from '@/app/lib/auth';
@@ -15,10 +16,12 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    const admin = await getSession();
     const product = await prisma.product.findUnique({
       where: { id },
       include: {
         category: true,
+        ...(admin ? {costing: true} : {}),
       },
     });
 
@@ -56,6 +59,7 @@ export async function PUT(
     }
 
     const body = await request.json();
+    const costs = parseCosts(body.costs);
     const seoInput = productSeoInput(body);
     await validateProductSlug(seoInput.fields.slug, id);
     const {
@@ -115,6 +119,7 @@ export async function PUT(
       where: { id },
       data: {
         ...seoInput.fields,
+        ...(costs ? {costing: {upsert: {create: costs, update: costs}}} : {}),
         name: name || existingProduct.name,
         nameAr: nameAr !== undefined ? nameAr : existingProduct.nameAr,
         description: description || existingProduct.description,
@@ -129,7 +134,7 @@ export async function PUT(
         tags: tags !== undefined ? tags : existingProduct.tags,
       },
       include: {
-        category: true,
+        category: true, costing: true,
       },
     });
 
@@ -190,11 +195,10 @@ export async function DELETE(
       );
     }
 
-    // Delete related order items first
-    if (product.OrderItems && product.OrderItems.length > 0) {
-      await prisma.orderItem.deleteMany({
-        where: { productId: id }
-      });
+    if (product.OrderItems.length > 0) {
+      await prisma.product.update({where: {id}, data: {isAvailable: false, published: false}});
+      invalidateSeo();
+      return NextResponse.json({success: true, archived: true, message: 'Product archived; order history preserved.'});
     }
 
     // Delete product

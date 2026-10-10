@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { Eye, CheckCircle, XCircle, Clock, Loader2, Phone, Mail, MapPin, MessageSquare, Search, Filter } from 'lucide-react';
+import { OrderFinancePanel } from '../components/OrderFinancePanel';
 import toast from 'react-hot-toast';
 
-type OrderStatusFilter = 'ALL' | 'PENDING' | 'COMPLETED' | 'CANCELLED';
+type OrderStatusFilter = 'ALL' | 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -40,7 +41,7 @@ export default function OrdersPage() {
       const res = await fetch(`/api/orders/${orderId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
+        body: JSON.stringify({ status: newStatus, version: orders.find(o => o.id === orderId)?.finance?.version ?? 0, reason: `Admin changed status to ${newStatus}` })
       });
 
       if (res.ok) {
@@ -52,7 +53,9 @@ export default function OrdersPage() {
         const statusEmoji = newStatus === 'COMPLETED' ? '✅' : newStatus === 'CANCELLED' ? '❌' : '⏳';
         toast.success(`Order status updated to ${newStatus}! ${statusEmoji}`, { id: loadingToast });
       } else {
-        toast.error('Failed to update order status', { id: loadingToast });
+        const result = await res.json();
+        toast.error(result.error || 'Failed to update order status', { id: loadingToast });
+        if (res.status === 409) fetchOrders();
       }
     } catch (error) {
       console.error('Failed to update order:', error);
@@ -134,7 +137,7 @@ export default function OrdersPage() {
 
         {/* Tab filters */}
         <div className="flex flex-wrap bg-chocolate-950/40 p-1.5 rounded-xl border border-chocolate-850/60 gap-1 w-full lg:w-auto">
-          {(['ALL', 'PENDING', 'COMPLETED', 'CANCELLED'] as OrderStatusFilter[]).map((tab) => (
+          {(['ALL', 'PENDING', 'PROCESSING', 'COMPLETED', 'CANCELLED'] as OrderStatusFilter[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setStatusFilter(tab)}
@@ -187,7 +190,7 @@ export default function OrdersPage() {
                         {order.requestedDeliveryDate && <span className="block text-xs text-gold-300 mt-1">Delivery: {order.requestedDeliveryDate} {order.requestedDeliveryTime} (Cairo)</span>}
                       </td>
                       <td className="px-6 py-4 text-center text-chocolate-200">
-                        {order.items?.length || 0}
+                        {order.finance?.lines?.length ?? order.items?.length ?? 0}
                       </td>
                       <td className="px-6 py-4 text-white font-extrabold">
                         {order.total.toFixed(2)} EGP
@@ -241,7 +244,7 @@ export default function OrdersPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-chocolate-300 font-medium">Items:</span>
-                    <span className="font-semibold text-white">{order.items?.length || 0} items</span>
+                    <span className="font-semibold text-white">{order.finance?.lines?.length ?? order.items?.length ?? 0} items</span>
                   </div>
                   <div className="flex justify-between pt-2 border-t border-chocolate-800/40 mt-1">
                     <span className="text-chocolate-300 font-bold">Total:</span>
@@ -265,7 +268,7 @@ export default function OrdersPage() {
       {/* Order Details Modal */}
       {selectedOrder && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 overflow-y-auto backdrop-blur-sm">
-          <div className="bg-[#150a06] border border-chocolate-800/80 rounded-3xl shadow-2xl max-w-2xl w-full p-6 my-8 text-white relative">
+          <div className="bg-[#150a06] border border-chocolate-800/80 rounded-3xl shadow-2xl max-w-2xl w-full max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain p-6 my-8 text-white relative">
             <div className="flex justify-between items-center mb-6 pb-4 border-b border-chocolate-800/60">
               <h2 className="text-2xl font-bold text-white tracking-wide">Order Details Screen</h2>
               <button 
@@ -298,6 +301,7 @@ export default function OrdersPage() {
                 </div>
               </div>
 
+                <OrderFinancePanel order={selectedOrder} onSaved={updated => {setSelectedOrder(updated);setOrders(prev => prev.map(o => o.id === updated.id ? updated : o));}}/>
               <div className="space-y-2 text-sm bg-chocolate-950/40 p-4 rounded-xl">
                 <p><strong>Requested delivery (Cairo): </strong>{selectedOrder.requestedDeliveryDate ? `${selectedOrder.requestedDeliveryDate} ${selectedOrder.requestedDeliveryTime}` : 'Not recorded'}</p>
                 {selectedOrder.requestedDeliveryDate && <p className="text-chocolate-300 text-xs">Requested by customer, pending confirmation.</p>}
@@ -362,10 +366,10 @@ export default function OrdersPage() {
               <div className="space-y-3">
                 <h3 className="font-bold text-gold-400 text-sm uppercase tracking-wider">Order Items</h3>
                 <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
-                  {selectedOrder.items?.map((item: any) => (
-                    <div key={item.id} className="flex justify-between items-center bg-chocolate-950/40 p-3 rounded-xl border border-chocolate-900/60">
+                  {(selectedOrder.finance?.lines || selectedOrder.items)?.map((item: any, index: number) => (
+                    <div key={item.id || index} className="flex justify-between items-center bg-chocolate-950/40 p-3 rounded-xl border border-chocolate-900/60">
                       <div>
-                        <span className="font-semibold text-white">{item.product?.name || 'Product'}</span>
+                        <span className="font-semibold text-white">{item.name || item.product?.name || 'Product'}</span>
                         <span className="text-chocolate-350 text-xs ml-2">x{item.quantity}</span>
                       </div>
                       <span className="font-bold text-gold-400">{(item.price * item.quantity).toFixed(2)} EGP</span>

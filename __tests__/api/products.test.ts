@@ -72,3 +72,28 @@ test('delete invalidates associated SEO data', async () => {
   admin(); expect((await DELETE(request({}, 'DELETE'), {params: Promise.resolve({id: 'p1'})})).status).toBe(200);
   expect(prisma.seoRecord.deleteMany).toHaveBeenCalledWith({where: {entityType: 'product', entityId: 'p1'}});
 });
+
+test('product costs are admin-only and save all four explicit cost components', async () => {
+  await GET(new Request('http://localhost/api/products'));
+  expect(prisma.product.findMany).toHaveBeenLastCalledWith(expect.objectContaining({include: {category:true}}));
+  admin();
+  await GET(new Request('http://localhost/api/products'));
+  expect(prisma.product.findMany).toHaveBeenLastCalledWith(expect.objectContaining({include: {category:true,costing:true}}));
+  expect((await POST(request({...product,costs:{chocolate:20,packaging:5,nuts:0,decoration:0}}))).status).toBe(201);
+  expect(prisma.product.create).toHaveBeenCalledWith(expect.objectContaining({data:expect.objectContaining({costing:expect.objectContaining({create:expect.objectContaining({nuts:expect.anything()})})})}));
+});
+
+test('incomplete or negative costs never silently become zero', async () => {
+  admin();
+  expect((await POST(request({...product,costs:{chocolate:20}}))).status).toBe(400);
+  expect((await PUT(request({costs:{chocolate:-1,packaging:0,nuts:0,decoration:0}},'PUT'),{params:Promise.resolve({id:'p1'})})).status).toBe(400);
+  expect(prisma.product.create).not.toHaveBeenCalled();expect(prisma.product.update).not.toHaveBeenCalled();
+});
+
+test('products linked to orders are archived without deleting order items', async () => {
+  admin();(prisma.product.findUnique as jest.Mock).mockResolvedValue({...product,OrderItems:[{id:'item'}]});
+  const res = await DELETE(request({},'DELETE'),{params:Promise.resolve({id:'p1'})});
+  expect((await res.json()).archived).toBe(true);
+  expect(prisma.orderItem.deleteMany).not.toHaveBeenCalled();expect(prisma.product.delete).not.toHaveBeenCalled();
+  expect(prisma.product.update).toHaveBeenCalledWith({where:{id:'p1'},data:{isAvailable:false,published:false}});
+});

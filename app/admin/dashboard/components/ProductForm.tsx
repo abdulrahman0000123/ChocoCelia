@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { ProductCostEditor } from './CostFields';
 import { Upload, X } from 'lucide-react';
 import { compressImage } from '@/app/lib/imageUtils';
 import { SeoEditor } from './SeoEditor';
@@ -130,7 +131,11 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ ...formData, ...(Object.keys(seo).length ? {seo} : {}) });
+    const fields = new FormData(e.currentTarget as HTMLFormElement);
+    if (fields.get('finance-cost-error')) return;
+    const rawCosts = fields.get('finance-costs');
+    const costs = rawCosts ? JSON.parse(String(rawCosts)) : undefined;
+    onSubmit({ ...formData, ...(costs ? {costs} : {}), ...(Object.keys(seo).length ? {seo} : {}) });
   };
 
   const inputClasses = "w-full px-4 py-2.5 bg-chocolate-950/60 border border-chocolate-800 rounded-xl focus:ring-2 focus:ring-gold-500 focus:border-transparent outline-none transition-all text-white text-sm";
@@ -138,6 +143,7 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl">
+      <ProductCostEditor key={initialData?.id || "new"} productId={initialData?.id} price={Number(formData.price) || 0}/>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className={labelClasses}>Product Name (English)</label>

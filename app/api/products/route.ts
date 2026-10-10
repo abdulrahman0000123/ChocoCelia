@@ -1,3 +1,4 @@
+import { parseCosts } from '@/app/lib/finance';
 import { prisma } from '@/app/lib/db';
 import { NextResponse } from 'next/server';
 import { getSession } from '@/app/lib/auth';
@@ -21,6 +22,7 @@ export async function GET(request: Request) {
       where,
       include: {
         category: true,
+        ...(admin ? {costing: true} : {}),
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -48,6 +50,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
+    const costs = parseCosts(body.costs);
     const seoInput = productSeoInput(body);
     await validateProductSlug(seoInput.fields.slug);
     const {
@@ -103,6 +106,7 @@ export async function POST(request: Request) {
     const product = await prisma.product.create({
       data: {
         ...seoInput.fields,
+        ...(costs ? {costing: {create: costs}} : {}),
         name,
         nameAr: nameAr || null,
         description,
@@ -115,6 +119,7 @@ export async function POST(request: Request) {
         tags: tags || null,
       },
       include: {
+        costing: true,
         category: true,
       },
     });

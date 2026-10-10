@@ -59,6 +59,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
   const [couponError, setCouponError] = useState('');
   const [submitError, setSubmitError] = useState('');
   const couponVersion = useRef(0);
+  const submittedRequest = useRef<{payload: string; key: string} | null>(null);
   const [cairoClock, setCairoClock] = useState(() => cairoNow());
 
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -212,10 +213,19 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
         }))
       };
 
+      const payload = JSON.stringify(orderData);
+      const digest = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(payload)))).map(b => b.toString(16).padStart(2,'0')).join('');
+      if (submittedRequest.current?.payload !== payload) {
+        let previous: {digest: string; key: string} | null = null;
+        try {previous = JSON.parse(sessionStorage.getItem('checkout-request') || 'null');} catch {}
+        const key = previous?.digest === digest && /^[a-zA-Z0-9-]{16,80}$/.test(previous.key) ? previous.key : crypto.randomUUID();
+        submittedRequest.current = {payload,key};
+        try {sessionStorage.setItem('checkout-request',JSON.stringify({digest,key}));} catch {}
+      }
       const res = await fetch('/api/orders', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData)
+        headers: { 'Content-Type': 'application/json', 'Idempotency-Key': submittedRequest.current.key },
+        body: payload
       });
 
       if (res.ok) {

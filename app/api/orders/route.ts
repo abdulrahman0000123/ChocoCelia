@@ -4,7 +4,9 @@ import { getSession } from '@/app/lib/auth';
 import { normalizePhoneNumber, validateOrderInput } from '@/app/lib/validation';
 import { toPublicProduct } from '@/app/lib/productImages';
 import { CheckoutError, validateRequestedDelivery, normalizeCouponCode, validateCoupon, calculateCheckout } from '@/app/lib/checkoutRules';
-import type { Coupon } from '@prisma/client';
+import { Prisma, type Coupon } from '@prisma/client';
+import { createHash } from 'node:crypto';
+import { calculateFinance, snapshotLine, money } from '@/app/lib/finance';
 
 interface OrderLineInput { productId: string; quantity: number; price?: number }
 interface OrderRequest {
@@ -35,6 +37,7 @@ export async function GET(request: Request) {
 
     const orders = await prisma.order.findMany({
       include: {
+        finance: true,
         items: {
           include: {
             product: true
@@ -64,11 +67,27 @@ export async function POST(request: Request) {
     if (contentLength > 64 * 1024) {
       return NextResponse.json({ error: 'Order details are too large.' }, { status: 413 });
     }
-    const body: Record<string, unknown> = await request.json();
+    const raw = await request.text();
+    if (new TextEncoder().encode(raw).byteLength > 64 * 1024) return NextResponse.json({error: 'Order details are too large.'}, {status: 413});
+    let body: Record<string, unknown>;
+    try {body = JSON.parse(raw);} catch {return NextResponse.json({error: 'Invalid order details.'}, {status: 400});}
     if (!body || typeof body !== 'object' || Array.isArray(body)) {
       return NextResponse.json({ error: 'Invalid order details.' }, { status: 400 });
     }
     const input = body as unknown as OrderRequest;
+    const requestKey = request.headers.get('Idempotency-Key');
+    if (requestKey && !/^[a-zA-Z0-9-]{16,80}$/.test(requestKey)) return NextResponse.json({error: 'Invalid request key'}, {status: 400});
+    const requestHash = createHash('sha256').update(JSON.stringify(input)).digest('hex');
+    const publicOrder = (saved: {id: string; customerName: string; subtotal: number | null; total: number; deliveryFee: number | null; requestedDeliveryDate: string | null; requestedDeliveryTime: string | null; couponCode: string | null; discountPct: number; discountAmount: number; items?: {productId: string; quantity: number; price: number; product?: {name: string}}[]}) => ({
+      id: saved.id, customerName: saved.customerName, subtotal: saved.subtotal, total: saved.total, deliveryFee: saved.deliveryFee,
+      requestedDeliveryDate: saved.requestedDeliveryDate, requestedDeliveryTime: saved.requestedDeliveryTime,
+      couponCode: saved.couponCode, discountPct: saved.discountPct, discountAmount: saved.discountAmount,
+      items: Array.isArray(saved.items) ? saved.items.map(item => ({productId: item.productId, quantity: item.quantity, price: item.price, product: {name: item.product?.name}})) : [],
+    });
+    if (requestKey) {
+      const previous = await prisma.order.findUnique({where: {requestKey}, include: {items: {include: {product: {select: {name: true}}}}}});
+      if (previous) return previous.requestHash === requestHash ? NextResponse.json(publicOrder(previous)) : NextResponse.json({error: 'Request key already used for another order.'}, {status: 409});
+    }
     const {
       customerName,
       customerPhone,
@@ -108,7 +127,7 @@ export async function POST(request: Request) {
     const productIds = [...new Set(items.map((item) => item.productId))];
     const existingProducts = await prisma.product.findMany({
       where: { id: { in: productIds }, isAvailable: true, published: true },
-      select: { id: true, price: true }
+      select: { id: true, price: true, name: true, nameAr: true, costing: true }
     });
 
     if (existingProducts.length !== productIds.length || items.length !== productIds.length) {
@@ -118,7 +137,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const priceById = new Map(existingProducts.map((product) => [product.id, product.price]));
+    const priceById = new Map(existingProducts.map((product) => [product.id, Number(money(product.price))]));
     const subtotal = Math.round(items.reduce((sum, item) => sum + priceById.get(item.productId)! * item.quantity, 0) * 100) / 100;
     const settings = await prisma.siteSettings.findFirst({
       select: { deliveryFeeBeniSuef: true, deliveryFeeEastNile: true }
@@ -126,10 +145,21 @@ export async function POST(request: Request) {
     const deliveryFee = deliveryArea === 'beniSuef'
       ? settings?.deliveryFeeBeniSuef ?? 20
       : settings?.deliveryFeeEastNile ?? 40;
+    const financeSettings = await prisma.financeSettings.findUnique({where: {id: 1}}) ?? {advertisingPct: 10, developmentPct: 20, deliveryCostBeniSuef: null, deliveryCostEastNile: null};
+    const financeLines = items.map(item => snapshotLine(existingProducts.find(product => product.id === item.productId)!, item.quantity));
+    const deliveryCost = deliveryArea === 'beniSuef' ? financeSettings.deliveryCostBeniSuef : financeSettings.deliveryCostEastNile;
     const couponCode = normalizeCouponCode(input.couponCode);
 
     // Create order with items
     const order = await prisma.$transaction(async (tx) => {
+      if (requestKey) {
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${requestKey}, 0))`;
+        const previous = await tx.order.findUnique({where: {requestKey}, include: {items: {include: {product: {select: {name: true}}}}}});
+        if (previous) {
+          if (previous.requestHash !== requestHash) throw new CheckoutError('requestConflict');
+          return previous;
+        }
+      }
       validateRequestedDelivery(input.requestedDeliveryDate, input.requestedDeliveryTime);
       let discountPct = 0;
       if (couponCode) {
@@ -143,6 +173,8 @@ export async function POST(request: Request) {
       const { discountAmount, total } = calculateCheckout(subtotal, deliveryFee, discountPct);
       return tx.order.create({
         data: {
+          requestKey, requestHash: requestKey ? requestHash : null,
+          finance: {create: {...calculateFinance(financeLines, discountAmount, deliveryFee, financeSettings, deliveryCost), lines: financeLines as unknown as Prisma.InputJsonValue}},
           customerName,
           customerPhone: normalizedCustomerPhone,
           customerEmail,
@@ -173,9 +205,9 @@ export async function POST(request: Request) {
       });
     });
 
-    return NextResponse.json(order);
+    return NextResponse.json(publicOrder(order));
   } catch (error: unknown) {
-    if (error instanceof CheckoutError) return NextResponse.json({ error: error.message, code: error.code }, { status: 400 });
+    if (error instanceof CheckoutError) return NextResponse.json({ error: error.message, code: error.code }, { status: error.code === 'requestConflict' ? 409 : 400 });
     console.error('Failed to create order:', error);
     return NextResponse.json(
       { error: 'Failed to create order' },

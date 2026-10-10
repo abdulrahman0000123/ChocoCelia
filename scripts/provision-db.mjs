@@ -4,7 +4,7 @@ import { deploymentDatabaseUrl } from './deployment-db-url.mjs';
 
 nextEnv.loadEnvConfig(process.cwd());
 const env = { ...process.env, DATABASE_URL: deploymentDatabaseUrl() };
-for (const file of ['ensure-login-attempts.sql', 'ensure-seo.sql', 'ensure-checkout.sql']) {
+for (const file of ['ensure-login-attempts.sql', 'ensure-seo.sql', 'ensure-checkout.sql', 'ensure-finance.sql']) {
   const result = spawnSync(process.execPath, [
     'node_modules/prisma/build/index.js', 'db', 'execute', '--file', `scripts/${file}`, '--schema', 'prisma/schema.prisma',
   ], { env, stdio: 'inherit' });

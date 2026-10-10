@@ -1,5 +1,8 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/app/lib/db';
 import { NextResponse } from 'next/server';
+import { financeDateFilter, historicalNetSales } from '@/app/lib/finance';
+import { apiError } from '@/app/lib/seo-admin';
 import { getSession } from '@/app/lib/auth';
 
 export async function GET(request: Request) {
@@ -18,14 +21,7 @@ export async function GET(request: Request) {
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
 
-    // Build date filter
-    const dateFilter = {} as any;
-    if (startDate && endDate) {
-      dateFilter.createdAt = {
-        gte: new Date(startDate),
-        lte: new Date(endDate + 'T23:59:59.999Z') // End of day
-      };
-    }
+    const dateFilter = financeDateFilter(startDate, endDate);
 
     // Get total orders count
     const totalOrders = await prisma.order.count({
@@ -39,10 +35,10 @@ export async function GET(request: Request) {
         status: 'COMPLETED'
       },
       select: {
-        total: true
+        total: true, subtotal: true, discountAmount: true, deliveryFee: true, finance: {select: {netSales: true}}
       }
     });
-    const totalRevenue = completedOrdersWithTotal.reduce((sum, order) => sum + order.total, 0);
+    const totalRevenue = Number(completedOrdersWithTotal.reduce((sum, order) => sum.plus(order.finance?.netSales ?? historicalNetSales(order)), new Prisma.Decimal(0)));
 
     // Get total products count (not filtered by date)
     const totalProducts = await prisma.product.count();
@@ -78,10 +74,6 @@ export async function GET(request: Request) {
       cancelledOrders
     });
   } catch (error) {
-    console.error('Failed to fetch dashboard stats:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch dashboard stats' },
-      { status: 500 }
-    );
+    return apiError(error);
   }
 }

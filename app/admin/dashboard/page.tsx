@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { Download, Calendar, Loader2, Package, TrendingUp, ShoppingCart, Clock, CheckCircle, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -97,6 +98,7 @@ export default function DashboardPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-white tracking-wide">Dashboard Overview</h1>
+              <Link href="/admin/dashboard/finance" className="inline-flex min-h-11 items-center rounded-xl bg-surface text-foreground px-4 py-2 mt-3 text-sm font-semibold">الحسابات التلقائية · Finance →</Link>
           <p className="text-sm text-chocolate-200 mt-1">Real-time business performance analytics.</p>
         </div>
         

@@ -7,6 +7,7 @@ import { GET as exportOrders } from '@/app/api/orders/export/route';
 
 jest.mock('@/app/lib/auth', () => ({ getSession: jest.fn() }));
 jest.mock('@/app/lib/db', () => ({ prisma: {
+  financeSettings: {findUnique: jest.fn()},
   product: { findMany: jest.fn() }, siteSettings: { findFirst: jest.fn() },
   coupon: { findUnique: jest.fn() }, $transaction: jest.fn(),
   order: { findMany: jest.fn() },
@@ -35,7 +36,9 @@ test('ignores submitted prices and discounts, saves the snapshot and consumes th
   const order = await res.json();
   expect(order).toMatchObject({ subtotal: 185, deliveryFee: 25, discountAmount: 18.5, discountPct: 10,
     couponCode: 'SAVE10', total: 191.5, requestedDeliveryDate: '2099-01-10', requestedDeliveryTime: '12:30' });
-  expect(order.items.create[0].price).toBe(185);
+  expect(tx.order.create.mock.calls[0][0].data.items.create[0].price).toBe(185);
+  expect(order).not.toHaveProperty('finance');
+  expect(order).not.toHaveProperty('requestHash');
   expect(tx.$queryRaw.mock.calls[0][0].join('?')).toContain('FOR UPDATE');
   expect(tx.coupon.update).toHaveBeenCalledWith({ where: { id: 'coupon' }, data: { uses: { increment: 1 } } });
 });
@@ -61,6 +64,11 @@ test('creates a full-price order without a coupon and without consuming a coupon
   expect((await res.json()).total).toBe(210);
   expect(tx.coupon.update).not.toHaveBeenCalled();
   expect(tx.$queryRaw).not.toHaveBeenCalled();
+});
+test('rejects malformed or oversized bodies even without a Content-Length header', async () => {
+  expect((await POST(new Request('http://localhost/api/orders',{method:'POST',body:'{bad'}))).status).toBe(400);
+  expect((await POST(new Request('http://localhost/api/orders',{method:'POST',body:JSON.stringify({...body,customerName:'x'.repeat(70000)})}))).status).toBe(413);
+  expect(prisma.$transaction).not.toHaveBeenCalled();
 });
 
 test('public coupon validation normalizes codes and only returns code and percentage', async () => {

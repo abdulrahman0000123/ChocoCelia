@@ -38,6 +38,9 @@
   ],
   "exclude": [
     "node_modules",
+    "output",
+    "outputs",
+    ".codex-remote-attachments",
     "__tests__",
     "e2e-tests",
     ".next/dev/types"
