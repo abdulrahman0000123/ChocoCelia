@@ -8,6 +8,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Link, usePathname, useRouter } from '@/i18n/routing';
 import { useWishlist } from '../hooks/useWishlist';
 import { SearchBar } from './SearchBar';
+import { ThemeToggle } from './ThemeToggle';
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -87,6 +88,7 @@ export function Navbar() {
           </div>
             
           <div className="hidden md:flex items-center gap-2">
+            <ThemeToggle locale={locale} />
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -147,6 +149,7 @@ export function Navbar() {
 
           {/* Compact mobile header; secondary actions live in More. */}
           <div className="md:hidden flex items-center gap-1">
+            <ThemeToggle locale={locale} />
             <button type="button" onClick={() => { setIsOpen(false); setIsSearchOpen(true); }}
               aria-label={t('searchPlaceholder')} className="mobile-header-action">
               <Search className="w-5 h-5" />

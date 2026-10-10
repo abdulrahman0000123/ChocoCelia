@@ -7,6 +7,7 @@ import { Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { PaymentConfirmation } from '../../components/PaymentConfirmation';
 import { OrderComplete } from '../../components/OrderComplete';
+import { ThemeToggle } from '../../components/ThemeToggle';
 import { trackCheckoutStart, trackPurchase } from '@/app/lib/analytics';
 
 interface CheckoutPageProps {
@@ -198,11 +199,13 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
   };
 
   if (orderComplete) {
-    return <OrderComplete orderData={orderComplete} />;
+    return <><div className="flex justify-end max-w-4xl mx-auto px-4 pt-4"><ThemeToggle locale={locale} /></div><OrderComplete orderData={orderComplete} /></>;
   }
 
   if (isSubmitted) {
     return (
+      <>
+      <div className="flex justify-end max-w-4xl mx-auto px-4 pt-4"><ThemeToggle locale={locale} /></div>
       <PaymentConfirmation 
         orderData={savedOrderData || {
           customerName: formData.name,
@@ -212,16 +215,18 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
         }}
         paymentSettings={paymentSettings}
       />
+      </>
     );
   }
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-white dark:bg-chocolate-950 flex flex-col items-center justify-center px-4 font-cairo">
+      <div className="relative min-h-screen bg-white dark:bg-chocolate-950 flex flex-col items-center justify-center px-4 font-cairo">
+        <ThemeToggle locale={locale} className="absolute top-4 end-4" />
         <h2 className="text-2xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-4">{t('yourCartIsEmpty')}</h2>
         <Link 
           href="/menu"
-          className="text-gold-600 hover:text-gold-700 underline font-bold"
+          className="text-gold-600 dark:text-gold-300 hover:text-gold-700 dark:hover:text-gold-400 underline font-bold"
         >
           {t('browseMenu')}
         </Link>
@@ -232,13 +237,17 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
   return (
     <div className="checkout-compact min-h-screen bg-chocolate-50/20 dark:bg-chocolate-950/10 py-5 md:py-16">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between gap-3 mb-4 md:mb-8">
         <Link 
           href="/menu" 
-          className="inline-flex items-center text-chocolate-600 hover:text-chocolate-800 dark:text-gold-500 dark:hover:text-gold-400 mb-8 transition-colors font-bold font-cairo cursor-pointer min-h-[44px]"
+          className="inline-flex items-center text-chocolate-600 hover:text-chocolate-800 dark:text-chocolate-100 dark:hover:text-gold-300 transition-colors font-bold font-cairo cursor-pointer min-h-[44px]"
         >
           <ArrowLeft className={`w-5 h-5 ${locale === 'ar' ? 'ml-2 rotate-180' : 'mr-2'}`} />
           {t('backToMenu')}
         </Link>
+
+          <ThemeToggle locale={locale} />
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
           {/* Order Summary */}
@@ -275,11 +284,11 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                 </div>
                 <div className="flex justify-between items-center text-xs font-bold">
                   <span className="text-chocolate-700 dark:text-chocolate-300">{t('deliveryFee')}:</span>
-                  <span className="text-amber-700 dark:text-gold-500">{deliveryFee.toFixed(2)} EGP</span>
+                  <span className="text-chocolate-700 dark:text-gold-300 tabular-nums">{deliveryFee.toFixed(2)} EGP</span>
                 </div>
                 <div className="border-t border-amber-200 dark:border-chocolate-700 pt-2 mt-2 flex justify-between items-center">
                   <span className="text-sm font-extrabold text-chocolate-900 dark:text-white">{t('grandTotal')}:</span>
-                  <span className="text-lg font-extrabold text-orange-600 dark:text-gold-500">{grandTotal.toFixed(2)} EGP</span>
+                  <span className="text-lg font-extrabold text-chocolate-700 dark:text-gold-300 tabular-nums">{grandTotal.toFixed(2)} EGP</span>
                 </div>
               </div>
             </div>
@@ -358,7 +367,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                       />
                       <div className="flex-1">
                         <p className="font-bold text-chocolate-900 dark:text-white">{t('insideBeniSuef')}</p>
-                        <p className="text-sm text-gold-600 font-extrabold">{deliveryFees.beniSuef} EGP</p>
+                        <p className="text-sm text-chocolate-700 dark:text-gold-300 font-extrabold tabular-nums">{deliveryFees.beniSuef} EGP</p>
                       </div>
                     </label>
                     <label className="relative flex items-center gap-3 cursor-pointer bg-white dark:bg-chocolate-850 border-2 border-chocolate-200 dark:border-chocolate-800 rounded-2xl p-4 hover:border-gold-500 transition-all">
@@ -372,7 +381,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                       />
                       <div className="flex-1">
                         <p className="font-bold text-chocolate-900 dark:text-white">{t('eastNile')}</p>
-                        <p className="text-sm text-gold-600 font-extrabold">{deliveryFees.eastNile} EGP</p>
+                        <p className="text-sm text-chocolate-700 dark:text-gold-300 font-extrabold tabular-nums">{deliveryFees.eastNile} EGP</p>
                       </div>
                     </label>
                   </div>
