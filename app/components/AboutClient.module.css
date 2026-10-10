@@ -1,0 +1,348 @@
+.page {
+  display: flow-root;
+  --story-cream: oklch(0.975 0.015 78);
+  --story-cocoa: oklch(0.23 0.035 35);
+  --story-caramel: oklch(0.71 0.085 65);
+  --story-blush: oklch(0.88 0.037 48);
+  --story-accent: oklch(0.44 0.075 45);
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: clamp(2rem, 5vw, 5rem);
+  max-width: 1280px;
+  margin-inline: auto;
+  padding: clamp(2rem, 5vw, 5rem) clamp(1.25rem, 4vw, 3.5rem)
+    clamp(3rem, 6vw, 6rem);
+  align-items: center;
+}
+.heroCopy {
+  min-width: 0;
+}
+.eyebrow {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+}
+.hero h1 {
+  font-size: clamp(2.65rem, 4.4vw, 4.6rem);
+  font-weight: 600;
+  line-height: 1.19;
+  letter-spacing: -0.045em;
+  margin: 0 0 1.7rem;
+}
+.hero h1 span {
+  display: block;
+  color: var(--story-accent);
+}
+.page[dir="rtl"] .hero h1 {
+  font-size: clamp(2.5rem, 4.1vw, 4.1rem);
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+.intro {
+  font-size: clamp(1rem, 1.3vw, 1.125rem);
+  line-height: 1.95;
+  max-width: 45ch;
+  color: var(--muted);
+}
+.readStory {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 48px;
+  margin-top: 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.readStory svg {
+  transition: transform 200ms ease-out;
+}
+.readStory:hover svg {
+  transform: translateY(4px);
+}
+.heroNote {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: clamp(2rem, 4vw, 4rem);
+  padding-top: 1.3rem;
+  border-top: 1px solid var(--border);
+}
+.heroNote p {
+  margin: 0;
+  max-width: 32ch;
+  font-size: 0.78rem;
+  line-height: 1.8;
+  color: var(--muted);
+}
+.heroImage {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 48% 48% 0.8rem 0.8rem;
+  background: var(--story-blush);
+}
+.heroImage img {
+  object-fit: cover;
+}
+.heroImage figcaption {
+  position: absolute;
+  bottom: 1rem;
+  inset-inline: 1rem;
+  color: var(--story-cream);
+  background: var(--story-cocoa);
+  padding: 0.8rem 1rem;
+  border-radius: 0.4rem;
+  font-size: 0.76rem;
+  text-align: center;
+  line-height: 1.7;
+}
+
+.beginning,
+.sharing {
+  max-width: 1160px;
+  margin-inline: auto;
+  padding: clamp(3.5rem, 7vw, 6.5rem) clamp(1.25rem, 4vw, 3rem);
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: clamp(2rem, 7vw, 7rem);
+}
+.beginning {
+  border-top: 1px solid var(--border);
+  scroll-margin-top: 7rem;
+}
+.chapterNumber {
+  font-size: 0.85rem;
+  color: var(--story-accent);
+  font-weight: 600;
+  display: block;
+  margin-bottom: 1.25rem;
+}
+.chapterHeading h2 {
+  font-size: clamp(1.8rem, 2.8vw, 2.7rem);
+  line-height: 1.35;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  margin: 0 0 1rem;
+}
+.chapterHeading p {
+  font-size: 0.9rem;
+  line-height: 1.9;
+  color: var(--muted);
+  max-width: 30ch;
+}
+.prose p {
+  font-size: 1rem;
+  line-height: 2;
+  color: var(--muted);
+  margin: 0 0 1.4rem;
+  max-width: 65ch;
+}
+.prose .lead {
+  color: var(--foreground);
+  font-size: 1.2rem;
+  line-height: 1.85;
+  font-weight: 500;
+}
+.prose p:last-child {
+  margin-bottom: 0;
+}
+.page[dir="rtl"] .chapterHeading h2 {
+  line-height: 1.7;
+  letter-spacing: 0;
+}
+
+.quoteSection {
+  background: var(--story-cocoa);
+  color: var(--story-cream);
+  text-align: center;
+  position: relative;
+  padding: clamp(3.5rem, 6vw, 5.5rem) 1.5rem;
+}
+.quoteMark {
+  display: block;
+  color: var(--story-caramel);
+  font-family: Georgia, serif;
+  font-size: 5rem;
+  line-height: 0.85;
+}
+.quoteSection blockquote {
+  font-size: clamp(1.8rem, 3.7vw, 3.6rem);
+  line-height: 1.4;
+  max-width: 25ch;
+  margin: 0.8rem auto 1.5rem;
+  font-family: var(--font-playfair), Georgia, serif;
+}
+.page[dir="rtl"] .quoteSection blockquote {
+  font-family: var(--font-cairo), sans-serif;
+  line-height: 1.8;
+  max-width: 24ch;
+}
+.quoteSection p {
+  font-size: 0.95rem;
+  color: var(--story-blush);
+  line-height: 1.9;
+  max-width: 48ch;
+  margin-inline: auto;
+}
+.heart {
+  display: block;
+  margin: 2rem auto 0;
+  color: var(--story-caramel);
+  width: 44px;
+  height: 40px;
+}
+.prose .signature {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.signature span:first-child {
+  font-family: var(--font-playfair), Georgia, serif;
+  font-size: 1.75rem;
+  color: var(--foreground);
+}
+.signature span:last-child {
+  font-size: 0.8rem;
+}
+
+.invitation {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 3rem;
+  padding: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 4vw, 3rem);
+  margin: 0 auto clamp(3rem, 6vw, 6rem);
+  width: min(1100px, calc(100% - 2.5rem));
+  background: var(--story-blush);
+  color: var(--story-cocoa);
+  border-radius: 1rem;
+  align-items: center;
+}
+.invitation h2 {
+  font-size: clamp(1.75rem, 2.7vw, 2.5rem);
+  line-height: 1.5;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  margin: 0 0 0.7rem;
+}
+.page[dir="rtl"] .invitation h2 {
+  letter-spacing: 0;
+}
+.invitation p {
+  font-size: 0.95rem;
+  line-height: 1.9;
+  margin: 0;
+  max-width: 50ch;
+}
+.collectionLink {
+  display: inline-flex;
+  min-height: 48px;
+  padding: 0.8rem 1.4rem;
+  align-items: center;
+  gap: 1.2rem;
+  border-radius: 0.35rem;
+  background: var(--story-cocoa);
+  color: var(--story-cream);
+  margin-top: 1.6rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: transform 200ms ease-out;
+}
+.collectionLink:hover {
+  transform: translateY(-2px);
+}
+.socialLinks {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 1.5rem;
+  row-gap: 0.5rem;
+  margin-top: 1rem;
+}
+.socialLinks a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 44px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+.page[dir="rtl"] .collectionLink svg,
+.page[dir="rtl"] .socialLinks a svg:last-child {
+  transform: scaleX(-1);
+}
+.page a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 5px;
+}
+
+:global(.dark) .page {
+  --story-accent: var(--story-caramel);
+}
+
+@media (max-width: 760px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding-top: 2rem;
+  }
+  .hero h1 {
+    font-size: clamp(2.65rem, 8vw, 3.7rem);
+  }
+  .page[dir="rtl"] .hero h1 {
+    font-size: clamp(2.45rem, 8vw, 3.5rem);
+  }
+  .intro {
+    max-width: 52ch;
+  }
+  .heroNote {
+    margin-top: 1.5rem;
+  }
+  .heroNote p {
+    max-width: none;
+  }
+  .heroImage {
+    aspect-ratio: 1 / 1.05;
+    max-height: 560px;
+  }
+  .beginning,
+  .sharing {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .chapterHeading p {
+    max-width: none;
+  }
+  .chapterNumber {
+    margin-bottom: 0.65rem;
+  }
+  .prose .lead {
+    font-size: 1.1rem;
+  }
+  .invitation {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .social {
+    padding-top: 1.5rem;
+    border-top: 1px solid oklch(0.23 0.035 35 / 0.2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page a,
+  .page svg {
+    transition: none;
+  }
+}
