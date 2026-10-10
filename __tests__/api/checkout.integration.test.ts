@@ -23,6 +23,9 @@ integration('checkout with isolated Postgres transactions', () => {
   const request = () => new Request('http://localhost/api/orders', { method: 'POST', body: JSON.stringify(body) });
 
   beforeAll(async () => {
+    const schema = new URL(process.env.CHECKOUT_TEST_DATABASE_URL!).searchParams.get('schema');
+    const current = await prisma.$queryRaw<{ schema: string }[]>`SELECT current_schema() AS schema`;
+    expect(current[0].schema).toBe(schema);
     await prisma.category.create({ data: { id: 'checkout-category', name: 'Test only' } });
     await prisma.product.create({ data: { id: 'checkout-product', name: 'Test only', description: 'Test only',
       price: 185, image: 'https://example.com/test.png', images: [], categoryId: 'checkout-category' } });

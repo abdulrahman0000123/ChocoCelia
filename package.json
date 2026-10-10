@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && prisma db execute --file scripts/ensure-login-attempts.sql --schema prisma/schema.prisma && prisma db execute --file scripts/ensure-seo.sql --schema prisma/schema.prisma && prisma db execute --file scripts/ensure-checkout.sql --schema prisma/schema.prisma && next build",
+    "build": "prisma generate && node scripts/provision-db.mjs && next build",
     "start": "next start",
     "lint": "eslint",
     "test": "jest",

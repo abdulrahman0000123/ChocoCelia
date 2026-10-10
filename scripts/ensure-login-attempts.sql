@@ -1,4 +1,6 @@
 -- Additive, repeatable deployment repair for database-backed login throttling.
+BEGIN;
+SET LOCAL search_path TO public;
 CREATE TABLE IF NOT EXISTS "LoginAttempt" (
     "key" TEXT NOT NULL,
     "count" INTEGER NOT NULL DEFAULT 0,
@@ -9,3 +11,5 @@ CREATE TABLE IF NOT EXISTS "LoginAttempt" (
 
 CREATE INDEX IF NOT EXISTS "LoginAttempt_windowStart_idx"
     ON "LoginAttempt"("windowStart");
+
+COMMIT;

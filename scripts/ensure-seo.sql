@@ -1,5 +1,6 @@
 -- Additive, repeatable SEO provisioning. No existing rows are deleted.
 BEGIN;
+SET LOCAL search_path TO public;
 -- AlterTable
 ALTER TABLE "Product" ADD COLUMN IF NOT EXISTS "attributes" JSONB NOT NULL DEFAULT '[]',
 ADD COLUMN IF NOT EXISTS "imageAltAr" TEXT,

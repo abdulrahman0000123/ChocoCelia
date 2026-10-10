@@ -1,5 +1,6 @@
 -- Additive and repeatable. Historical orders retain unknown schedule and pricing details.
 BEGIN;
+SET LOCAL search_path TO public;
 ALTER TABLE "Order"
   ADD COLUMN IF NOT EXISTS "requestedDeliveryDate" TEXT,
   ADD COLUMN IF NOT EXISTS "requestedDeliveryTime" TEXT,
