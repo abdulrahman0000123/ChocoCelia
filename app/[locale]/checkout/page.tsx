@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, use } from 'react';
 import { useCart } from '../../context/CartContext';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, Truck, CreditCard, Package, ArrowRight } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { PaymentConfirmation } from '../../components/PaymentConfirmation';
@@ -11,6 +11,7 @@ import { ThemeToggle } from '../../components/ThemeToggle';
 import { cairoNow, validateRequestedDelivery, CheckoutError, calculateCheckout } from '@/app/lib/checkoutRules';
 import type { CheckoutExtrasData } from '../../components/CheckoutExtras';
 import { trackCheckoutStart, trackPurchase } from '@/app/lib/analytics';
+import styles from './Checkout.module.css';
 
 interface CheckoutPageProps {
   params: Promise<{ locale: string }>;
@@ -286,8 +287,10 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
 
   if (items.length === 0) {
     return (
-      <div className="relative min-h-screen bg-white dark:bg-chocolate-950 flex flex-col items-center justify-center px-4 font-cairo">
+      <div className={`${styles.checkout} ${styles.empty}`}>
         <ThemeToggle locale={locale} className="absolute top-4 end-4" />
+        <ShoppingBag size={48} strokeWidth={1.3} aria-hidden="true" />
+        <p className={styles.eyebrow}>CHOCO CELIA</p>
         <h2 className="text-2xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-4">{t('yourCartIsEmpty')}</h2>
         <Link 
           href="/menu"
@@ -300,97 +303,29 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
   }
 
   return (
-    <div className="checkout-compact min-h-screen bg-chocolate-50/20 dark:bg-chocolate-950/10 py-5 md:py-16">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between gap-3 mb-4 md:mb-8">
-        <Link 
-          href="/menu" 
-          className="inline-flex items-center text-chocolate-600 hover:text-chocolate-800 dark:text-chocolate-100 dark:hover:text-gold-300 transition-colors font-bold font-cairo cursor-pointer min-h-[44px]"
-        >
-          <ArrowLeft className={`w-5 h-5 ${locale === 'ar' ? 'ml-2 rotate-180' : 'mr-2'}`} />
+    <main className={styles.checkout}>
+      <header className={styles.topbar}>
+        <Link href="/menu" className={styles.back}>
+          <ArrowLeft size={18} className={locale === 'ar' ? 'rotate-180' : ''} aria-hidden="true" />
           {t('backToMenu')}
         </Link>
-
-          <ThemeToggle locale={locale} />
+        <Link href="/" className={styles.brand} aria-label="Choco Celia">Choco <span>Celia</span></Link>
+        <ThemeToggle locale={locale} />
+      </header>
+      <div className={styles.intro}>
+        <div>
+          <p className={styles.eyebrow}>CHOCO CELIA · {locale === 'ar' ? 'صُنعت بحب' : 'MADE WITH LOVE'}</p>
+          <h1>{locale === 'ar' ? 'لمسة أخيرة، وفرحتك في الطريق' : 'A final touch. A little joy on its way.'}</h1>
+          <p>{locale === 'ar' ? 'أضف بياناتك، واختر موعد التوصيل وطريقة الدفع.' : 'Add your details, then choose your delivery time and payment method.'}</p>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-          {/* Order Summary */}
-          <div className="bg-white dark:bg-chocolate-900 p-3 md:p-6 rounded-2xl md:rounded-3xl shadow-lg border border-chocolate-100/50 dark:border-chocolate-800/80 h-fit">
-            <h2 className="text-lg md:text-xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-6 font-cairo border-b border-chocolate-50 dark:border-chocolate-800 pb-3">{t('orderSummary')}</h2>
-            {!catalogReady && !catalogError && <p role="status" className="mb-4 text-sm text-chocolate-600 dark:text-chocolate-300">{locale === 'ar' ? 'جارٍ تحديث الأسعار…' : 'Refreshing prices…'}</p>}
-            {catalogError && <p role="alert" className="mb-4 rounded-xl bg-red-50 p-3 text-sm font-semibold text-red-800 dark:bg-red-950/40 dark:text-red-200">{locale === 'ar' ? 'تعذر تحديث الأسعار. تحقق من اتصالك ثم أعد تحميل الصفحة.' : 'Could not refresh prices. Check your connection and reload the page.'}</p>}
-            {unavailableItems && <p role="alert" className="mb-4 rounded-xl bg-red-50 p-3 text-sm font-semibold text-red-800 dark:bg-red-950/40 dark:text-red-200">{locale === 'ar' ? 'أحد المنتجات لم يعد متاحاً. أزله من السلة ثم أعد المحاولة.' : 'A product is no longer available. Remove it from your cart before continuing.'}</p>}
-            <div className="space-y-4 mb-6">
-              {items.map((item) => (
-                <div key={item.id} className="flex justify-between items-center text-sm font-semibold">
-                  <div className="flex items-center gap-3">
-                    <span className="w-6 h-6 bg-chocolate-100 dark:bg-chocolate-800 rounded-full flex items-center justify-center text-xs font-bold text-chocolate-850 dark:text-chocolate-200">
-                      {item.quantity}
-                    </span>
-                    <span className="text-chocolate-850 dark:text-chocolate-200">{(() => {
-                      const product = catalog.find((entry) => entry.id === item.id);
-                      return locale === 'ar' && product?.nameAr ? product.nameAr : product?.name || item.name;
-                    })()}</span>
-                  </div>
-                  <span className="text-chocolate-700 dark:text-chocolate-300">
-                    {((catalog.find((product) => product.id === item.id)?.price ?? item.price) * item.quantity).toFixed(2)} EGP
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <div className="mb-5">
-              <label htmlFor="checkout-coupon" className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-200 mb-2">{t('checkoutFields.couponCode')}</label>
-              <div className="flex gap-2">
-                <input id="checkout-coupon" type="text" maxLength={80} autoComplete="off" dir="ltr"
-                  disabled={isSubmitting} value={couponInput} onChange={(e) => resetCoupon(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); void applyCoupon(); } }}
-                  aria-describedby="coupon-feedback" aria-invalid={!!couponError}
-                  className="w-full min-w-0 min-h-[44px] px-3 rounded-xl border border-chocolate-200 dark:border-chocolate-700 bg-chocolate-50/20 dark:bg-chocolate-800 text-chocolate-900 dark:text-chocolate-100 focus:outline-none focus:ring-2 focus:ring-gold-500" />
-                <button type="button" disabled={couponLoading || isSubmitting || !catalogReady || catalogError || !!appliedCoupon}
-                  onClick={() => void applyCoupon()} className="min-h-[44px] px-4 shrink-0 rounded-xl bg-chocolate-600 text-white font-bold disabled:opacity-50 cursor-pointer focus-visible:outline-2 focus-visible:outline-gold-500">
-                  {t(couponLoading ? 'checkoutFields.applying' : 'checkoutFields.apply')}
-                </button>
-              </div>
-              <div id="coupon-feedback" className="mt-2 text-sm" aria-live="polite">
-                {couponError && <p role="alert" className="text-red-700 dark:text-red-300">{couponError}</p>}
-                {appliedCoupon && <div className="flex flex-wrap items-center gap-2 text-green-800 dark:text-green-300">
-                  <span>{t('checkoutFields.couponApplied')}: <b dir="ltr">{appliedCoupon.code}</b> ({appliedCoupon.discountPct}%)</span>
-                  <button type="button" disabled={isSubmitting} onClick={() => resetCoupon()} className="underline min-h-[44px] px-2 cursor-pointer">{t('checkoutFields.remove')}</button>
-                  <p className="w-full text-xs text-chocolate-600 dark:text-chocolate-300">{t('checkoutFields.discountNote')}</p>
-                </div>}
-              </div>
-            </div>
-
-            {/* Shipping Info Card */}
-            <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-chocolate-800 dark:to-chocolate-850 border border-amber-200 dark:border-chocolate-700 rounded-2xl p-4 mb-6">
-              <div className="space-y-2 bg-white/70 dark:bg-chocolate-900/50 rounded-xl p-3">
-                <div className="flex justify-between items-center text-xs font-bold">
-                  <span className="text-chocolate-700 dark:text-chocolate-300">{t('subtotal')}:</span>
-                  <span className="text-chocolate-900 dark:text-white">{checkoutSubtotal.toFixed(2)} EGP</span>
-                </div>
-                <div className="flex justify-between items-center text-xs font-bold">
-                  <span className="text-chocolate-700 dark:text-chocolate-300">{t('deliveryFee')}:</span>
-                  <span className="text-chocolate-700 dark:text-gold-300 tabular-nums">{deliveryFee.toFixed(2)} EGP</span>
-                </div>
-                {appliedCoupon && <div className="flex justify-between gap-2 text-xs font-bold text-green-800 dark:text-green-300">
-                  <span>{t('checkoutFields.discount')} ({appliedCoupon.discountPct}%):</span>
-                  <span dir="ltr">-{discountAmount.toFixed(2)} EGP</span>
-                </div>}
-                <div className="border-t border-amber-200 dark:border-chocolate-700 pt-2 mt-2 flex justify-between items-center">
-                  <span className="text-sm font-extrabold text-chocolate-900 dark:text-white">{t('grandTotal')}:</span>
-                  <span className="text-lg font-extrabold text-chocolate-700 dark:text-gold-300 tabular-nums">{grandTotal.toFixed(2)} EGP</span>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          {/* Contact Details Form */}
-          <div className="bg-white dark:bg-chocolate-900 p-3 md:p-6 rounded-2xl md:rounded-3xl shadow-lg border border-chocolate-100/50 dark:border-chocolate-800/80">
-            <h2 className="text-lg md:text-xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-6 font-cairo border-b border-chocolate-50 dark:border-chocolate-800 pb-3">{t('contactDetails')}</h2>
-            <form onSubmit={handleSubmit} className="space-y-4 font-cairo">
+        <div className={styles.orderBadge}><ShoppingBag size={20} aria-hidden="true" /><span>{locale === 'ar' ? 'طلبك' : 'Your order'}</span><strong>{items.reduce((sum, item) => sum + item.quantity, 0)}</strong></div>
+      </div>
+      <div className={styles.workspace}>
+        <form id="checkout-form" onSubmit={handleSubmit} className={styles.form}>
+          <section className={styles.details} aria-labelledby="details-title">
+            <div className={styles.contact}>
+            <h2 id="details-title" className={styles.sectionHeading}><span>01</span>{t('contactDetails')}</h2>
+            <div className={styles.contactGrid}>
               <div>
                 <label htmlFor="checkout-name" className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-2">{t('name')}</label>
                 <input
@@ -430,6 +365,12 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                 />
               </div>
 
+
+            </div>
+            </div>
+            <div className={styles.delivery}>
+            <h2 className={styles.sectionHeading}><Truck size={20} aria-hidden="true" />{locale === 'ar' ? 'تفاصيل التوصيل' : 'Delivery details'}</h2>
+            <div className={styles.fields}>
               <div>
                 <label htmlFor="checkout-address" className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-2">{t('address')} *</label>
                 <textarea
@@ -534,7 +475,14 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                 </div>
               </div>
 
-              {/* Payment Method Selector */}
+
+            </div>
+            </div>
+          </section>
+          <section className={styles.payment} aria-labelledby="payment-title">
+            <h2 id="payment-title" className={styles.sectionHeading}><span>02</span>{t('paymentMethod')}</h2>
+            <div className={styles.fields}>
+
               <div>
                 <label className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-3">{t('paymentMethod')} *</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -563,15 +511,16 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                     />
                     <div className="flex-1">
                       <p className="font-bold text-chocolate-900 dark:text-white">{t('onlinePayment')}</p>
-                      <p className="text-xs text-chocolate-500 dark:text-chocolate-400 mt-1">إنستا باي أو محفظة الكاش</p>
+                      <p className="text-xs text-chocolate-500 dark:text-chocolate-400 mt-1">{locale === 'ar' ? 'إنستا باي أو محفظة الكاش' : 'InstaPay or cash wallet'}</p>
                     </div>
                   </label>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-2">{t('messageSpecialRequests')}</label>
+                <label htmlFor="checkout-message" className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-2">{t('messageSpecialRequests')}</label>
                 <textarea
+                  id="checkout-message"
                   rows={3}
                   className="w-full px-4 py-2.5 rounded-xl border border-chocolate-200 dark:border-chocolate-700 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 outline-none transition-colors text-black dark:text-white bg-chocolate-50/20 dark:bg-chocolate-800/20 font-semibold text-base"
                   value={formData.message}
@@ -579,11 +528,17 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                 />
               </div>
 
-              {submitError && <p role="alert" className="text-sm font-semibold text-red-700 dark:text-red-300">{submitError}</p>}
+
+            </div>
+            <div className={styles.paymentNote}><CreditCard size={20} aria-hidden="true" /><p>{locale === 'ar' ? 'راجع تفاصيل طلبك قبل التأكيد. ستظهر تعليمات التحويل بعد إتمام الطلب إذا اخترت الدفع الإلكتروني.' : 'Review your order before confirming. Transfer instructions will appear after placing an order with online payment.'}</p></div>
+          </section>
+          <div className={styles.actionbar}>
+            <div className={styles.actionTotal}><span>{t('grandTotal')}</span><strong dir="ltr">{grandTotal.toFixed(2)} <small>EGP</small></strong></div>
+            {submitError && <p role="alert" className={styles.submitError}>{submitError}</p>}
               <button
                 type="submit"
                 disabled={couponLoading || isSubmitting || !catalogReady || catalogError || unavailableItems}
-                className="w-full bg-gradient-to-r from-chocolate-700 to-chocolate-800 dark:from-gold-600 dark:to-gold-500 text-white py-4 rounded-full font-bold hover:shadow-lg transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
+                className={styles.submit}
               >
                 {isSubmitting ? (
                   <>
@@ -594,13 +549,86 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                     {t('placingOrder')}
                   </>
                 ) : (
-                  t('placeOrder')
+                  <>{t('placeOrder')}<ArrowRight size={18} className={locale === 'ar' ? 'rotate-180' : ''} aria-hidden="true" /></>
                 )}
               </button>
-            </form>
+
           </div>
-        </div>
+        </form>
+        <aside className={styles.summary} aria-labelledby="summary-title">
+          <div className={styles.summaryHeading}><h2 id="summary-title">{t('orderSummary')}</h2><ShoppingBag size={20} aria-hidden="true" /></div>
+            {!catalogReady && !catalogError && <p role="status" className="mb-4 text-sm text-chocolate-600 dark:text-chocolate-300">{locale === 'ar' ? 'جارٍ تحديث الأسعار…' : 'Refreshing prices…'}</p>}
+            {catalogError && <p role="alert" className="mb-4 rounded-xl bg-red-50 p-3 text-sm font-semibold text-red-800 dark:bg-red-950/40 dark:text-red-200">{locale === 'ar' ? 'تعذر تحديث الأسعار. تحقق من اتصالك ثم أعد تحميل الصفحة.' : 'Could not refresh prices. Check your connection and reload the page.'}</p>}
+            {unavailableItems && <p role="alert" className="mb-4 rounded-xl bg-red-50 p-3 text-sm font-semibold text-red-800 dark:bg-red-950/40 dark:text-red-200">{locale === 'ar' ? 'أحد المنتجات لم يعد متاحاً. أزله من السلة ثم أعد المحاولة.' : 'A product is no longer available. Remove it from your cart before continuing.'}</p>}
+            <div className={styles.products}>
+              {items.map((item) => (
+                <div key={item.id} className={styles.product}>
+                  <div className={styles.productIdentity}>
+                    <span className={styles.productImage}><Package size={24} aria-hidden="true" /></span>
+                    <span className="w-6 h-6 bg-chocolate-100 dark:bg-chocolate-800 rounded-full flex items-center justify-center text-xs font-bold text-chocolate-850 dark:text-chocolate-200">
+                      {item.quantity}
+                    </span>
+                    <span className="text-chocolate-850 dark:text-chocolate-200">{(() => {
+                      const product = catalog.find((entry) => entry.id === item.id);
+                      return locale === 'ar' && product?.nameAr ? product.nameAr : product?.name || item.name;
+                    })()}</span>
+                  </div>
+                  <span className="text-chocolate-700 dark:text-chocolate-300 shrink-0 tabular-nums" dir="ltr">
+                    {((catalog.find((product) => product.id === item.id)?.price ?? item.price) * item.quantity).toFixed(2)} EGP
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="mb-5">
+              <label htmlFor="checkout-coupon" className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-200 mb-2">{t('checkoutFields.couponCode')}</label>
+              <div className="flex gap-2">
+                <input id="checkout-coupon" type="text" maxLength={80} autoComplete="off" dir="ltr"
+                  disabled={isSubmitting} value={couponInput} onChange={(e) => resetCoupon(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); void applyCoupon(); } }}
+                  aria-describedby="coupon-feedback" aria-invalid={!!couponError}
+                  className="w-full min-w-0 min-h-[44px] px-3 rounded-xl border border-chocolate-200 dark:border-chocolate-700 bg-chocolate-50/20 dark:bg-chocolate-800 text-chocolate-900 dark:text-chocolate-100 focus:outline-none focus:ring-2 focus:ring-gold-500" />
+                <button type="button" disabled={couponLoading || isSubmitting || !catalogReady || catalogError || !!appliedCoupon}
+                  onClick={() => void applyCoupon()} className="min-h-[44px] px-4 shrink-0 rounded-xl bg-chocolate-600 text-white font-bold disabled:opacity-50 cursor-pointer focus-visible:outline-2 focus-visible:outline-gold-500">
+                  {t(couponLoading ? 'checkoutFields.applying' : 'checkoutFields.apply')}
+                </button>
+              </div>
+              <div id="coupon-feedback" className="mt-2 text-sm" aria-live="polite">
+                {couponError && <p role="alert" className="text-red-700 dark:text-red-300">{couponError}</p>}
+                {appliedCoupon && <div className="flex flex-wrap items-center gap-2 text-green-800 dark:text-green-300">
+                  <span>{t('checkoutFields.couponApplied')}: <b dir="ltr">{appliedCoupon.code}</b> ({appliedCoupon.discountPct}%)</span>
+                  <button type="button" disabled={isSubmitting} onClick={() => resetCoupon()} className="underline min-h-[44px] px-2 cursor-pointer">{t('checkoutFields.remove')}</button>
+                  <p className="w-full text-xs text-chocolate-600 dark:text-chocolate-300">{t('checkoutFields.discountNote')}</p>
+                </div>}
+              </div>
+            </div>
+
+            {/* Shipping Info Card */}
+            <div className={styles.totals}>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center text-xs font-bold">
+                  <span className="text-chocolate-700 dark:text-chocolate-300">{t('subtotal')}:</span>
+                  <span className="text-chocolate-900 dark:text-white">{checkoutSubtotal.toFixed(2)} EGP</span>
+                </div>
+                <div className="flex justify-between items-center text-xs font-bold">
+                  <span className="text-chocolate-700 dark:text-chocolate-300">{t('deliveryFee')}:</span>
+                  <span className="text-chocolate-700 dark:text-gold-300 tabular-nums">{deliveryFee.toFixed(2)} EGP</span>
+                </div>
+                {appliedCoupon && <div className="flex justify-between gap-2 text-xs font-bold text-green-800 dark:text-green-300">
+                  <span>{t('checkoutFields.discount')} ({appliedCoupon.discountPct}%):</span>
+                  <span dir="ltr">-{discountAmount.toFixed(2)} EGP</span>
+                </div>}
+                <div className="border-t border-amber-200 dark:border-chocolate-700 pt-2 mt-2 flex justify-between items-center">
+                  <span className="text-sm font-extrabold text-chocolate-900 dark:text-white">{t('grandTotal')}:</span>
+                  <span className="text-lg font-extrabold text-chocolate-700 dark:text-gold-300 tabular-nums">{grandTotal.toFixed(2)} EGP</span>
+                </div>
+              </div>
+            </div>
+
+
+          <Link href="/menu" className={styles.editOrder}>{locale === 'ar' ? 'إضافة منتجات من القائمة' : 'Add products from the menu'}<ArrowRight size={16} className={locale === 'ar' ? 'rotate-180' : ''} aria-hidden="true" /></Link>
+        </aside>
       </div>
-    </div>
+    </main>
   );
 }
