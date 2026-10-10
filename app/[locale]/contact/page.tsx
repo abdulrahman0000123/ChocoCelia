@@ -1,32 +1,24 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { MapPin, Instagram, Facebook, Twitter } from 'lucide-react';
+import Image from 'next/image';
+import { ArrowUpRight, MapPin, Instagram, Facebook, Twitter, Phone, MessageCircle, Music2 } from 'lucide-react';
 import { useState, useEffect, use } from 'react';
 import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/routing';
+import { trackWhatsAppClick } from '@/app/lib/analytics';
+import styles from './Contact.module.css';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
 }
 
+const tiktokUrl = 'https://www.tiktok.com/@choco.celia?_r=1&_t=ZS-9ARpTtL8ICK';
+
 export default function ContactPage({ params }: PageProps) {
   const { locale } = use(params);
   const t = useTranslations();
   const isAr = locale === 'ar';
-
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: ''
-  });
-
-  const [settings, setSettings] = useState({
-    facebook: '',
-    instagram: '',
-    twitter: '',
-    phone: '',
-  });
-  const [statusMessage, setStatusMessage] = useState('');
+  const [settings, setSettings] = useState({ facebook: '', instagram: '', twitter: '', phone: '' });
 
   useEffect(() => {
     let active = true;
@@ -41,154 +33,50 @@ export default function ContactPage({ params }: PageProps) {
     return () => { active = false; };
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const phone = (settings.phone || '201111913570').replace(/[^0-9]/g, '');
-    const message = `${formData.message}\n\n${formData.name}\n${formData.email}`;
-    window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
-    setStatusMessage(isAr ? 'تم فتح واتساب برسالتك. أرسلها هناك لإتمام التواصل.' : 'WhatsApp opened with your message. Send it there to complete your contact.');
-  };
+  const phone = (settings.phone || '201111913570').replace(/[^0-9]/g, '');
+  const socials = [
+    { name: 'Instagram', href: settings.instagram, Icon: Instagram, description: isAr ? 'لحظاتنا الحلوة بالصور' : 'Our sweet moments in pictures' },
+    { name: 'Facebook', href: settings.facebook, Icon: Facebook, description: isAr ? 'أخبارنا وأحدث المنتجات' : 'Our news and latest products' },
+    { name: 'TikTok', href: tiktokUrl, Icon: Music2, description: isAr ? 'شوف كواليس شوكو سيليا' : 'Go behind the scenes with Choco Celia' },
+    { name: 'Twitter', href: settings.twitter, Icon: Twitter, description: isAr ? 'تابع جديدنا' : 'Keep up with us' },
+  ].filter(social => social.href);
 
   return (
-    <div className="min-h-screen bg-chocolate-50/20 dark:bg-chocolate-950/10 py-28">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl font-extrabold font-cairo text-chocolate-900 dark:text-chocolate-100 mb-4"
-          >
-            {t('getInTouch')}
-          </motion.h1>
-          <p className="text-gold-600 dark:text-gold-500 text-lg max-w-2xl mx-auto font-cairo font-semibold">
-            {t('contactSubtitle')}
-          </p>
+    <div className={styles.page} dir={isAr ? 'rtl' : 'ltr'}>
+      <section className={styles.hero} aria-labelledby="contact-title">
+        <div className={styles.copy}>
+          <p className={styles.eyebrow}>CHOCO CELIA · {isAr ? 'خلّينا على تواصل' : 'LET’S KEEP IN TOUCH'}</p>
+          <h1 id="contact-title">{t('getInTouch')}<span>{isAr ? 'لكل لحظة حلوة.' : 'For every sweet moment.'}</span></h1>
+          <p className={styles.intro}>{t('contactSubtitle')}</p>
+          <div className={styles.actions}>
+            <a href={`https://api.whatsapp.com/send?phone=${phone}`} target="_blank" rel="noopener noreferrer" onClick={trackWhatsAppClick} className={styles.whatsapp}>
+              <MessageCircle size={21} aria-hidden="true" />{isAr ? 'تواصل على واتساب' : 'Chat on WhatsApp'}<ArrowUpRight size={18} aria-hidden="true" />
+            </a>
+            <a href={`tel:+${phone}`} className={styles.call}><Phone size={19} aria-hidden="true" />{isAr ? 'اتصل بنا' : 'Call us'}</a>
+          </div>
+          <div className={styles.location}>
+            <MapPin size={22} aria-hidden="true" />
+            <div><h2>{t('location')}</h2><p>{isAr ? 'محافظة بني سويف، جمهورية مصر العربية' : 'Beni-Suef Governorate, Egypt'}</p></div>
+          </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
-          {/* Contact Info */}
-          <motion.div 
-            initial={{ opacity: 0, x: isAr ? 20 : -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-            className="space-y-8"
-          >
-            <div className="bg-white dark:bg-chocolate-900 p-8 rounded-3xl shadow-lg border border-chocolate-100/50 dark:border-chocolate-800/80">
-              <h3 className="text-2xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-6 font-cairo border-b border-chocolate-50 dark:border-chocolate-800 pb-4">{t('contactInfo')}</h3>
-              
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="bg-chocolate-50 dark:bg-chocolate-800 p-3 rounded-full text-chocolate-600 dark:text-chocolate-300">
-                    <MapPin className="w-6 h-6 text-gold-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-chocolate-800 dark:text-chocolate-200 font-cairo">{t('location')}</h4>
-                    <p className="text-chocolate-600 dark:text-chocolate-300 font-cairo mt-1" dir={isAr ? 'rtl' : 'ltr'}>
-                      {isAr ? 'محافظة بني سويف، جمهورية مصر العربية' : 'Beni-Suef Governorate, Egypt'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-8 pt-8 border-t border-chocolate-55 dark:border-chocolate-800">
-                <h4 className="font-bold text-chocolate-800 dark:text-chocolate-200 mb-4 font-cairo">{t('followUs')}</h4>
-                <div className="flex gap-4">
-                  {settings.instagram && (
-                    <a 
-                      href={settings.instagram} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="bg-chocolate-600 hover:bg-gold-600 text-white p-3 rounded-full transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center shadow-md"
-                      aria-label="Instagram"
-                    >
-                      <Instagram className="w-5 h-5" />
-                    </a>
-                  )}
-                  {settings.facebook && (
-                    <a 
-                      href={settings.facebook} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="bg-chocolate-600 hover:bg-gold-600 text-white p-3 rounded-full transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center shadow-md"
-                      aria-label="Facebook"
-                    >
-                      <Facebook className="w-5 h-5" />
-                    </a>
-                  )}
-                  {settings.twitter && (
-                    <a 
-                      href={settings.twitter} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="bg-chocolate-600 hover:bg-gold-600 text-white p-3 rounded-full transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center shadow-md"
-                      aria-label="Twitter"
-                    >
-                      <Twitter className="w-5 h-5" />
-                    </a>
-                  )}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Contact Form */}
-          <motion.div 
-            initial={{ opacity: 0, x: isAr ? -20 : 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
-            className="bg-white dark:bg-chocolate-900 p-8 rounded-3xl shadow-lg border border-chocolate-100/50 dark:border-chocolate-800/80"
-          >
-            <h3 className="text-2xl font-bold text-chocolate-900 dark:text-chocolate-100 mb-6 font-cairo border-b border-chocolate-50 dark:border-chocolate-800 pb-4">{t('sendUsMessage')}</h3>
-            <form onSubmit={handleSubmit} className="space-y-6 font-cairo">
-              <div>
-                <label htmlFor="contact-name" className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-2">{t('name')}</label>
-                <input
-                  id="contact-name"
-                  type="text"
-                  required
-                  autoComplete="name"
-                  className="w-full px-4 py-3 rounded-xl border border-chocolate-200 dark:border-chocolate-700 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 outline-none transition-colors bg-chocolate-50/20 dark:bg-chocolate-800/20 text-black dark:text-chocolate-100 font-semibold text-base min-h-[44px]"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="contact-email" className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-2">{t('email')}</label>
-                <input
-                  id="contact-email"
-                  type="email"
-                  required
-                  autoComplete="email"
-                  className="w-full px-4 py-3 rounded-xl border border-chocolate-200 dark:border-chocolate-700 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 outline-none transition-colors bg-chocolate-50/20 dark:bg-chocolate-800/20 text-black dark:text-chocolate-100 font-semibold text-base min-h-[44px]"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="contact-message" className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-2">{t('message')}</label>
-                <textarea
-                  id="contact-message"
-                  required
-                  rows={5}
-                  className="w-full px-4 py-3 rounded-xl border border-chocolate-200 dark:border-chocolate-700 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 outline-none transition-colors bg-chocolate-50/20 dark:bg-chocolate-800/20 text-black dark:text-chocolate-100 font-semibold text-base"
-                  value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full bg-gradient-to-r from-chocolate-700 to-chocolate-800 dark:from-gold-600 dark:to-gold-500 hover:from-chocolate-800 text-white py-4 rounded-full font-bold transition-all shadow-lg hover:shadow-xl active:scale-[0.98] cursor-pointer min-h-[44px]"
-              >
-                {t('sendMessage')}
-              </button>
-              {statusMessage && <p role="status" className="text-sm font-semibold text-green-700 dark:text-green-300">{statusMessage}</p>}
-            </form>
-          </motion.div>
+        <figure className={styles.photo}>
+          <Image src="/images/story/chocolate-gift.webp" alt={isAr ? 'شوكولاتة شوكو سيليا مغلفة كهدية' : 'Choco Celia chocolates wrapped as a gift'} fill sizes="(max-width: 899px) 100vw, 46vw" priority />
+          <figcaption>{isAr ? 'حكايتنا تبدأ بالشوكولاتة، وتكمل معاك.' : 'Our story starts with chocolate, and continues with you.'}</figcaption>
+        </figure>
+      </section>
+      <section className={styles.socialSection} aria-labelledby="social-title">
+        <div className={styles.socialIntro}><h2 id="social-title">{t('followUs')}</h2><p>{isAr ? 'منتجات جديدة، أفكار هدايا، وكواليس من عالمنا.' : 'New chocolates, gift ideas, and a glimpse into our world.'}</p></div>
+        <div className={styles.socials}>
+          {socials.map(({ name, href, Icon, description }) => (
+            <a key={name} href={href} target="_blank" rel="noopener noreferrer" className={styles.social} aria-label={name}>
+              <Icon size={25} strokeWidth={1.6} aria-hidden="true" />
+              <div><span dir="ltr">{name}</span><p>{description}</p></div>
+              <ArrowUpRight size={20} className={styles.arrow} aria-hidden="true" />
+            </a>
+          ))}
         </div>
-      </div>
+      </section>
+      <div className={styles.menuLink}><p>{isAr ? 'لسه بتختار لحظتك الحلوة؟' : 'Still choosing your sweet moment?'}</p><Link href="/menu">{t('browseMenu')}<ArrowUpRight size={18} aria-hidden="true" /></Link></div>
     </div>
   );
 }
