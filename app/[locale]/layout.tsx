@@ -56,6 +56,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} suppressHydrationWarning className="scroll-smooth">
       <head>
+        <link rel="preload" href="/fonts/rpt-regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="icon" href="/brand/icon-192.png" type="image/png" />
         <link rel="apple-touch-icon" href="/brand/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />

@@ -24,7 +24,7 @@
 }
 .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 76px; border-bottom: 1px solid var(--line); }
 .back { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; min-height: 44px; }
-.brand { font-family: Georgia, serif; font-size: 22px; letter-spacing: -1px; white-space: nowrap; }
+.brand { font-family: var(--font-rpt); font-size: 22px; letter-spacing: -1px; white-space: nowrap; }
 .brand span { font-style: italic; }
 .intro { padding: 28px 0 24px; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
 .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 10px; }

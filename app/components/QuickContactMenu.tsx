@@ -108,7 +108,7 @@ export function QuickContactMenu({
               textDecoration: 'none',
               fontWeight: 700,
               fontSize: '14px',
-              fontFamily: 'sans-serif',
+              fontFamily: 'var(--font-rpt)',
               whiteSpace: 'nowrap',
               pointerEvents: 'auto',
             }}
@@ -137,7 +137,7 @@ export function QuickContactMenu({
               textDecoration: 'none',
               fontWeight: 700,
               fontSize: '14px',
-              fontFamily: 'sans-serif',
+              fontFamily: 'var(--font-rpt)',
               whiteSpace: 'nowrap',
               pointerEvents: 'auto',
             }}
@@ -166,7 +166,7 @@ export function QuickContactMenu({
               textDecoration: 'none',
               fontWeight: 700,
               fontSize: '14px',
-              fontFamily: 'sans-serif',
+              fontFamily: 'var(--font-rpt)',
               whiteSpace: 'nowrap',
               pointerEvents: 'auto',
             }}

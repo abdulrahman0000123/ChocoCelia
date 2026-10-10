@@ -11,6 +11,7 @@ export default function AdminRootLayout({
   return (
     <html lang="en">
       <head>
+        <link rel="preload" href="/fonts/rpt-regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <title>Choco Celia Admin Dashboard</title>
         <link rel="icon" href="/brand/icon-192.png" type="image/png" />
       </head>
