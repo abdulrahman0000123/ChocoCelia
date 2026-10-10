@@ -342,6 +342,11 @@ input[type="submit"],
   min-width: 44px;
 }
 
+.product-card-actions button {
+  min-height: 32px;
+  min-width: 32px;
+}
+
 input,
 select,
 textarea {

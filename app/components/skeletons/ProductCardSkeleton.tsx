@@ -19,9 +19,12 @@ export function ProductCardSkeleton() {
           </div>
         </div>
         {/* Footer placeholder */}
-        <div className="flex items-center justify-between border-t border-chocolate-50 dark:border-chocolate-800/40 pt-4 mt-auto">
+        <div className="flex items-center justify-between gap-1 sm:gap-2 border-t border-chocolate-50 dark:border-chocolate-800/40 pt-2 md:pt-4 mt-auto">
           <div className="h-5 bg-chocolate-100 dark:bg-chocolate-800 rounded w-1/3" />
-          <div className="h-4 bg-chocolate-100 dark:bg-chocolate-800 rounded w-8" />
+          <div className="flex shrink-0 items-center gap-1">
+            <div className="h-8 w-8 md:h-9 md:w-9 bg-chocolate-100 dark:bg-chocolate-800 rounded-full" />
+            <div className="h-8 w-8 md:h-9 md:w-9 bg-chocolate-100 dark:bg-chocolate-800 rounded-full" />
+          </div>
         </div>
       </div>
     </div>

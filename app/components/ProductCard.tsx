@@ -96,25 +96,6 @@ export function ProductCard({ product }: ProductCardProps) {
               </span>
             </div>
           )}
-
-          {/* Wishlist Heart Overlay */}
-          <div className={`absolute top-2 md:top-4 ${isAr ? 'left-2 md:left-4' : 'right-2 md:right-4'} z-20`}>
-            <WishlistButton productId={product.id} size={18} className="min-h-[44px] min-w-[44px]" />
-          </div>
-
-          {/* Quick Add to Cart Button */}
-          <button 
-            disabled={product.isAvailable === false}
-            onClick={handleAddToCart}
-            className={`absolute bottom-2 md:bottom-4 ${isAr ? 'left-2 md:left-4' : 'right-2 md:right-4'} p-3 md:p-3.5 min-h-[44px] min-w-[44px] rounded-full shadow-lg z-20 transition-all duration-300 hover:scale-110 active:scale-95 ${
-              isAdded 
-                ? 'bg-green-500 text-white' 
-                : 'bg-white dark:bg-chocolate-800 hover:bg-gold-600 hover:text-white text-chocolate-700 dark:text-chocolate-100'
-            }`}
-            aria-label={t('addToCart')}
-          >
-            {isAdded ? <Check className="w-5 h-5" /> : <ShoppingCart className="w-5 h-5" />}
-          </button>
         </div>
 
         {/* Card Details */}
@@ -133,10 +114,27 @@ export function ProductCard({ product }: ProductCardProps) {
             </p>
           </div>
 
-          <div className="flex items-center border-t border-chocolate-50 dark:border-chocolate-800/40 pt-2 md:pt-4 mt-auto">
-            <span className="text-sm md:text-xl font-extrabold tabular-nums text-chocolate-900 dark:text-white">
-              {Number(product.price).toFixed(2)} EGP
+          <div className="flex items-center justify-between gap-1 sm:gap-2 border-t border-chocolate-50 dark:border-chocolate-800/40 pt-2 md:pt-4 mt-auto">
+            <span className="min-w-0 flex flex-wrap items-baseline gap-x-1 text-[11px] sm:text-sm md:text-lg font-extrabold tabular-nums text-chocolate-900 dark:text-white">
+              <span dir="ltr" className="whitespace-nowrap">{Number(product.price).toFixed(2)}</span>
+              <span className="text-[10px] sm:text-xs md:text-sm">EGP</span>
             </span>
+            <div className="product-card-actions flex shrink-0 items-center gap-1">
+              <WishlistButton productId={product.id} size={16} variant="compact" className="[&>svg]:md:h-[18px] [&>svg]:md:w-[18px]" />
+              <button
+                type="button"
+                disabled={product.isAvailable === false}
+                onClick={handleAddToCart}
+                className={`flex h-8 w-8 md:h-9 md:w-9 shrink-0 items-center justify-center rounded-full transition-colors active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-500 disabled:opacity-40 disabled:cursor-not-allowed ${
+                  isAdded
+                    ? 'bg-green-500 text-white'
+                    : 'bg-chocolate-50 dark:bg-chocolate-800 hover:bg-gold-600 hover:text-white text-chocolate-700 dark:text-chocolate-100'
+                }`}
+                aria-label={t(isAdded ? 'addedToCart' : 'addToCart')}
+              >
+                {isAdded ? <Check className="h-4 w-4 md:h-[18px] md:w-[18px]" /> : <ShoppingCart className="h-4 w-4 md:h-[18px] md:w-[18px]" />}
+              </button>
+            </div>
           </div>
         </div>
       </motion.div>
