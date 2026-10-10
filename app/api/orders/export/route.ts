@@ -44,7 +44,7 @@ export async function GET(request: Request) {
 
     // Create CSV content with UTF-8 BOM for Excel compatibility
     let csv = '\ufeff'; // UTF-8 BOM for proper Arabic display in Excel
-    csv += 'Order ID,Date,Status,Customer Name,Phone,Email,Address,Contact Via,Items,Quantities,Unit Prices,Total Price,Special Requests\n';
+    csv += 'Order ID,Date,Status,Customer Name,Phone,Email,Address,Contact Via,Items,Quantities,Unit Prices,Total Price,Special Requests,Requested Delivery Date (Cairo),Requested Delivery Time (Cairo),Subtotal,Delivery Fee,Coupon Code,Discount Percent,Discount Amount\n';
     
     orders.forEach(order => {
       // TypeScript workaround for Prisma types
@@ -68,7 +68,14 @@ export async function GET(request: Request) {
         itemQuantities,
         itemPrices,
         `${order.total.toFixed(2)} EGP`,
-        orderData.specialRequests ? `"${orderData.specialRequests.replace(/"/g, '""')}"` : 'N/A'
+        orderData.specialRequests ? `"${orderData.specialRequests.replace(/"/g, '""')}"` : 'N/A',
+        order.requestedDeliveryDate || 'N/A',
+        order.requestedDeliveryTime || 'N/A',
+        order.subtotal?.toFixed(2) ?? 'N/A',
+        order.deliveryFee?.toFixed(2) ?? 'N/A',
+        `"${(order.couponCode || '').replace(/"/g, '""')}"`,
+        order.discountPct,
+        order.discountAmount.toFixed(2)
       ].join(',');
       
       csv += row + '\n';

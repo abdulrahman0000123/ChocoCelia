@@ -146,5 +146,26 @@
   "wishlist": "Wishlist",
   "emptyWishlist": "Your wishlist is empty",
   "noResultsFor": "No results for",
-  "searchPlaceholder": "Search chocolates..."
+  "searchPlaceholder": "Search chocolates...",
+  "checkoutFields": {
+    "deliveryDate": "Delivery date",
+    "deliveryTime": "Delivery time",
+    "requestedSchedule": "Requested delivery schedule",
+    "scheduleNote": "Times are in Cairo time. We will confirm your requested schedule after reviewing the order.",
+    "couponCode": "Coupon code",
+    "apply": "Apply",
+    "applying": "Checking…",
+    "remove": "Remove",
+    "couponApplied": "Coupon applied",
+    "discount": "Discount",
+    "invalidCoupon": "Invalid coupon code.",
+    "inactiveCoupon": "This coupon is inactive.",
+    "expiredCoupon": "This coupon has expired.",
+    "exhaustedCoupon": "This coupon has reached its usage limit.",
+    "invalidSchedule": "Choose a delivery date and time.",
+    "pastSchedule": "Choose a future delivery schedule in Cairo time.",
+    "couponUnavailable": "Could not check the coupon. Please try again.",
+    "orderFailed": "Could not place your order. Check your connection and try again.",
+    "discountNote": "Discount applies to products only, excluding delivery."
+  }
 }

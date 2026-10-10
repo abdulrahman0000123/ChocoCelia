@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/app/lib/auth';
+import { CheckoutError, normalizeCouponCode, validateCoupon } from '@/app/lib/checkoutRules';
 import { prisma } from '@/app/lib/db';
 
 export async function GET(request: Request) {
@@ -9,29 +10,12 @@ export async function GET(request: Request) {
 
     if (code) {
       // Public coupon validation endpoint
-      const coupon = await prisma.coupon.findUnique({
-        where: { code: code.toUpperCase() },
-      });
-
-      if (!coupon) {
-        return NextResponse.json({ error: 'Coupon code not found' }, { status: 404 });
-      }
-
-      if (!coupon.isActive) {
-        return NextResponse.json({ error: 'Coupon is inactive' }, { status: 400 });
-      }
-
-      if (coupon.expiry && new Date() > new Date(coupon.expiry)) {
-        return NextResponse.json({ error: 'Coupon has expired' }, { status: 400 });
-      }
-
-      if (coupon.maxUses && coupon.uses >= coupon.maxUses) {
-        return NextResponse.json({ error: 'Coupon limit reached' }, { status: 400 });
-      }
+      const coupon = await prisma.coupon.findUnique({ where: { code: normalizeCouponCode(code) } });
+      validateCoupon(coupon);
 
       return NextResponse.json({
-        code: coupon.code,
-        discountPct: coupon.discountPct,
+        code: coupon!.code,
+        discountPct: coupon!.discountPct,
       });
     }
 
@@ -46,6 +30,7 @@ export async function GET(request: Request) {
     });
     return NextResponse.json(coupons);
   } catch (error) {
+    if (error instanceof CheckoutError) return NextResponse.json({ error: error.message, code: error.code }, { status: 400 });
     console.error('Coupons GET error:', error);
     return NextResponse.json(
       { error: 'Failed to process coupon query' },
@@ -71,9 +56,18 @@ export async function POST(request: Request) {
       );
     }
 
+    const percentage = Number(discountPct);
+    const limit = maxUses === '' || maxUses == null ? null : Number(maxUses);
+    if (typeof code !== 'string' || !code.trim() || code.trim().length > 80 ||
+        !Number.isFinite(percentage) || percentage <= 0 || percentage > 100 ||
+        (limit !== null && (!Number.isInteger(limit) || limit < 1)) ||
+        (expiry && !Number.isFinite(new Date(expiry).getTime()))) {
+      return NextResponse.json({ error: 'Invalid coupon details' }, { status: 400 });
+    }
+
     // Check if code already exists
     const existing = await prisma.coupon.findUnique({
-      where: { code: code.toUpperCase() },
+      where: { code: code.trim().toUpperCase() },
     });
 
     if (existing) {
@@ -85,9 +79,9 @@ export async function POST(request: Request) {
 
     const coupon = await prisma.coupon.create({
       data: {
-        code: code.toUpperCase(),
-        discountPct: parseFloat(discountPct),
-        maxUses: maxUses ? parseInt(maxUses) : null,
+        code: code.trim().toUpperCase(),
+        discountPct: percentage,
+        maxUses: limit,
         expiry: expiry ? new Date(expiry) : null,
         isActive: isActive !== undefined ? Boolean(isActive) : true,
       },
@@ -120,10 +114,19 @@ export async function PUT(request: Request) {
       );
     }
 
+    const percentage = Number(discountPct);
+    const limit = maxUses === '' || maxUses == null ? null : Number(maxUses);
+    if (typeof code !== 'string' || !code.trim() || code.trim().length > 80 ||
+        !Number.isFinite(percentage) || percentage <= 0 || percentage > 100 ||
+        (limit !== null && (!Number.isInteger(limit) || limit < 1)) ||
+        (expiry && !Number.isFinite(new Date(expiry).getTime()))) {
+      return NextResponse.json({ error: 'Invalid coupon details' }, { status: 400 });
+    }
+
     // Check if code is taken by another coupon
     const existing = await prisma.coupon.findFirst({
       where: {
-        code: code.toUpperCase(),
+        code: code.trim().toUpperCase(),
         id: { not: id },
       },
     });
@@ -138,9 +141,9 @@ export async function PUT(request: Request) {
     const coupon = await prisma.coupon.update({
       where: { id },
       data: {
-        code: code.toUpperCase(),
-        discountPct: parseFloat(discountPct),
-        maxUses: maxUses ? parseInt(maxUses) : null,
+        code: code.trim().toUpperCase(),
+        discountPct: percentage,
+        maxUses: limit,
         expiry: expiry ? new Date(expiry) : null,
         isActive: Boolean(isActive),
       },

@@ -4,10 +4,11 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle, Copy, ExternalLink, MessageCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { CheckoutExtras, type CheckoutExtrasData } from './CheckoutExtras';
 import { Link } from '@/i18n/routing';
 
 interface PaymentConfirmationProps {
-  orderData: {
+  orderData: CheckoutExtrasData & {
     customerName: string;
     subtotal: number;
     grandTotal: number;
@@ -91,6 +92,8 @@ export function PaymentConfirmation({ orderData, paymentSettings }: PaymentConfi
                 </span>
               </div>
             </div>
+
+            <CheckoutExtras data={orderData} />
 
             {/* Payment Methods */}
             <div className="space-y-4">

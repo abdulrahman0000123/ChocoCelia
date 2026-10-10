@@ -146,5 +146,26 @@
   "wishlist": "المفضلة",
   "emptyWishlist": "قائمة المفضلة فارغة",
   "noResultsFor": "لا توجد نتائج لـ",
-  "searchPlaceholder": "ابحث عن الشوكولاتة..."
+  "searchPlaceholder": "ابحث عن الشوكولاتة...",
+  "checkoutFields": {
+    "deliveryDate": "تاريخ الاستلام",
+    "deliveryTime": "وقت الاستلام",
+    "requestedSchedule": "موعد الاستلام المطلوب",
+    "scheduleNote": "الموعد بتوقيت القاهرة، وسيتم تأكيده معك بعد مراجعة الطلب.",
+    "couponCode": "كود الخصم",
+    "apply": "تطبيق",
+    "applying": "جارٍ التحقق…",
+    "remove": "إزالة",
+    "couponApplied": "تم تطبيق الكوبون",
+    "discount": "الخصم",
+    "invalidCoupon": "كود الخصم غير صحيح.",
+    "inactiveCoupon": "الكوبون غير نشط.",
+    "expiredCoupon": "انتهت صلاحية الكوبون.",
+    "exhaustedCoupon": "وصل الكوبون إلى حد الاستخدام.",
+    "invalidSchedule": "اختر تاريخ ووقت الاستلام.",
+    "pastSchedule": "اختر موعد استلام قادمًا بتوقيت القاهرة.",
+    "couponUnavailable": "تعذر التحقق من الكوبون. حاول مرة أخرى.",
+    "orderFailed": "تعذر إرسال الطلب. تحقق من اتصالك وحاول مرة أخرى.",
+    "discountNote": "الخصم على المنتجات فقط، ولا يشمل التوصيل."
+  }
 }

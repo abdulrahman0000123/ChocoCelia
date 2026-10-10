@@ -75,6 +75,13 @@ model Order {
   status      String      @default("PENDING") // PENDING, PROCESSING, COMPLETED, CANCELLED
   paymentMethod String    @default("cash_on_delivery") // cash_on_delivery or online_payment
   total       Float
+  requestedDeliveryDate String? // Requested date in Africa/Cairo, YYYY-MM-DD
+  requestedDeliveryTime String? // Requested time in Africa/Cairo, HH:mm
+  subtotal    Float? // Null for historical orders without a pricing snapshot
+  deliveryFee Float?
+  couponCode  String? // Snapshot remains valid if the coupon is edited or deleted
+  discountPct Float @default(0)
+  discountAmount Float @default(0)
   items       OrderItem[]
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt

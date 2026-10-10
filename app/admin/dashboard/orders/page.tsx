@@ -184,6 +184,7 @@ export default function OrdersPage() {
                       <td className="px-6 py-4 font-mono text-chocolate-200">{order.customerPhone}</td>
                       <td className="px-6 py-4 text-chocolate-300">
                         {new Date(order.createdAt).toLocaleDateString()}
+                        {order.requestedDeliveryDate && <span className="block text-xs text-gold-300 mt-1">Delivery: {order.requestedDeliveryDate} {order.requestedDeliveryTime} (Cairo)</span>}
                       </td>
                       <td className="px-6 py-4 text-center text-chocolate-200">
                         {order.items?.length || 0}
@@ -235,7 +236,8 @@ export default function OrdersPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-chocolate-300 font-medium">Date:</span>
-                    <span className="text-chocolate-200">{new Date(order.createdAt).toLocaleDateString()}</span>
+                    <span className="text-chocolate-200">{new Date(order.createdAt).toLocaleDateString()}
+                        {order.requestedDeliveryDate && <span className="block text-xs text-gold-300 mt-1">Delivery: {order.requestedDeliveryDate} {order.requestedDeliveryTime} (Cairo)</span>}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-chocolate-300 font-medium">Items:</span>
@@ -294,6 +296,14 @@ export default function OrdersPage() {
                   <span className="text-[10px] uppercase font-bold text-chocolate-400 block tracking-wider">Total</span>
                   <span className="font-extrabold text-gold-400 text-lg">{selectedOrder.total.toFixed(2)} EGP</span>
                 </div>
+              </div>
+
+              <div className="space-y-2 text-sm bg-chocolate-950/40 p-4 rounded-xl">
+                <p><strong>Requested delivery (Cairo): </strong>{selectedOrder.requestedDeliveryDate ? `${selectedOrder.requestedDeliveryDate} ${selectedOrder.requestedDeliveryTime}` : 'Not recorded'}</p>
+                {selectedOrder.requestedDeliveryDate && <p className="text-chocolate-300 text-xs">Requested by customer, pending confirmation.</p>}
+                {selectedOrder.subtotal != null && <p><strong>Products: </strong>{selectedOrder.subtotal.toFixed(2)} EGP</p>}
+                {selectedOrder.deliveryFee != null && <p><strong>Delivery fee: </strong>{selectedOrder.deliveryFee.toFixed(2)} EGP</p>}
+                {selectedOrder.couponCode && <p><strong>Coupon: </strong>{selectedOrder.couponCode} ({selectedOrder.discountPct}%), discount {selectedOrder.discountAmount.toFixed(2)} EGP</p>}
               </div>
 
               {/* Customer Details */}

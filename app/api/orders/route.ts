@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 import { getSession } from '@/app/lib/auth';
 import { normalizePhoneNumber, validateOrderInput } from '@/app/lib/validation';
 import { toPublicProduct } from '@/app/lib/productImages';
+import { CheckoutError, validateRequestedDelivery, normalizeCouponCode, validateCoupon, calculateCheckout } from '@/app/lib/checkoutRules';
+import type { Coupon } from '@prisma/client';
 
 interface OrderLineInput { productId: string; quantity: number; price?: number }
 interface OrderRequest {
@@ -15,6 +17,9 @@ interface OrderRequest {
   paymentMethod?: 'cash_on_delivery' | 'online_payment';
   deliveryArea: 'beniSuef' | 'eastNile';
   items: OrderLineInput[];
+  requestedDeliveryDate: string;
+  requestedDeliveryTime: string;
+  couponCode?: string;
 }
 
 // GET all orders (Admin only)
@@ -82,9 +87,11 @@ export async function POST(request: Request) {
     // Validate input
     try {
       validateOrderInput(body);
+      validateRequestedDelivery(input.requestedDeliveryDate, input.requestedDeliveryTime);
+      normalizeCouponCode(input.couponCode);
     } catch (error: unknown) {
       return NextResponse.json(
-        { error: error instanceof Error ? error.message : 'Invalid order details.' },
+        { error: error instanceof Error ? error.message : 'Invalid order details.', code: error instanceof CheckoutError ? error.code : undefined },
         { status: 400 }
       );
     }
@@ -119,39 +126,56 @@ export async function POST(request: Request) {
     const deliveryFee = deliveryArea === 'beniSuef'
       ? settings?.deliveryFeeBeniSuef ?? 20
       : settings?.deliveryFeeEastNile ?? 40;
-    const total = subtotal + deliveryFee;
+    const couponCode = normalizeCouponCode(input.couponCode);
 
     // Create order with items
-    const order = await prisma.order.create({
-      data: {
-        customerName,
-        customerPhone: normalizedCustomerPhone,
-        customerEmail,
-        customerAddress,
-        preferredContact: preferredContact || 'whatsapp',
-        specialRequests,
-        paymentMethod: paymentMethod || 'cash_on_delivery',
-        total,
-        status: 'PENDING',
-        items: {
-          create: items.map((item) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            price: priceById.get(item.productId)!
-          }))
-        }
-      },
-      include: {
-        items: {
-          include: {
-            product: true
+    const order = await prisma.$transaction(async (tx) => {
+      validateRequestedDelivery(input.requestedDeliveryDate, input.requestedDeliveryTime);
+      let discountPct = 0;
+      if (couponCode) {
+        // Serialize competing requests so the usage limit cannot be exceeded.
+        const coupons = await tx.$queryRaw<Coupon[]>`SELECT * FROM "Coupon" WHERE "code" = ${couponCode} FOR UPDATE`;
+        const coupon = coupons[0] ?? null;
+        validateCoupon(coupon);
+        discountPct = coupon!.discountPct;
+        await tx.coupon.update({ where: { id: coupon!.id }, data: { uses: { increment: 1 } } });
+      }
+      const { discountAmount, total } = calculateCheckout(subtotal, deliveryFee, discountPct);
+      return tx.order.create({
+        data: {
+          customerName,
+          customerPhone: normalizedCustomerPhone,
+          customerEmail,
+          customerAddress,
+          preferredContact: preferredContact || 'whatsapp',
+          specialRequests,
+          paymentMethod: paymentMethod || 'cash_on_delivery',
+          subtotal, deliveryFee, total,
+          requestedDeliveryDate: input.requestedDeliveryDate,
+          requestedDeliveryTime: input.requestedDeliveryTime,
+          couponCode: couponCode || null, discountPct, discountAmount,
+          status: 'PENDING',
+          items: {
+            create: items.map((item) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              price: priceById.get(item.productId)!
+            }))
+          }
+        },
+        include: {
+          items: {
+            include: {
+              product: true
+            }
           }
         }
-      }
+      });
     });
 
-    return NextResponse.json({ ...order, subtotal, deliveryFee, total });
+    return NextResponse.json(order);
   } catch (error: unknown) {
+    if (error instanceof CheckoutError) return NextResponse.json({ error: error.message, code: error.code }, { status: 400 });
     console.error('Failed to create order:', error);
     return NextResponse.json(
       { error: 'Failed to create order' },

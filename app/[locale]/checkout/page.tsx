@@ -8,6 +8,8 @@ import { useTranslations } from 'next-intl';
 import { PaymentConfirmation } from '../../components/PaymentConfirmation';
 import { OrderComplete } from '../../components/OrderComplete';
 import { ThemeToggle } from '../../components/ThemeToggle';
+import { cairoNow, validateRequestedDelivery, CheckoutError, calculateCheckout } from '@/app/lib/checkoutRules';
+import type { CheckoutExtrasData } from '../../components/CheckoutExtras';
 import { trackCheckoutStart, trackPurchase } from '@/app/lib/analytics';
 
 interface CheckoutPageProps {
@@ -21,7 +23,7 @@ interface CheckoutProduct {
   price: number;
 }
 
-interface CheckoutOrder {
+interface CheckoutOrder extends CheckoutExtrasData {
   customerName: string;
   customerPhone: string;
   orderId: string;
@@ -31,7 +33,7 @@ interface CheckoutOrder {
   paymentMethod: string;
 }
 
-interface ConfirmationOrder {
+interface ConfirmationOrder extends CheckoutExtrasData {
   customerName: string;
   subtotal: number;
   grandTotal: number;
@@ -45,12 +47,19 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
   const [catalogReady, setCatalogReady] = useState(false);
   const [catalogError, setCatalogError] = useState(false);
   const unavailableItems = catalogReady && items.some((item) => !catalog.some((product) => product.id === item.id));
-  const checkoutSubtotal = items.reduce((sum, item) => {
+  const checkoutSubtotal = Math.round(items.reduce((sum, item) => {
     const currentProduct = catalog.find((product) => product.id === item.id);
     return sum + (currentProduct?.price ?? item.price) * item.quantity;
-  }, 0);
+  }, 0) * 100) / 100;
   const t = useTranslations();
-  
+  const [couponInput, setCouponInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountPct: number } | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState('');
+  const [submitError, setSubmitError] = useState('');
+  const couponVersion = useRef(0);
+  const [cairoClock, setCairoClock] = useState(() => cairoNow());
+
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderComplete, setOrderComplete] = useState<CheckoutOrder | null>(null);
@@ -72,10 +81,14 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
     deliveryArea: 'benisuef',
     message: '',
     method: 'whatsapp',
+    requestedDeliveryDate: '',
+    requestedDeliveryTime: '',
     paymentMethod: 'cash_on_delivery'
   });
-  const [deliveryFee, setDeliveryFee] = useState(20);
-  const [grandTotal, setGrandTotal] = useState(checkoutSubtotal);
+  const deliveryFee = checkoutSubtotal > 0
+    ? (formData.deliveryArea === 'benisuef' ? deliveryFees.beniSuef : deliveryFees.eastNile)
+    : 0;
+  const { discountAmount, total: grandTotal } = calculateCheckout(checkoutSubtotal, deliveryFee, appliedCoupon?.discountPct ?? 0);
 
   useEffect(() => {
     let active = true;
@@ -114,12 +127,46 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
   }, []);
 
   useEffect(() => {
-    const fee = checkoutSubtotal > 0
-      ? (formData.deliveryArea === 'benisuef' ? deliveryFees.beniSuef : deliveryFees.eastNile)
-      : 0;
-    setDeliveryFee(fee);
-    setGrandTotal(checkoutSubtotal + fee);
-  }, [formData.deliveryArea, deliveryFees, checkoutSubtotal]);
+    const timer = setInterval(() => setCairoClock(cairoNow()), 30000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const checkoutErrorMessage = (code?: string) => {
+    const known = ['invalidCoupon', 'inactiveCoupon', 'expiredCoupon', 'exhaustedCoupon', 'invalidSchedule', 'pastSchedule'];
+    return t(`checkoutFields.${code && known.includes(code) ? code : 'orderFailed'}`);
+  };
+  const resetCoupon = (value = '') => {
+    couponVersion.current += 1;
+    setCouponInput(value);
+    setAppliedCoupon(null);
+    setCouponError('');
+    setCouponLoading(false);
+    setSubmitError('');
+  };
+  const applyCoupon = async () => {
+    const version = ++couponVersion.current;
+    const code = couponInput.trim().toUpperCase();
+    if (!code) { setCouponError(t('checkoutFields.invalidCoupon')); return; }
+    setCouponLoading(true);
+    setCouponError('');
+    setSubmitError('');
+    try {
+      const res = await fetch(`/api/coupons?code=${encodeURIComponent(code)}`, { cache: 'no-store' });
+      const result = await res.json();
+      if (version !== couponVersion.current) return;
+      if (!res.ok) {
+        setAppliedCoupon(null);
+        setCouponError(result.code ? checkoutErrorMessage(result.code) : t('checkoutFields.couponUnavailable'));
+      } else {
+        setAppliedCoupon(result);
+        setCouponInput(result.code);
+      }
+    } catch {
+      if (version === couponVersion.current) setCouponError(t('checkoutFields.couponUnavailable'));
+    } finally {
+      if (version === couponVersion.current) setCouponLoading(false);
+    }
+  };
 
   const checkoutTracked = useRef(false);
   useEffect(() => {if(catalogReady && items.length && !checkoutTracked.current) {checkoutTracked.current = true; trackCheckoutStart(items.map(item => ({...item, price: catalog.find(p => p.id === item.id)?.price ?? item.price})), checkoutSubtotal);}}, [catalogReady, items, catalog, checkoutSubtotal]);
@@ -130,6 +177,14 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
       alert(locale === 'ar' ? 'أحد المنتجات في سلتك لم يعد متاحاً أو تعذر تحديث الأسعار. حدّث السلة ثم أعد المحاولة.' : 'A product is unavailable or prices could not be refreshed. Update your cart and try again.');
       return;
     }
+    setSubmitError('');
+    try {
+      validateRequestedDelivery(formData.requestedDeliveryDate, formData.requestedDeliveryTime);
+    } catch (error) {
+      setSubmitError(checkoutErrorMessage(error instanceof CheckoutError ? error.code : undefined));
+      return;
+    }
+    if (isSubmitting || couponLoading) return;
     setIsSubmitting(true);
 
     try {
@@ -138,6 +193,9 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
         : (locale === 'ar' ? 'شرق النيل' : 'East Nile');
 
       const orderData = {
+        requestedDeliveryDate: formData.requestedDeliveryDate,
+        requestedDeliveryTime: formData.requestedDeliveryTime,
+        couponCode: appliedCoupon?.code,
         customerName: formData.name,
         customerPhone: formData.phone,
         customerEmail: formData.email || null,
@@ -167,13 +225,19 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
           customerName: formData.name,
           subtotal: orderResult.subtotal,
           grandTotal: orderResult.total,
-          deliveryFee: orderResult.deliveryFee
+          deliveryFee: orderResult.deliveryFee,
+          requestedDeliveryDate: orderResult.requestedDeliveryDate,
+          requestedDeliveryTime: orderResult.requestedDeliveryTime,
+          couponCode: orderResult.couponCode,
+          discountPct: orderResult.discountPct,
+          discountAmount: orderResult.discountAmount
         };
         
         clearCart();
         
         if (formData.paymentMethod === 'cash_on_delivery') {
           setOrderComplete({
+            ...orderDataForConfirmation,
             customerName: formData.name,
             customerPhone: formData.phone,
             orderId: orderResult.id,
@@ -188,11 +252,12 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
         }
       } else {
         const error = await res.json();
-        alert(error.error || 'Failed to place order. Please try again.');
+        setSubmitError(error.code ? checkoutErrorMessage(error.code) : (error.error || t('checkoutFields.orderFailed')));
+        if (error.code?.endsWith('Coupon')) setAppliedCoupon(null);
       }
     } catch (error) {
       console.error('Order submission error:', error);
-      alert('Failed to place order. Please check your connection and try again.');
+      setSubmitError(t('checkoutFields.orderFailed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -275,6 +340,29 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
               ))}
             </div>
 
+            <div className="mb-5">
+              <label htmlFor="checkout-coupon" className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-200 mb-2">{t('checkoutFields.couponCode')}</label>
+              <div className="flex gap-2">
+                <input id="checkout-coupon" type="text" maxLength={80} autoComplete="off" dir="ltr"
+                  disabled={isSubmitting} value={couponInput} onChange={(e) => resetCoupon(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); void applyCoupon(); } }}
+                  aria-describedby="coupon-feedback" aria-invalid={!!couponError}
+                  className="w-full min-w-0 min-h-[44px] px-3 rounded-xl border border-chocolate-200 dark:border-chocolate-700 bg-chocolate-50/20 dark:bg-chocolate-800 text-chocolate-900 dark:text-chocolate-100 focus:outline-none focus:ring-2 focus:ring-gold-500" />
+                <button type="button" disabled={couponLoading || isSubmitting || !catalogReady || catalogError || !!appliedCoupon}
+                  onClick={() => void applyCoupon()} className="min-h-[44px] px-4 shrink-0 rounded-xl bg-chocolate-600 text-white font-bold disabled:opacity-50 cursor-pointer focus-visible:outline-2 focus-visible:outline-gold-500">
+                  {t(couponLoading ? 'checkoutFields.applying' : 'checkoutFields.apply')}
+                </button>
+              </div>
+              <div id="coupon-feedback" className="mt-2 text-sm" aria-live="polite">
+                {couponError && <p role="alert" className="text-red-700 dark:text-red-300">{couponError}</p>}
+                {appliedCoupon && <div className="flex flex-wrap items-center gap-2 text-green-800 dark:text-green-300">
+                  <span>{t('checkoutFields.couponApplied')}: <b dir="ltr">{appliedCoupon.code}</b> ({appliedCoupon.discountPct}%)</span>
+                  <button type="button" disabled={isSubmitting} onClick={() => resetCoupon()} className="underline min-h-[44px] px-2 cursor-pointer">{t('checkoutFields.remove')}</button>
+                  <p className="w-full text-xs text-chocolate-600 dark:text-chocolate-300">{t('checkoutFields.discountNote')}</p>
+                </div>}
+              </div>
+            </div>
+
             {/* Shipping Info Card */}
             <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-chocolate-800 dark:to-chocolate-850 border border-amber-200 dark:border-chocolate-700 rounded-2xl p-4 mb-6">
               <div className="space-y-2 bg-white/70 dark:bg-chocolate-900/50 rounded-xl p-3">
@@ -286,6 +374,10 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                   <span className="text-chocolate-700 dark:text-chocolate-300">{t('deliveryFee')}:</span>
                   <span className="text-chocolate-700 dark:text-gold-300 tabular-nums">{deliveryFee.toFixed(2)} EGP</span>
                 </div>
+                {appliedCoupon && <div className="flex justify-between gap-2 text-xs font-bold text-green-800 dark:text-green-300">
+                  <span>{t('checkoutFields.discount')} ({appliedCoupon.discountPct}%):</span>
+                  <span dir="ltr">-{discountAmount.toFixed(2)} EGP</span>
+                </div>}
                 <div className="border-t border-amber-200 dark:border-chocolate-700 pt-2 mt-2 flex justify-between items-center">
                   <span className="text-sm font-extrabold text-chocolate-900 dark:text-white">{t('grandTotal')}:</span>
                   <span className="text-lg font-extrabold text-chocolate-700 dark:text-gold-300 tabular-nums">{grandTotal.toFixed(2)} EGP</span>
@@ -394,6 +486,26 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                 )}
               </div>
 
+              <fieldset aria-describedby="schedule-note" className="min-w-0">
+                <legend className="text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-3">{t('checkoutFields.requestedSchedule')} *</legend>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="min-w-0">
+                    <label htmlFor="delivery-date" className="block text-sm font-semibold text-chocolate-700 dark:text-chocolate-200 mb-2">{t('checkoutFields.deliveryDate')}</label>
+                    <input id="delivery-date" type="date" required min={cairoClock.date} value={formData.requestedDeliveryDate}
+                      onChange={(e) => { setSubmitError(''); setFormData({ ...formData, requestedDeliveryDate: e.target.value }); }}
+                      className="w-full min-w-0 min-h-[44px] px-3 py-2.5 rounded-xl border border-chocolate-200 dark:border-chocolate-700 bg-chocolate-50/20 dark:bg-chocolate-800 text-chocolate-900 dark:text-chocolate-100 focus:outline-none focus:ring-2 focus:ring-gold-500" />
+                  </div>
+                  <div className="min-w-0">
+                    <label htmlFor="delivery-time" className="block text-sm font-semibold text-chocolate-700 dark:text-chocolate-200 mb-2">{t('checkoutFields.deliveryTime')}</label>
+                    <input id="delivery-time" type="time" required step={60}
+                      min={formData.requestedDeliveryDate === cairoClock.date ? cairoClock.time : undefined}
+                      value={formData.requestedDeliveryTime} onChange={(e) => { setSubmitError(''); setFormData({ ...formData, requestedDeliveryTime: e.target.value }); }}
+                      className="w-full min-w-0 min-h-[44px] px-3 py-2.5 rounded-xl border border-chocolate-200 dark:border-chocolate-700 bg-chocolate-50/20 dark:bg-chocolate-800 text-chocolate-900 dark:text-chocolate-100 focus:outline-none focus:ring-2 focus:ring-gold-500" />
+                  </div>
+                </div>
+                <p id="schedule-note" className="mt-2 text-xs text-chocolate-600 dark:text-chocolate-300">{t('checkoutFields.scheduleNote')}</p>
+              </fieldset>
+
               <div>
                 <label className="block text-sm font-bold text-chocolate-700 dark:text-chocolate-300 mb-2">{t('preferredContactMethod')}</label>
                 <div className="flex gap-6">
@@ -467,9 +579,10 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
                 />
               </div>
 
+              {submitError && <p role="alert" className="text-sm font-semibold text-red-700 dark:text-red-300">{submitError}</p>}
               <button
                 type="submit"
-                disabled={isSubmitting || !catalogReady || catalogError || unavailableItems}
+                disabled={couponLoading || isSubmitting || !catalogReady || catalogError || unavailableItems}
                 className="w-full bg-gradient-to-r from-chocolate-700 to-chocolate-800 dark:from-gold-600 dark:to-gold-500 text-white py-4 rounded-full font-bold hover:shadow-lg transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
               >
                 {isSubmitting ? (

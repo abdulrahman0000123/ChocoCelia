@@ -3,10 +3,11 @@
 import { motion } from 'framer-motion';
 import { CheckCircle, Phone, MessageCircle, Home } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { CheckoutExtras, type CheckoutExtrasData } from './CheckoutExtras';
 import { Link } from '@/i18n/routing';
 
 interface OrderCompleteProps {
-  orderData: {
+  orderData: CheckoutExtrasData & {
     customerName: string;
     customerPhone: string;
     orderId: string;
@@ -53,6 +54,8 @@ export function OrderComplete({ orderData }: OrderCompleteProps) {
               <p className="text-2xl font-bold text-green-800">#{orderData.orderId.slice(-8).toUpperCase()}</p>
             </div>
             
+            <CheckoutExtras data={orderData} />
+
             {/* Order Summary */}
             <div className="bg-white rounded-xl p-4 mb-4 border border-green-200">
               <h4 className="font-bold text-gray-800 mb-3">{t('orderSummary')}</h4>
