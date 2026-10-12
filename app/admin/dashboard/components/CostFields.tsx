@@ -1,10 +1,12 @@
 'use client';
+import { adminFetch, useAdmin } from './AdminContext';
 import { useEffect, useState } from 'react';
 import styles from './Finance.module.css';
 
 export type CostDraft = {chocolate: string; packaging: string; nuts: string; decoration: string};
 export const emptyCosts: CostDraft = {chocolate: '', packaging: '', nuts: '', decoration: ''};
-export function CostFields({value, onChange, price, locale = 'ar'}: {value: CostDraft; onChange: (v: CostDraft) => void; price: number; locale?: 'ar'|'en'}) {
+export function CostFields({value, onChange, price, locale: requestedLocale}: {value: CostDraft; onChange: (v: CostDraft) => void; price: number; locale?: 'ar'|'en'}) {
+  const shared = useAdmin(); const locale = requestedLocale ?? shared.locale;
   const ar = locale === 'ar';
   const complete = Object.values(value).every(v => v !== '' && Number.isFinite(Number(v)) && Number(v) >= 0);
   const total = Object.values(value).reduce((sum, v) => sum + (Number(v) || 0), 0);
@@ -23,18 +25,19 @@ export function CostFields({value, onChange, price, locale = 'ar'}: {value: Cost
 }
 
 export function ProductCostEditor({productId, price}: {productId?: string; price: number}) {
+  const {locale,t} = useAdmin();
   const [draft, setDraft] = useState<CostDraft>(emptyCosts);
   const [loading, setLoading] = useState(Boolean(productId));
   const [error, setError] = useState('');
   useEffect(() => {
     let active = true;
     if (!productId) return;
-    fetch(`/api/products/${productId}`).then(async r => {if (!r.ok) throw new Error(); return r.json();}).then(p => {
+    adminFetch(`/api/products/${productId}`).then(async r => {if (!r.ok) throw new Error(); return r.json();}).then(p => {
       if (active) {setDraft(p.costing ? Object.fromEntries(Object.keys(emptyCosts).map(k => [k, String(p.costing[k])])) as CostDraft : emptyCosts); setLoading(false);}
-    }).catch(() => {if (active) {setLoading(false); setError('تعذر تحميل التكلفة. أعد فتح المنتج قبل الحفظ.');}});
+    }).catch(() => {if (active) {setLoading(false); setError('load');}});
     return () => {active = false;};
   }, [productId]);
-  if (loading) return <><p role="status">جارٍ تحميل التكلفة…</p><input type="hidden" name="finance-cost-error" value="loading"/></>;
-  if (error) return <><p role="alert">{error}</p><input type="hidden" name="finance-cost-error" value="error"/></>;
-  return <><CostFields value={draft} onChange={setDraft} price={price}/><input type="hidden" name="finance-costs" value={Object.values(draft).every(v => v === '') ? '' : JSON.stringify(draft)}/></>;
+  if (loading) return <><p role="status">{t('جارٍ تحميل التكلفة…','Loading costs…')}</p><input type="hidden" name="finance-cost-error" value="loading"/></>;
+  if (error) return <><p role="alert">{t('تعذر تحميل التكلفة. أعد فتح المنتج قبل الحفظ.','Could not load costs. Reopen the product before saving.')}</p><input type="hidden" name="finance-cost-error" value="error"/></>;
+  return <><CostFields locale={locale} value={draft} onChange={setDraft} price={price}/><input type="hidden" name="finance-costs" value={Object.values(draft).every(v => v === '') ? '' : JSON.stringify(draft)}/></>;
 }

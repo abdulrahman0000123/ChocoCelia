@@ -1,4 +1,5 @@
 'use client';
+import { adminFetch, adminError, useAdmin } from './AdminContext';
 import { useEffect, useState } from 'react';
 import { Check, History, AlertCircle } from 'lucide-react';
 import styles from './Finance.module.css';
@@ -13,7 +14,8 @@ export function formatMoney(value: string | number | null | undefined, locale: '
 }
 export const statusLabel = (value: string, ar: boolean) => ({PENDING: ar ? 'جديد' : 'Pending', PROCESSING: ar ? 'قيد التجهيز' : 'Processing', COMPLETED: ar ? 'مكتمل' : 'Completed', CANCELLED: ar ? 'ملغي' : 'Cancelled', PAID: ar ? 'مدفوع' : 'Paid', UNPAID: ar ? 'غير مدفوع' : 'Unpaid', PARTIAL: ar ? 'دفع جزئي' : 'Partially paid', REFUNDED: ar ? 'مسترد' : 'Refunded', PARTIALLY_REFUNDED: ar ? 'استرداد جزئي' : 'Partially refunded'}[value] || value);
 
-export function OrderFinancePanel({order, locale = 'ar', onSaved}: {order: FinancialOrder; locale?: 'ar'|'en'; onSaved?: (order: FinancialOrder) => void}) {
+export function OrderFinancePanel({order, locale: requestedLocale, onSaved}: {order: FinancialOrder; locale?: 'ar'|'en'; onSaved?: (order: FinancialOrder) => void}) {
+  const shared = useAdmin(); const locale = requestedLocale ?? shared.locale;
   const ar = locale === 'ar', f = order.finance;
   const [received, setReceived] = useState(f?.received ?? '0');
   const [refunded, setRefunded] = useState(f?.refunded ?? '0');
@@ -30,11 +32,11 @@ export function OrderFinancePanel({order, locale = 'ar', onSaved}: {order: Finan
   async function save(e: React.FormEvent) {
     e.preventDefault(); setSaving(true); setMessage('');
     try {
-      const response = await fetch(`/api/orders/${order.id}`, {method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({version: f?.version ?? 0, received, refunded, deliveryCost: delivery === '' ? null : delivery, status, reason, ...(editCosts ? {lines} : {})})});
+      const response = await adminFetch(`/api/orders/${order.id}`, {method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({version: f?.version ?? 0, received, refunded, deliveryCost: delivery === '' ? null : delivery, status, reason, ...(editCosts ? {lines} : {})})});
       const result = await response.json();
-      if (!response.ok) throw new Error(response.status === 409 ? (ar ? 'الأوردر اتغير. حدّث البيانات قبل الحفظ.' : 'Order changed. Refresh before saving.') : result.error);
+      if (!response.ok) throw new Error(response.status === 409 ? 'Conflict: order changed' : result.error);
       setFailed(false); setMessage(ar ? 'تم الحفظ وتسجيل التغيير.' : 'Saved with an audit entry.'); onSaved?.(result);
-    } catch (error) {setFailed(true); setMessage(error instanceof Error ? error.message : (ar ? 'تعذر الحفظ.' : 'Could not save.'));}
+    } catch (error) {setFailed(true); setMessage(adminError(error,ar));}
     finally {setSaving(false);}
   }
   const rows = f ? [[ar ? 'صافي مبيعات المنتجات' : 'Net product sales',f.netSales],[ar ? 'تكلفة المنتجات' : 'Product cost',f.productCost],[`${ar ? 'الإعلانات' : 'Advertising'} (${f.advertisingPct}%)`,f.advertising],[ar ? 'تكلفة التوصيل' : 'Delivery cost',f.deliveryCost],[ar ? 'الربح بعد الإعلانات والتوصيل' : 'Profit after advertising & delivery',f.profit],[`${ar ? 'التطوير' : 'Development'} (${f.developmentPct}%)`,f.development],[ar ? 'المتاح بعد المخصصات' : 'After allocations',f.available]] : [];

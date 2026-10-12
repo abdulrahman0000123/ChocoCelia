@@ -1,75 +1,66 @@
 'use client';
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ThemeProvider, useTheme } from 'next-themes';
-import { ArrowDownToLine, ArrowUpRight, SlidersHorizontal, RefreshCw, AlertCircle, Sun, Moon, X, PackageCheck } from 'lucide-react';
-import { OrderFinancePanel, formatMoney, statusLabel, type FinancialOrder } from '../components/OrderFinancePanel';
+import { adminFetch, adminError, useAdmin } from '../components/AdminContext';
+import { useAdminQuery } from '../components/useAdminQuery';
+import { AdminPageHeader } from '../components/AdminUI';
+import { OrderDetail } from '../components/OrderDetail';
+import { ArrowDownToLine, ArrowUpRight, SlidersHorizontal, RefreshCw, AlertCircle, Plus, PackageCheck } from 'lucide-react';
+import { formatMoney, statusLabel, type FinancialOrder } from '../components/OrderFinancePanel';
 import { SpecialOrder } from '../components/SpecialOrder';
 import styles from '../components/Finance.module.css';
 
 type Group = {count: number; complete: number; missing: number; sales: string; costs: string; advertising: string; profit: string; development: string; available: string};
-type Report = {expected: Group; completed: Group; cash: {received: string; refunded: string; net: string; outstanding: string}; count: number; page: number; pages: number; orders: FinancialOrder[]; recent: FinancialOrder[]; setup: {products: number; missingCosts: number}};
-type Settings = {advertisingPct: string; developmentPct: string; deliveryCostBeniSuef: string; deliveryCostEastNile: string};
-const defaultSettings: Settings = {advertisingPct:'10', developmentPct:'20', deliveryCostBeniSuef:'', deliveryCostEastNile:''};
-
+export type FinanceReport = {expected: Group; completed: Group; cash: {received: string; refunded: string; net: string; outstanding: string}; count: number; page: number; pages: number; orders: FinancialOrder[]; recent: FinancialOrder[]; setup: {products: number; missingCosts: number}};
 export default function FinancePage() {
-  return <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} storageKey="choco-finance-theme"><FinanceWorkspace/></ThemeProvider>;
-}
-
-function FinanceWorkspace() {
-  const [locale,setLocale] = useState<'ar'|'en'>('ar'); const ar = locale === 'ar';
-  const {resolvedTheme,setTheme} = useTheme();
-  const [report,setReport] = useState<Report|null>(null);
-  const [settings,setSettings] = useState<Settings>(defaultSettings);
-  const [settingsReady,setSettingsReady] = useState(false);
-  const [start,setStart] = useState(''), [end,setEnd] = useState(''), [status,setStatus] = useState('');
-  const [page,setPage] = useState(1), [view,setView] = useState<'expected'|'completed'|'cash'>('completed');
-  const [loading,setLoading] = useState(true), [error,setError] = useState(''), [saving,setSaving] = useState(false), [feedback,setFeedback] = useState('');
-  const [selected,setSelected] = useState<FinancialOrder|null>(null), [opening,setOpening] = useState(false);
+  const {locale,ar,t} = useAdmin();
+  const {params,update} = useAdminQuery();
+  const start = params.get('startDate') || '', end = params.get('endDate') || '', status = params.get('status') || '';
+  const page = Math.max(1,parseInt(params.get('page') || '1',10) || 1);
+  const rawView = params.get('view');
+  const view = rawView === 'expected' || rawView === 'cash' ? rawView : 'completed';
+  const setView = (value:string) => update({view:value});
+  const setPage = (value:number) => update({page:String(value)});
+  const selectedId = params.get('order');
+  const manualOpen = params.get('manual') === '1';
+  const [report,setReport] = useState<FinanceReport|null>(null);
+  const [loading,setLoading] = useState(true), [error,setError] = useState('');
   const version = useRef(0);
-  const detail = useRef<HTMLDivElement>(null);
-  const t = (arabic: string, english: string) => ar ? arabic : english;
   const query = useCallback(() => new URLSearchParams({...start && {startDate:start}, ...end && {endDate:end}, ...status && {status}, page:String(page)}).toString(), [start,end,status,page]);
   const load = useCallback(async () => {
-    const current = ++version.current; setLoading(true); setError('');
+    const current = ++version.current; setLoading(true); setError(''); setReport(null);
     try {
-      const r = await fetch(`/api/admin/finance?${query()}`,{cache:'no-store'});
+      const r = await adminFetch(`/api/admin/finance?${query()}`,{cache:'no-store'});
       const data = await r.json(); if (!r.ok) throw new Error(data.error);
       if (current === version.current) setReport(data);
-    } catch (e) {if (current === version.current) setError(e instanceof Error ? e.message : 'Could not load finances.');}
+    } catch (e) {if (current === version.current) setError(adminError(e,ar));}
     finally {if (current === version.current) setLoading(false);}
-  },[query]);
+  },[query,ar]);
   useEffect(() => {const requestVersion = version; load(); return () => {requestVersion.current++;};},[load]);
-  useEffect(() => {fetch('/api/admin/finance/settings').then(async r => {if(!r.ok) throw new Error(); return r.json();}).then(data => {
-    setSettings(Object.fromEntries(Object.keys(defaultSettings).map(key => [key,data[key] == null ? '' : String(data[key])])) as Settings); setSettingsReady(true);
-  }).catch(() => setFeedback('Could not load settings. Refresh before saving.'));},[]);
-  async function saveSettings(e: React.FormEvent) {
-    e.preventDefault(); setSaving(true); setFeedback('');
-    try {const r = await fetch('/api/admin/finance/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(settings)}); const data = await r.json(); if(!r.ok) throw new Error(data.error);
-      setFeedback(t('تم حفظ الإعدادات للطلبات الجديدة.','Saved for new orders.')); await load();
-    } catch(e) {setFeedback(e instanceof Error ? e.message : t('تعذر الحفظ.','Could not save.'));} finally {setSaving(false);}
-  }
-  async function open(order: FinancialOrder) {
-    setOpening(true); setSelected(null);
-    try {const r = await fetch(`/api/orders/${order.id}`); if(!r.ok) throw new Error(); setSelected(await r.json()); requestAnimationFrame(() => detail.current?.scrollIntoView({behavior:'smooth',block:'start'}));}
-    catch {setError(t('تعذر فتح الأوردر. حاول مرة أخرى.','Could not open order. Please retry.'));} finally {setOpening(false);}
-  }
   const group = report ? report[view === 'expected' ? 'expected' : 'completed'] : null;
   const metric = (label: string, value: string|number|null|undefined, note: string, positive = false) => <div className={styles.metric}><span>{label}</span><strong className={positive && Number(value) < 0 ? styles.negative : positive ? styles.positive : undefined}>{formatMoney(value,locale)}</strong><small>{note}</small></div>;
   const currency = t('جنيه مصري','EGP');
   return <div className={styles.workspace} dir={ar ? 'rtl':'ltr'} lang={locale}>
-    <header className={styles.header}>
-      <div><div className={styles.eyebrow}>CHOCO CELIA / {t('الإدارة المالية','FINANCE')}</div><h1>{t('كل أوردر، حساباته واضحة.','Every order, accounted for.')}</h1><p>{t('من الطلب إلى التحصيل، حسابات تلقائية بتكاليف محفوظة وقت البيع.','From checkout to collection, automatic finances with costs captured at sale.')}</p></div>
-      <div className={styles.actions}><button aria-label={t('تغيير اللغة','Change language')} onClick={() => setLocale(ar ? 'en':'ar')}>{ar ? 'English':'العربية'}</button><button aria-label={t('تغيير المظهر','Toggle theme')} onClick={() => setTheme(resolvedTheme === 'dark' ? 'light':'dark')}>{resolvedTheme === 'dark' ? <Sun size={18}/>:<Moon size={18}/>}</button><button disabled={loading} aria-label={t('تحديث الحسابات','Refresh finances')} onClick={load}><RefreshCw size={18}/></button></div>
-    </header>
+    <AdminPageHeader title={t('المالية','Finance')} description={t('المبيعات والأرباح والتحصيل من نفس سجل الطلبات.','Sales, profit and collections from the same order ledger.')}>
+      <button className={styles.primary} onClick={() => update({manual:manualOpen ? null:'1'})}><Plus size={16}/>{t('طلب يدوي','Manual order')}</button>
+      <Link className={styles.button} href="/admin/dashboard/settings/finance"><SlidersHorizontal size={16}/>{t('الإعدادات','Settings')}</Link>
+      <button disabled={loading} aria-label={t('تحديث الحسابات','Refresh finances')} onClick={load}><RefreshCw size={18}/></button>
+    </AdminPageHeader>
+    <div className={styles.presets}>{(['today','week','month','all'] as const).map((key,i) => <button key={key} onClick={() => {
+      const today = new Date().toLocaleDateString('en-CA',{timeZone:'Africa/Cairo'});
+      const first = new Date(`${today}T12:00:00Z`);
+      if(key === 'week') first.setUTCDate(first.getUTCDate()-6);
+      if(key === 'month') first.setUTCDate(1);
+      update({startDate:key === 'all' ? null:first.toISOString().slice(0,10),endDate:key === 'all' ? null:today,page:'1'});
+    }}>{[t('اليوم','Today'),t('آخر ٧ أيام','Last 7 days'),t('الشهر الحالي','This month'),t('كل الفترات','All dates')][i]}</button>)}</div>
     <div className={styles.toolbar}>
-      <label>{t('من تاريخ','From date')}<input type="date" value={start} max={end || undefined} onChange={e => {setStart(e.target.value);setPage(1);}}/></label>
-      <label>{t('إلى تاريخ','To date')}<input type="date" value={end} min={start || undefined} onChange={e => {setEnd(e.target.value);setPage(1);}}/></label>
-      <label>{t('حالة الأوردر','Order status')}<select value={status} onChange={e => {setStatus(e.target.value);setPage(1);}}><option value="">{t('كل الحالات','All statuses')}</option>{['PENDING','PROCESSING','COMPLETED','CANCELLED'].map(s => <option key={s} value={s}>{statusLabel(s,ar)}</option>)}</select></label>
+      <label>{t('من تاريخ','From date')}<input type="date" value={start} max={end || undefined} onChange={e => {update({startDate:e.target.value,page:'1'});}}/></label>
+      <label>{t('إلى تاريخ','To date')}<input type="date" value={end} min={start || undefined} onChange={e => {update({endDate:e.target.value,page:'1'});}}/></label>
+      <label>{t('حالة الأوردر','Order status')}<select value={status} onChange={e => {update({status:e.target.value,page:'1'});}}><option value="">{t('كل الحالات','All statuses')}</option>{['PENDING','PROCESSING','COMPLETED','CANCELLED'].map(s => <option key={s} value={s}>{statusLabel(s,ar)}</option>)}</select></label>
       <a className={styles.button} href={`/api/orders/export?${query()}`}><ArrowDownToLine size={16}/>{t('تصدير الحسابات','Export finances')}</a>
     </div>
     {error && <div className={styles.notice} role="alert"><AlertCircle size={18}/><span>{error}</span><button onClick={load}>{t('إعادة المحاولة','Retry')}</button></div>}
-    {report && report.setup.missingCosts > 0 && <div className={styles.notice}><PackageCheck size={20}/><span>{t(`${report.setup.missingCosts} منتج بدون تكلفة مكتملة. أكملها لتظهر أرباح الطلبات الجديدة تلقائيًا.`,`${report.setup.missingCosts} products need costs. Complete them to calculate profit on new orders.`)}</span><Link className={styles.button} href="/admin/dashboard/products">{t('إدارة التكاليف','Manage costs')}<ArrowUpRight size={16}/></Link></div>}
+    {report && report.setup.missingCosts > 0 && <div className={styles.notice}><PackageCheck size={20}/><span>{t(`${report.setup.missingCosts} منتج بدون تكلفة مكتملة. أكملها لتظهر أرباح الطلبات الجديدة تلقائيًا.`,`${report.setup.missingCosts} products need costs. Complete them to calculate profit on new orders.`)}</span><Link className={styles.button} href="/admin/dashboard/products?costs=missing">{t('إدارة التكاليف','Manage costs')}<ArrowUpRight size={16}/></Link></div>}
     <nav className={styles.tabs} role="tablist" aria-label={t('نوع الحسابات','Finance view')}>{(['completed','expected','cash'] as const).map(v => <button id={`tab-${v}`} aria-controls="finance-summary" role="tab" tabIndex={view === v ? 0 : -1} aria-selected={view === v} key={v} onClick={() => setView(v)} onKeyDown={e => {
       const tabs = ['completed','expected','cash'] as const;
       const direction = e.key === 'ArrowRight' ? (ar ? -1:1) : e.key === 'ArrowLeft' ? (ar ? 1:-1) : 0;
@@ -84,16 +75,16 @@ function FinanceWorkspace() {
         </>}
       </>}
     </section>
+    {manualOpen && <SpecialOrder locale={locale} open onClose={() => update({manual:null})} onSaved={load}/>}
+    {report && <Link className={styles.summaryLink} href={`/admin/dashboard/orders?${new URLSearchParams({...start && {startDate:start},...end && {endDate:end},...(view !== 'cash' && {status:view === 'completed' ? 'COMPLETED':'EXPECTED'})})}`}>{t('عرض الطلبات المكوّنة لهذا الملخص','View orders behind this summary')}<ArrowUpRight size={16}/></Link>}
+    <div className={styles.sectionHead}><h2>{t('سجل الأوردرات المالي','Order financial ledger')}</h2><span className={styles.badge}>{report?.count ?? '—'} {t('أوردر','orders')}</span></div>
+    <div className={styles.tableWrap}>{loading && <div className={styles.ledgerLoading} role="status">{t('جارٍ تحميل السجل…','Loading ledger…')}</div>}<table><thead><tr>{[t('العميل والأوردر','Customer & order'),t('الحالة','Status'),t('قيمة الطلب','Order total'),t('الربح','Profit'),t('المتاح','After allocations'),t('التحصيل','Collection'),t('التفاصيل','Details')].map(h => <th key={h}>{h}</th>)}</tr></thead><tbody>{!loading && report?.orders.map(o => <tr key={o.id}><td>{o.customerName}<small><bdi>#{o.id.slice(-8).toUpperCase()}</bdi> · {new Date(o.createdAt).toLocaleDateString(ar ? 'ar-EG':'en-GB',{timeZone:'Africa/Cairo'})}</small></td><td><span className={styles.badge}>{statusLabel(o.status,ar)}</span></td><td>{formatMoney(o.total,locale)}</td><td className={Number(o.finance?.profit) < 0 ? styles.negative:undefined}>{formatMoney(o.finance?.profit,locale)}{o.finance?.profit == null && <small>{t('حسابات ناقصة','Incomplete costs')}</small>}</td><td>{formatMoney(o.finance?.available,locale)}</td><td>{statusLabel(o.paymentState || 'UNPAID',ar)}<small>{formatMoney(Number(o.finance?.received ?? 0) - Number(o.finance?.refunded ?? 0),locale)}</small></td><td><button onClick={() => update({order:o.id})} aria-label={t(`تفاصيل أوردر ${o.customerName}`,`View ${o.customerName}'s order`)}>{t('مراجعة','Review')}<ArrowUpRight size={16}/></button></td></tr>)}</tbody></table>{!loading && report && !report.orders.length && <div className={styles.empty}><h3>{t('لا توجد أوردرات في الفترة دي','No orders in this period')}</h3><p>{t('الحسابات تظهر هنا تلقائيًا بمجرد طلب العميل. جرّب تغيير الفترة أو الحالة.','Customer orders appear automatically. Try changing the date range or status.')}</p></div>}</div>
+    <div className={styles.footer}><span>{t('الفترة حسب إنشاء الأوردر · توقيت القاهرة · الجنيه المصري','Period by order creation date · Cairo time · EGP')}</span><div className={styles.actions}><button disabled={loading || page <= 1} onClick={() => setPage(page - 1)}>{t('السابق','Previous')}</button><span>{page} / {Math.max(1,report?.pages ?? 1)}</span><button disabled={loading || page >= (report?.pages ?? 1)} onClick={() => setPage(page + 1)}>{t('التالي','Next')}</button></div></div>
+    {selectedId && <OrderDetail id={selectedId} onClose={() => update({order:null})} onSaved={load}/>}
     {report && <div className={styles.split}>
       <section><h2>{t('آخر ١٠ أوردرات','Last 10 orders')}</h2><p>{t('المبيعات والتكلفة والربح قبل مخصص التطوير','Net sales, product cost and profit before development allocation')}</p><OrderChart orders={report.recent} locale={locale}/></section>
       <section><h2>{t('توزيع المخصصات','Allocation breakdown')}</h2><div className={styles.breakdown}><div><span>{t('الإعلانات','Advertising')}</span><strong>{formatMoney(group?.advertising,locale)}</strong></div><div><span>{t('التطوير وإعادة الاستثمار','Development & reinvestment')}</span><strong>{formatMoney(group?.development,locale)}</strong></div><div><span>{t('المتاح بعد المخصصات','After allocations')}</span><strong className={styles.positive}>{formatMoney(group?.available,locale)}</strong></div></div><p>{t('مخصصات حسابية وليست أرصدة بنكية. تعرض أرقام التبويب المختار، وفي التحصيل تعرض المبيعات المكتملة.','Calculated allocations, not bank balances. Uses the selected sales view; collections uses completed sales.')}</p></section>
     </div>}
-    <SpecialOrder locale={locale} onSaved={load}/>
-    <details className={styles.settings}><summary><SlidersHorizontal size={18}/>{t('إعدادات الحسابات والتوصيل','Finance & delivery settings')}</summary><p>{t('تطبق على الطلبات الجديدة فقط. اترك تكلفة التوصيل فارغة إذا كانت غير معروفة.','Applies to new orders only. Leave delivery cost blank if unknown.')}</p><form onSubmit={saveSettings}><div className={styles.grid}>{(Object.keys(defaultSettings) as (keyof Settings)[]).map((key,i) => <label key={key}>{[t('الإعلانات من صافي مبيعات المنتجات %','Advertising on net product sales %'),t('التطوير من الربح الموجب %','Development on positive profit %'),t('تكلفة التوصيل داخل بني سويف','Beni Suef delivery cost'),t('تكلفة التوصيل شرق النيل','East Nile delivery cost')][i]}<input disabled={!settingsReady} required={i < 2} type="number" step="0.01" min="0" max={i < 2 ? '50':'999999999.99'} value={settings[key]} onChange={e => setSettings({...settings,[key]:e.target.value})}/></label>)}</div><button type="submit" className={styles.primary} disabled={saving || !settingsReady}>{saving ? t('جارٍ الحفظ…','Saving…'):t('حفظ الإعدادات','Save settings')}</button><p role="status">{feedback}</p></form></details>
-    <div className={styles.sectionHead}><h2>{t('سجل الأوردرات المالي','Order financial ledger')}</h2><span className={styles.badge}>{report?.count ?? 0} {t('أوردر','orders')}</span></div>
-    <div className={styles.tableWrap}><table><thead><tr>{[t('العميل والأوردر','Customer & order'),t('الحالة','Status'),t('قيمة الطلب','Order total'),t('الربح','Profit'),t('المتاح','After allocations'),t('التحصيل','Collection'),t('التفاصيل','Details')].map(h => <th key={h}>{h}</th>)}</tr></thead><tbody>{!loading && report?.orders.map(o => <tr key={o.id}><td>{o.customerName}<small><bdi>#{o.id.slice(-8).toUpperCase()}</bdi> · {new Date(o.createdAt).toLocaleDateString(ar ? 'ar-EG':'en-GB',{timeZone:'Africa/Cairo'})}</small></td><td><span className={styles.badge}>{statusLabel(o.status,ar)}</span></td><td>{formatMoney(o.total,locale)}</td><td className={Number(o.finance?.profit) < 0 ? styles.negative:undefined}>{formatMoney(o.finance?.profit,locale)}{o.finance?.profit == null && <small>{t('حسابات ناقصة','Incomplete costs')}</small>}</td><td>{formatMoney(o.finance?.available,locale)}</td><td>{statusLabel(o.paymentState || 'UNPAID',ar)}<small>{formatMoney(Number(o.finance?.received ?? 0) - Number(o.finance?.refunded ?? 0),locale)}</small></td><td><button disabled={opening} onClick={() => open(o)} aria-label={t(`تفاصيل أوردر ${o.customerName}`,`View ${o.customerName}'s order`)}>{t('مراجعة','Review')}<ArrowUpRight size={16}/></button></td></tr>)}</tbody></table>{!loading && !report?.orders.length && <div className={styles.empty}><h3>{t('لا توجد أوردرات في الفترة دي','No orders in this period')}</h3><p>{t('الحسابات تظهر هنا تلقائيًا بمجرد طلب العميل. جرّب تغيير الفترة أو الحالة.','Customer orders appear automatically. Try changing the date range or status.')}</p></div>}</div>
-    <div className={styles.footer}><span>{t('الفترة حسب إنشاء الأوردر · توقيت القاهرة · الجنيه المصري','Period by order creation date · Cairo time · EGP')}</span><div className={styles.actions}><button disabled={loading || page <= 1} onClick={() => setPage(page - 1)}>{t('السابق','Previous')}</button><span>{page} / {Math.max(1,report?.pages ?? 1)}</span><button disabled={loading || page >= (report?.pages ?? 1)} onClick={() => setPage(page + 1)}>{t('التالي','Next')}</button></div></div>
-    {selected && <div ref={detail} className={styles.detail}><div className={styles.sectionHead}><div><h2>{selected.customerName}</h2><p><bdi>#{selected.id}</bdi></p></div><button aria-label={t('إغلاق التفاصيل','Close details')} onClick={() => setSelected(null)}><X size={18}/></button></div><OrderFinancePanel order={selected} locale={locale} onSaved={async saved => {setSelected(saved);await load(); const r = await fetch(`/api/orders/${saved.id}`);if(r.ok) setSelected(await r.json());}}/></div>}
   </div>;
 }
 

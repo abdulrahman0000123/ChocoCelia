@@ -1,61 +1,42 @@
 'use client';
-
+import Link from 'next/link';
+import { useEffect, useState, type ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
+import { useAdminQuery } from './components/useAdminQuery';
 import { Sidebar } from './components/Sidebar';
 import OrderNotification from './components/OrderNotification';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { AdminProvider, useAdmin } from './components/AdminContext';
+import { AdminLoading, AdminNotice } from './components/AdminUI';
+import { ThemeToggle } from '@/app/components/ThemeToggle';
+import styles from './components/Finance.module.css';
+import './admin.css';
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const router = useRouter();
-  const [isChecking, setIsChecking] = useState(true);
-
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
-    try {
-      const res = await fetch('/api/auth/session');
-      if (!res.ok) {
-        router.push('/admin/login');
-      }
-    } catch (error) {
-      router.push('/admin/login');
-    } finally {
-      setIsChecking(false);
-    }
-  };
-
-  if (isChecking) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-chocolate-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Checking authentication...</p>
-        </div>
-      </div>
-    );
+export default function AdminLayout({ children }: { children: ReactNode }) {
+  return <AdminProvider><AdminShell>{children}</AdminShell></AdminProvider>;
+}
+function AdminShell({ children }: { children: ReactNode }) {
+  const { locale, ar, t, setLocale } = useAdmin();
+  const pathname = usePathname();
+  const [session, setSession] = useState<'checking'|'ready'|'expired'|'error'>('checking');
+  const {params} = useAdminQuery();
+  const returnTo = pathname + (params.size ? `?${params}` : '');
+  async function checkSession() {
+    try { const r = await fetch('/api/auth/session', { cache: 'no-store' }); setSession(r.ok ? 'ready' : r.status === 401 ? 'expired' : 'error'); }
+    catch { setSession('error'); }
   }
-
-  return (
-    <div className="min-h-screen bg-transparent lg:flex">
-      <Sidebar />
-      {/* Notification Bell for Desktop - Top right corner of main content area */}
-      <div className="hidden lg:block lg:fixed lg:top-4 lg:right-4 z-50">
-        <OrderNotification />
-      </div>
-      {/* Mobile Notification Bell - Bottom right corner, floating */}
-      <div className="lg:hidden fixed bottom-6 right-6 z-[60]">
-        <OrderNotification />
-      </div>
-      {/* Main content with top padding on mobile for the fixed header */}
-      <main className="flex-1 min-w-0 p-4 lg:p-8 overflow-y-auto pt-16 lg:pt-8 pb-24 lg:pb-8">
-        {children}
+  useEffect(() => {
+    void Promise.resolve().then(checkSession);
+    const expire = () => { setSession('expired'); };
+    window.addEventListener('admin-session-expired', expire);
+    return () => window.removeEventListener('admin-session-expired', expire);
+  }, []);
+  return <div className="admin-shell" dir={ar ? 'rtl' : 'ltr'} lang={locale}>
+    <Sidebar/>
+    <div className="admin-content">
+      <div className="admin-topbar"><span>{t('إدارة شوكو سيليا', 'Choco Celia administration')}</span><div className={styles.actions}><button onClick={() => setLocale(ar ? 'en' : 'ar')} aria-label={t('تغيير لغة الإدارة', 'Change admin language')}>{ar ? 'English' : 'العربية'}</button><ThemeToggle locale={locale}/>{session === 'ready' && <OrderNotification/>}</div></div>
+      <main className="admin-main">
+        {session === 'checking' ? <AdminLoading/> : session === 'expired' ? <section className={`${styles.workspace} ${styles.empty}`}><h1>{t('انتهت جلسة الدخول', 'Session expired')}</h1><p>{t('سجّل الدخول مرة أخرى للعودة إلى نفس الصفحة.', 'Sign in again to return to this page.')}</p><Link className={styles.button} href={`/admin/login?next=${encodeURIComponent(returnTo)}`}>{t('تسجيل الدخول', 'Sign in')}</Link></section> : session === 'error' ? <AdminNotice retry={() => {setSession('checking');checkSession();}}>{t('تعذر التحقق من جلسة الدخول.', 'Could not verify your session.')}</AdminNotice> : children}
       </main>
     </div>
-  );
+  </div>;
 }
