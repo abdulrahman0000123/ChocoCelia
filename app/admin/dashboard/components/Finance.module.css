@@ -69,3 +69,19 @@
 .metricLink:hover { background:var(--wash); }
 .source { font-size:11px; color:var(--subtle); margin-inline-start:8px; }
 .settingsPanel { background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:20px; margin-block:20px; }
+.notifications { position:relative; }
+.notificationCount { position:absolute; inset-inline-end:-4px; top:-5px; background:var(--admin-negative); color:var(--surface); border-radius:20px; font-size:11px; min-width:18px; padding:1px 4px; }
+.notificationPanel { position:absolute; inset-inline-end:0; top:calc(100% + 12px); width:min(360px,calc(100vw - 24px)); max-height:70vh; overflow:auto; z-index:100; padding:16px; background:var(--surface); border:1px solid var(--border); border-radius:12px; color:var(--foreground); box-shadow:0 8px 28px rgb(43 23 18 / .15); }
+.notificationPanel .sectionHead { padding-top:0; }
+.notificationOrder { display:grid; gap:4px; padding:12px 0; border-bottom:1px solid var(--border); font-size:13px; }
+.notificationOrder span { color:var(--muted); }
+.mobileLedger { display:none; }
+.mobileOrder { padding:16px 0; border-bottom:1px solid var(--line); }
+.mobileOrder .sectionHead { padding:0 0 12px; align-items:start; }
+.mobileOrder h3 { overflow-wrap:anywhere; }
+.mobileOrder p { font-size:12px; }
+.mobileOrder dl { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-bottom:12px; }
+.mobileOrder dt { color:var(--subtle); font-size:12px; }
+.mobileOrder dd { font-size:16px; font-weight:700; font-variant-numeric:tabular-nums; margin-top:6px; overflow-wrap:anywhere; }
+.mobileOrder > button { width:100%; margin-top:6px; }
+@media(max-width:600px) { .mobileLedger { display:block; } .ledgerDesktop { display:none; } }

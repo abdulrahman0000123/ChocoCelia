@@ -46,3 +46,17 @@ test('the original dashboard uses the same sales definition, including refunds a
   (prisma.order.findMany as jest.Mock).mockResolvedValue([{total:120,subtotal:100,discountAmount:0,finance:{netSales:'50'}},{total:230,subtotal:200,discountAmount:20,finance:null},{total:80,subtotal:null,discountAmount:0,finance:null}]);
   expect((await (await dashboardStats(new Request('http://localhost/api/dashboard/stats'))).json()).totalRevenue).toBe(310);
 });
+
+
+test('finance identifies order origin without exposing request keys', async () => {
+  const base = {customerName:'Test',status:'PENDING',total:100,subtotal:100,discountAmount:0,createdAt:new Date(),finance:null};
+  (prisma.order.findMany as jest.Mock).mockResolvedValue([
+    {...base,id:'manual',requestKey:'admin-secret-request-key'},
+    {...base,id:'web',requestKey:'web-secret-request-key'},
+    {...base,id:'old',requestKey:null},
+  ]);
+  (prisma.product.count as jest.Mock).mockResolvedValue(1);
+  const data = await (await report(new Request('http://localhost/api/admin/finance'))).json();
+  expect(data.orders.map((o:{source:string})=>o.source)).toEqual(['MANUAL','STOREFRONT','LEGACY']);
+  expect(data.orders.every((o:object)=>!('requestKey' in o))).toBe(true);
+});

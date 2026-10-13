@@ -7,7 +7,7 @@ import type { FinanceLine } from '@/app/lib/finance';
 import { CostFields, emptyCosts, type CostDraft } from './CostFields';
 
 export type FinanceData = {version: number; lines: FinanceLine[]; netSales: string; productCost: string|null; advertising: string; advertisingPct: string; developmentPct: string; deliveryCost: string|null; profit: string|null; development: string|null; available: string|null; received: string; refunded: string; events?: {id: string; action: string; reason: string; createdAt: string}[]};
-export type FinancialOrder = {id: string; customerName: string; customerPhone: string; total: number; status: string; createdAt: string; finance: FinanceData|null; paymentState?: string};
+export type FinancialOrder = {id: string; customerName: string; customerPhone: string; total: number; status: string; createdAt: string; finance: FinanceData|null; paymentState?: string; source?: 'MANUAL'|'STOREFRONT'|'LEGACY'};
 export function formatMoney(value: string | number | null | undefined, locale: 'ar'|'en' = 'ar') {
   if (value == null) return '—';
   return new Intl.NumberFormat(locale === 'ar' ? 'ar-EG' : 'en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2}).format(Number(value));

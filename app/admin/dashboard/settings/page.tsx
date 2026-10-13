@@ -1,11 +1,15 @@
 'use client';
 import Link from 'next/link';
+import { adminFetch, adminError, useAdmin } from '../components/AdminContext';
 
+import { AdminNotice } from '../components/AdminUI';
 import { useState, useEffect } from 'react';
 import { Save, Loader2, Upload, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function SettingsPage() {
+  const {t,ar} = useAdmin();
+  const [loadError,setLoadError] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [newSlideUrl, setNewSlideUrl] = useState('');
@@ -49,8 +53,10 @@ export default function SettingsPage() {
   }, []);
 
   const fetchSettings = async () => {
+    setLoadError('');setLoading(true);
     try {
-      const res = await fetch('/api/settings');
+      const res = await adminFetch('/api/settings');
+      if(!res.ok) throw new Error();
       if (res.ok) {
         const data = await res.json();
         setFormData({
@@ -90,7 +96,7 @@ export default function SettingsPage() {
       }
     } catch (error) {
       console.error('Failed to fetch settings');
-      toast.error('Failed to load site settings');
+      setLoadError('load');
     } finally {
       setLoading(false);
     }
@@ -100,26 +106,26 @@ export default function SettingsPage() {
     e.preventDefault();
     setSaving(true);
 
-    const loadingToast = toast.loading('Saving settings...');
+    const loadingToast = toast.loading(t('جارٍ حفظ الإعدادات…','Saving settings...'));
 
     try {
-      const res = await fetch('/api/settings', {
+      const res = await adminFetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(Object.fromEntries(Object.entries(formData).filter(([key]) => !key.startsWith('deliveryFee')))),
       });
 
       if (res.ok) {
-        toast.success('Settings saved successfully! 🎉', { id: loadingToast });
+        toast.success(t('تم حفظ الإعدادات.','Settings saved successfully! 🎉'), { id: loadingToast });
         // Reload after 1 second to show updated settings across the site
         setTimeout(() => {
           window.location.reload();
         }, 1000);
       } else {
-        toast.error('Failed to update settings', { id: loadingToast });
+        toast.error(t('تعذر تحديث الإعدادات.','Failed to update settings'), { id: loadingToast });
       }
     } catch (error) {
-      toast.error('An error occurred while saving', { id: loadingToast });
+      toast.error(t('تعذر الحفظ.','An error occurred while saving'), { id: loadingToast });
     } finally {
       setSaving(false);
     }
@@ -127,7 +133,7 @@ export default function SettingsPage() {
 
   const addSlideUrl = () => {
     if (!newSlideUrl.trim()) {
-      toast.error('Please enter a valid image URL');
+      toast.error(t('أدخل رابط صورة صحيحًا.','Please enter a valid image URL'));
       return;
     }
     
@@ -136,13 +142,13 @@ export default function SettingsPage() {
       heroSlides: [...formData.heroSlides, newSlideUrl.trim()] 
     });
     setNewSlideUrl('');
-    toast.success('Slide URL added! Remember to save changes.');
+    toast.success(t('تمت إضافة الصورة. احفظ التغييرات.','Slide URL added! Remember to save changes.'));
   };
 
   const removeSlide = (index: number) => {
     const newSlides = formData.heroSlides.filter((_, i) => i !== index);
     setFormData({ ...formData, heroSlides: newSlides });
-    toast.success('Slide removed! Remember to save changes.');
+    toast.success(t('تمت إزالة الصورة. احفظ التغييرات.','Slide removed! Remember to save changes.'));
   };
 
   if (loading) {
@@ -153,12 +159,13 @@ export default function SettingsPage() {
     );
   }
 
+  if(loadError) return <AdminNotice retry={fetchSettings}>{adminError(null,ar)}</AdminNotice>;
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-display font-bold text-white tracking-wide">Site Settings</h1>
-        <Link className="inline-block mt-3 text-sm text-gold-300 underline" href="/admin/dashboard/seo">SEO settings & AI API key / إعدادات الظهور ومفتاح AI</Link>
-        <p className="text-sm text-chocolate-300 mt-1">Configure delivery fees, contact channels, hero media, and landing page content</p>
+        <h1 className="text-3xl font-display font-bold text-white tracking-wide">{t('إعدادات الموقع','Site Settings')}</h1>
+        <Link className="inline-block mt-3 text-sm text-gold-300 underline" href="/admin/dashboard/seo">{t('إعدادات الظهور والذكاء الاصطناعي','SEO settings & AI API key / إعدادات الظهور ومفتاح AI')}</Link>
+        <p className="text-sm text-chocolate-300 mt-1">{t('إدارة التواصل والدفع ومحتوى الموقع.','Configure delivery fees, contact channels, hero media, and landing page content')}</p>
       </div>
 
       <div className="bg-chocolate-900/20 rounded-2xl shadow p-6 border border-chocolate-800 backdrop-blur-md">
@@ -167,12 +174,12 @@ export default function SettingsPage() {
           {/* Contact & Social Channels */}
           <div>
             <h2 className="text-xl font-bold text-white mb-4 pb-2 border-b border-chocolate-800/40">
-              Contact & Social Channels
+              {t('التواصل والشبكات الاجتماعية','Contact & Social Channels')}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                  Phone / WhatsApp Number
+                  {t('رقم الهاتف وواتساب','Phone / WhatsApp Number')}
                 </label>
                 <input
                   type="text"
@@ -182,12 +189,12 @@ export default function SettingsPage() {
                   className="w-full px-4 py-2 bg-chocolate-950/60 border border-chocolate-800 rounded-xl text-white placeholder-chocolate-500 outline-none focus:ring-2 focus:ring-gold-500 transition-all text-base"
                   placeholder="e.g. +201000000000"
                 />
-                <p className="text-xs text-chocolate-300 mt-1">Include country code for proper WhatsApp link routing (e.g. 201xxxxxxxxx).</p>
+                <p className="text-xs text-chocolate-300 mt-1">{t('أدخل كود الدولة ليعمل رابط واتساب، مثل 201xxxxxxxxx.','Include country code for proper WhatsApp link routing (e.g. 201xxxxxxxxx).')}</p>
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                  Facebook URL
+                  {t('رابط فيسبوك','Facebook URL')}
                 </label>
                 <input
                   type="url"
@@ -196,12 +203,12 @@ export default function SettingsPage() {
                   className="w-full px-4 py-2 bg-chocolate-950/60 border border-chocolate-800 rounded-xl text-white placeholder-chocolate-500 outline-none focus:ring-2 focus:ring-gold-500 transition-all text-base"
                   placeholder="https://facebook.com/yourpage"
                 />
-                <p className="text-xs text-chocolate-300 mt-1">Used to compute the floating Messenger chat action.</p>
+                <p className="text-xs text-chocolate-300 mt-1">{t('يُستخدم لرابط التواصل عبر ماسنجر.','Used to compute the floating Messenger chat action.')}</p>
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                  Instagram URL
+                  {t('رابط إنستجرام','Instagram URL')}
                 </label>
                 <input
                   type="url"
@@ -214,7 +221,7 @@ export default function SettingsPage() {
 
               <div>
                 <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                  Twitter URL
+                  {t('رابط تويتر','Twitter URL')}
                 </label>
                 <input
                   type="url"
@@ -227,51 +234,17 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* Delivery Fees Section */}
-          <div>
-            <h2 className="text-xl font-bold text-white mb-4 pb-2 border-b border-chocolate-800/40">
-              Delivery Fees (رسوم التوصيل)
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div>
-                <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                  Beni Suef (داخل بني سويف) - EGP
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  value={formData.deliveryFeeBeniSuef}
-                  onChange={(e) => setFormData({ ...formData, deliveryFeeBeniSuef: e.target.value })}
-                  className="w-full px-4 py-2 bg-chocolate-950/60 border border-chocolate-800 rounded-xl text-white placeholder-chocolate-500 outline-none focus:ring-2 focus:ring-gold-500 transition-all text-base"
-                  placeholder="20"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                  East Nile (شرق النيل) - EGP
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  value={formData.deliveryFeeEastNile}
-                  onChange={(e) => setFormData({ ...formData, deliveryFeeEastNile: e.target.value })}
-                  className="w-full px-4 py-2 bg-chocolate-950/60 border border-chocolate-800 rounded-xl text-white placeholder-chocolate-500 outline-none focus:ring-2 focus:ring-gold-500 transition-all text-base"
-                  placeholder="40"
-                />
-              </div>
-            </div>
-          </div>
+          <div><h2 className="text-xl font-bold mb-4">{t('المالية والتوصيل','Finance & delivery')}</h2><Link href="/admin/dashboard/settings/finance" className="inline-flex border border-border rounded-xl px-4 py-3">{t('إدارة رسوم التوصيل والتكلفة والمخصصات','Manage delivery fees, costs and allocations')}</Link></div>
 
           {/* Payment Methods Section */}
           <div>
             <h2 className="text-xl font-bold text-white mb-4 pb-2 border-b border-chocolate-800/40">
-              Payment Methods (طرق الدفع)
+              {t('طرق الدفع','Payment Methods (طرق الدفع)')}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                  InstaPay Link (رابط إنستا باي)
+                  {t('رابط إنستا باي','InstaPay Link (رابط إنستا باي)')}
                 </label>
                 <input
                   type="text"
@@ -284,7 +257,7 @@ export default function SettingsPage() {
 
               <div>
                 <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                  Cash Wallet Number (رقم المحفظة)
+                  {t('رقم المحفظة','Cash Wallet Number (رقم المحفظة)')}
                 </label>
                 <input
                   type="text"
@@ -300,13 +273,13 @@ export default function SettingsPage() {
           {/* Our Story Section */}
           <div>
             <h2 className="text-xl font-bold text-white mb-4 pb-2 border-b border-chocolate-800/40">
-              Our Story Content
+              {t('محتوى قصتنا','Our Story Content')}
             </h2>
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                    Story Main Title
+                    {t('عنوان قصتنا','Story Main Title')}
                   </label>
                   <input
                     type="text"
@@ -318,7 +291,7 @@ export default function SettingsPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                    Story Subtitle
+                    {t('وصف قصتنا','Story Subtitle')}
                   </label>
                   <input
                     type="text"
@@ -332,7 +305,7 @@ export default function SettingsPage() {
 
               <div>
                 <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                  Beginning Section Title
+                  {t('عنوان قسم البداية','Beginning Section Title')}
                 </label>
                 <input
                   type="text"
@@ -345,7 +318,7 @@ export default function SettingsPage() {
 
               <div>
                 <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                  Beginning Content
+                  {t('محتوى البداية','Beginning Content')}
                 </label>
                 <textarea
                   rows={4}
@@ -358,7 +331,7 @@ export default function SettingsPage() {
 
               <div>
                 <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                  Philosophy Section Title
+                  {t('عنوان فلسفتنا','Philosophy Section Title')}
                 </label>
                 <input
                   type="text"
@@ -371,7 +344,7 @@ export default function SettingsPage() {
 
               <div>
                 <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                  Philosophy Content
+                  {t('محتوى فلسفتنا','Philosophy Content')}
                 </label>
                 <textarea
                   rows={4}
@@ -387,13 +360,13 @@ export default function SettingsPage() {
           {/* Homepage Hero Section */}
           <div>
             <h2 className="text-xl font-bold text-white mb-4 pb-2 border-b border-chocolate-800/40">
-              Homepage Hero Section
+              {t('مقدمة الصفحة الرئيسية','Homepage Hero Section')}
             </h2>
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                    Hero Title (Part 1)
+                    {t('عنوان المقدمة','Hero Title (Part 1)')}
                   </label>
                   <input
                     type="text"
@@ -405,7 +378,7 @@ export default function SettingsPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                    Hero Highlight (Part 2)
+                    {t('الجزء البارز من العنوان','Hero Highlight (Part 2)')}
                   </label>
                   <input
                     type="text"
@@ -419,7 +392,7 @@ export default function SettingsPage() {
 
               <div>
                 <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                  Hero Subtitle
+                  {t('وصف المقدمة','Hero Subtitle')}
                 </label>
                 <textarea
                   rows={2}
@@ -435,11 +408,11 @@ export default function SettingsPage() {
           {/* Hero Background Slider */}
           <div>
             <h2 className="text-xl font-bold text-white mb-4 pb-2 border-b border-chocolate-800/40">
-              Hero Background Slider
+              {t('صور مقدمة الموقع','Hero Background Slider')}
             </h2>
             <div className="space-y-4">
               <p className="text-sm text-chocolate-300">
-                Provide slide images for the hero background slider.
+                {t('أضف الصور التي تظهر في مقدمة الموقع.','Provide slide images for the hero background slider.')}
               </p>
               
               {/* Current Slides */}
@@ -483,7 +456,7 @@ export default function SettingsPage() {
                   className="px-5 py-2 bg-gold-500/10 hover:bg-gold-500/20 text-gold-400 border border-gold-500/20 rounded-xl transition-all flex items-center gap-2 cursor-pointer font-semibold"
                 >
                   <Upload className="w-4 h-4" />
-                  Add
+                  {t('إضافة','Add')}
                 </button>
               </div>
             </div>
@@ -492,13 +465,13 @@ export default function SettingsPage() {
           {/* Feature Card 1 */}
           <div>
             <h2 className="text-xl font-bold text-white mb-4 pb-2 border-b border-chocolate-800/40">
-              Feature Card 1
+              {t('ميزة ١','Feature Card 1')}
             </h2>
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                    Icon (Emoji)
+                    {t('الأيقونة','Icon (Emoji)')}
                   </label>
                   <input
                     type="text"
@@ -510,7 +483,7 @@ export default function SettingsPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                    Title
+                    {t('العنوان','Title')}
                   </label>
                   <input
                     type="text"
@@ -522,7 +495,7 @@ export default function SettingsPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                    Description
+                    {t('الوصف','Description')}
                   </label>
                   <input
                     type="text"
@@ -539,13 +512,13 @@ export default function SettingsPage() {
           {/* Feature Card 2 */}
           <div>
             <h2 className="text-xl font-bold text-white mb-4 pb-2 border-b border-chocolate-800/40">
-              Feature Card 2
+              {t('ميزة ٢','Feature Card 2')}
             </h2>
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                    Icon (Emoji)
+                    {t('الأيقونة','Icon (Emoji)')}
                   </label>
                   <input
                     type="text"
@@ -557,7 +530,7 @@ export default function SettingsPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                    Title
+                    {t('العنوان','Title')}
                   </label>
                   <input
                     type="text"
@@ -569,7 +542,7 @@ export default function SettingsPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                    Description
+                    {t('الوصف','Description')}
                   </label>
                   <input
                     type="text"
@@ -586,13 +559,13 @@ export default function SettingsPage() {
           {/* Feature Card 3 */}
           <div>
             <h2 className="text-xl font-bold text-white mb-4 pb-2 border-b border-chocolate-800/40">
-              Feature Card 3
+              {t('ميزة ٣','Feature Card 3')}
             </h2>
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                    Icon (Emoji)
+                    {t('الأيقونة','Icon (Emoji)')}
                   </label>
                   <input
                     type="text"
@@ -604,7 +577,7 @@ export default function SettingsPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                    Title
+                    {t('العنوان','Title')}
                   </label>
                   <input
                     type="text"
@@ -616,7 +589,7 @@ export default function SettingsPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-chocolate-200 mb-1">
-                    Description
+                    {t('الوصف','Description')}
                   </label>
                   <input
                     type="text"
@@ -639,12 +612,12 @@ export default function SettingsPage() {
               {saving ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  Saving...
+                  {t('جارٍ الحفظ…','Saving...')}
                 </>
               ) : (
                 <>
                   <Save className="w-5 h-5" />
-                  Save Changes
+                  {t('حفظ التغييرات','Save Changes')}
                 </>
               )}
             </button>

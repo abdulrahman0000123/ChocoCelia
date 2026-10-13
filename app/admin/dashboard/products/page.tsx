@@ -1,11 +1,19 @@
 'use client';
+import { adminFetch, adminError, useAdmin } from '../components/AdminContext';
 
+import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Loader2, Image as ImageIcon, Search, Filter } from 'lucide-react';
 import { ProductForm } from '../components/ProductForm';
+import { AdminNotice } from '../components/AdminUI';
+import { useAdminQuery } from '../components/useAdminQuery';
 import toast from 'react-hot-toast';
 
 export default function ProductsPage() {
+  const {t:tr,ar} = useAdmin();
+  const {params,update} = useAdminQuery();
+  const missingCosts = params.get('costs') === 'missing';
+  const [loadError,setLoadError] = useState('');
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,15 +31,17 @@ export default function ProductsPage() {
   }, []);
 
   const fetchProducts = async () => {
+    setLoadError('');setLoading(true);
     try {
-      const res = await fetch('/api/products');
+      const res = await adminFetch('/api/products');
+      if (!res.ok) throw new Error();
       if (res.ok) {
         const data = await res.json();
         setProducts(data);
       }
     } catch (error) {
       console.error('Failed to fetch products');
-      toast.error('Failed to load products');
+      setLoadError('load');
     } finally {
       setLoading(false);
     }
@@ -39,7 +49,7 @@ export default function ProductsPage() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch('/api/categories');
+      const res = await adminFetch('/api/categories');
       if (res.ok) {
         const data = await res.json();
         setCategories(data);
@@ -50,9 +60,9 @@ export default function ProductsPage() {
   };
 
   const handleCreate = async (data: any) => {
-    const loadingToast = toast.loading('Creating product...');
+    const loadingToast = toast.loading(tr('جارٍ إضافة المنتج…','Creating product...'));
     try {
-      const res = await fetch('/api/products', {
+      const res = await adminFetch('/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -63,20 +73,20 @@ export default function ProductsPage() {
       if (res.ok) {
         fetchProducts();
         setIsFormOpen(false);
-        toast.success('Product created successfully! 🍫', { id: loadingToast });
+        toast.success(tr('تمت إضافة المنتج.','Product created successfully! 🍫'), { id: loadingToast });
       } else {
-        toast.error(`Failed to create product: ${responseData.error || 'Unknown error'}`, { id: loadingToast });
+        toast.error(adminError(new Error(responseData.error),ar), { id: loadingToast });
       }
     } catch (error) {
       console.error('Failed to create product:', error);
-      toast.error('Failed to create product. Please try again.', { id: loadingToast });
+      toast.error(tr('تعذر إضافة المنتج. حاول مرة أخرى.','Failed to create product. Please try again.'), { id: loadingToast });
     }
   };
 
   const handleUpdate = async (data: any) => {
-    const loadingToast = toast.loading('Updating product...');
+    const loadingToast = toast.loading(tr('جارٍ تحديث المنتج…','Updating product...'));
     try {
-      const res = await fetch(`/api/products/${editingProduct.id}`, {
+      const res = await adminFetch(`/api/products/${editingProduct.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -85,20 +95,20 @@ export default function ProductsPage() {
         fetchProducts();
         setIsFormOpen(false);
         setEditingProduct(null);
-        toast.success('Product updated successfully! ✨', { id: loadingToast });
+        toast.success(tr('تم تحديث المنتج.','Product updated successfully! ✨'), { id: loadingToast });
       } else {
-        toast.error('Failed to update product', { id: loadingToast });
+        toast.error(tr('تعذر تحديث المنتج.','Failed to update product'), { id: loadingToast });
       }
     } catch (error) {
-      console.error('Failed to update product');
-      toast.error('Failed to update product', { id: loadingToast });
+      console.error(tr('تعذر تحديث المنتج.','Failed to update product'));
+      toast.error(tr('تعذر تحديث المنتج.','Failed to update product'), { id: loadingToast });
     }
   };
 
   const handleToggleAvailability = async (id: string, currentAvailable: boolean) => {
-    const loadingToast = toast.loading(currentAvailable ? 'Setting out of stock...' : 'Setting in stock...');
+    const loadingToast = toast.loading(currentAvailable ? tr('جارٍ إيقاف توفر المنتج…','Setting out of stock...') : tr('جارٍ إتاحة المنتج…','Setting in stock...'));
     try {
-      const res = await fetch(`/api/products/${id}`, {
+      const res = await adminFetch(`/api/products/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isAvailable: !currentAvailable }),
@@ -107,54 +117,54 @@ export default function ProductsPage() {
         setProducts((prev) =>
           prev.map((p) => (p.id === id ? { ...p, isAvailable: !currentAvailable } : p))
         );
-        toast.success(!currentAvailable ? 'Product set available! 🍫' : 'Product set out of stock!', { id: loadingToast });
+        toast.success(!currentAvailable ? tr('المنتج متاح الآن.','Product set available! 🍫') : tr('المنتج غير متاح الآن.','Product set out of stock!'), { id: loadingToast });
       } else {
-        toast.error('Failed to update status', { id: loadingToast });
+        toast.error(tr('تعذر تحديث الحالة.','Failed to update status'), { id: loadingToast });
       }
     } catch (err) {
       console.error(err);
-      toast.error('Error toggling availability', { id: loadingToast });
+      toast.error(tr('تعذر تحديث التوفر.','Error toggling availability'), { id: loadingToast });
     }
   };
 
   const handleDelete = async (id: string) => {
     toast((t) => (
       <div className="flex flex-col gap-3">
-        <p className="font-medium text-gray-900">Are you sure you want to delete this product?</p>
+        <p className="font-medium text-gray-900">{tr('هل تريد حذف هذا المنتج؟','Are you sure you want to delete this product?')}</p>
         <div className="flex gap-2">
           <button
             onClick={async () => {
               toast.dismiss(t.id);
               setDeletingId(id);
-              const loadingToast = toast.loading('Deleting product...');
+              const loadingToast = toast.loading(tr('جارٍ حذف المنتج…','Deleting product...'));
               try {
-                const res = await fetch(`/api/products/${id}`, {
+                const res = await adminFetch(`/api/products/${id}`, {
                   method: 'DELETE',
                 });
                 if (res.ok) {
                   const data = await res.json();
                   setProducts(products.filter(p => p.id !== id));
-                  toast.success(data.archived ? 'Product archived; sales history preserved.' : 'Product deleted successfully!', { id: loadingToast });
+                  toast.success(data.archived ? tr('تمت أرشفة المنتج مع حفظ سجل المبيعات.','Product archived; sales history preserved.') : tr('تم حذف المنتج.','Product deleted successfully!'), { id: loadingToast });
                 } else {
                   const data = await res.json();
-                  toast.error(data.error || 'Failed to delete product', { id: loadingToast });
+                  toast.error(data.error || tr('تعذر حذف المنتج.','Failed to delete product'), { id: loadingToast });
                 }
               } catch (error) {
                 console.error('Failed to delete product:', error);
-                toast.error('Failed to delete product', { id: loadingToast });
+                toast.error(tr('تعذر حذف المنتج.','Failed to delete product'), { id: loadingToast });
               } finally {
                 setDeletingId(null);
               }
             }}
             className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
           >
-            Delete
+            {tr('حذف','Delete')}
           </button>
           <button
             onClick={() => toast.dismiss(t.id)}
             className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium"
           >
-            Cancel
+            {tr('إلغاء','Cancel')}
           </button>
         </div>
       </div>
@@ -174,7 +184,7 @@ export default function ProductsPage() {
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (product.nameAr && product.nameAr.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesCategory = !selectedCategory || product.categoryId === selectedCategory;
-    return matchesSearch && matchesCategory;
+    return matchesSearch && matchesCategory && (!missingCosts || !product.costing);
   });
 
   if (loading) {
@@ -185,12 +195,13 @@ export default function ProductsPage() {
     );
   }
 
+  if (loadError) return <AdminNotice retry={fetchProducts}>{adminError(null,ar)}</AdminNotice>;
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-white tracking-wide">Products List</h1>
-          <p className="text-sm text-chocolate-200 mt-1">Manage catalog details and instant availability status.</p>
+          <h1 className="text-3xl font-bold text-white tracking-wide">{tr('المنتجات','Products List')}</h1>
+          <p className="text-sm text-chocolate-200 mt-1">{tr('إدارة المنتجات وتكاليفها وتوفرها للبيع.','Manage catalog details and instant availability status.')}</p>
         </div>
         {!isFormOpen && (
           <button
@@ -201,7 +212,7 @@ export default function ProductsPage() {
             className="bg-chocolate-600 text-white px-4 py-2.5 rounded-xl flex items-center gap-2 hover:bg-chocolate-700 transition-colors font-medium shadow cursor-pointer"
           >
             <Plus className="w-5 h-5" />
-            Add Product
+            {tr('إضافة منتج','Add Product')}
           </button>
         )}
       </div>
@@ -209,7 +220,7 @@ export default function ProductsPage() {
       {isFormOpen ? (
         <div className="bg-chocolate-900/20 p-6 rounded-2xl shadow-xl border border-chocolate-850/60">
           <h2 className="text-xl font-bold text-white mb-6">
-            {editingProduct ? 'Edit Product Parameters' : 'Register New Product'}
+            {editingProduct ? tr('تعديل المنتج','Edit product') : tr('إضافة منتج','Add product')}
           </h2>
           <ProductForm
             initialData={editingProduct}
@@ -219,6 +230,7 @@ export default function ProductsPage() {
         </div>
       ) : (
         <>
+          <div className="flex gap-3 items-center"><label className="flex gap-2 items-center"><input type="checkbox" checked={missingCosts} onChange={e=>update({costs:e.target.checked?'missing':null})}/>{tr('تكاليف غير مكتملة فقط','Incomplete costs only')}</label><Link href="/admin/dashboard/finance" className="underline">{tr('المالية','Finance')}</Link></div>
           {/* Filters Bar */}
           <div className="bg-chocolate-900/20 p-4 rounded-2xl shadow border border-chocolate-850/50 flex flex-col md:flex-row gap-4 items-center">
             {/* Search Input */}
@@ -226,7 +238,7 @@ export default function ProductsPage() {
               <Search className="w-4 h-4 text-chocolate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Search products..."
+                placeholder={tr('بحث عن منتج…','Search products...')}
                 className="w-full pl-9 pr-4 py-2 bg-chocolate-950/60 border border-chocolate-800 rounded-xl text-sm text-white placeholder-chocolate-400 outline-none focus:ring-2 focus:ring-gold-500 transition-all"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -241,7 +253,7 @@ export default function ProductsPage() {
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
               >
-                <option value="">All Categories</option>
+                <option value="">{tr('كل التصنيفات','All Categories')}</option>
                 {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
                     {cat.name}
@@ -259,7 +271,7 @@ export default function ProductsPage() {
           {/* Table / Cards Container */}
           {filteredProducts.length === 0 ? (
             <div className="text-center py-20 text-chocolate-300 bg-chocolate-900/10 border border-chocolate-850/60 rounded-2xl">
-              <p className="text-lg font-medium">No products match your search filter.</p>
+              <p className="text-lg font-medium">{tr('لا توجد منتجات مطابقة للفلاتر.','No products match your search filter.')}</p>
             </div>
           ) : (
             <>
@@ -269,12 +281,12 @@ export default function ProductsPage() {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-chocolate-950/60 border-b border-chocolate-850/60 text-xs font-bold text-white uppercase tracking-wider">
-                        <th className="px-6 py-4.5 w-20">Image</th>
-                        <th className="px-6 py-4.5">Name (EN/AR)</th>
-                        <th className="px-6 py-4.5">Category</th>
-                        <th className="px-6 py-4.5">Price</th>
-                        <th className="px-6 py-4.5 text-center w-32">Available</th>
-                        <th className="px-6 py-4.5 text-right w-32">Actions</th>
+                        <th className="px-6 py-4.5 w-20">{tr('الصورة','Image')}</th>
+                        <th className="px-6 py-4.5">{tr('الاسم بالعربية والإنجليزية','Name (EN/AR)')}</th>
+                        <th className="px-6 py-4.5">{tr('التصنيف','Category')}</th>
+                        <th className="px-6 py-4.5">{tr('السعر','Price')}</th>
+                        <th className="px-6 py-4.5 text-center w-32">{tr('متاح','Available')}</th>
+                        <th className="px-6 py-4.5 text-right w-32">{tr('الإجراءات','Actions')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-chocolate-850/40 text-sm text-gray-200">
@@ -306,7 +318,7 @@ export default function ProductsPage() {
                           </td>
                           <td className="px-6 py-4 font-extrabold text-white">
                             {Number(product.price).toFixed(2)} EGP
-                            <span className="block text-xs font-normal text-chocolate-300 mt-2">{product.costing ? `Cost ${['chocolate','packaging','nuts','decoration'].reduce((sum,k) => sum + Number(product.costing[k]),0).toFixed(2)} · Margin ${(Number(product.price) - ['chocolate','packaging','nuts','decoration'].reduce((sum,k) => sum + Number(product.costing[k]),0)).toFixed(2)} EGP` : 'التكلفة غير مكتملة'}</span>
+                            <span className="block text-xs font-normal text-chocolate-300 mt-2">{product.costing ? `${tr('التكلفة','Cost')} ${['chocolate','packaging','nuts','decoration'].reduce((sum,k) => sum + Number(product.costing[k]),0).toFixed(2)} · ${tr('الهامش','Margin')} ${(Number(product.price) - ['chocolate','packaging','nuts','decoration'].reduce((sum,k) => sum + Number(product.costing[k]),0)).toFixed(2)} EGP` : tr('التكلفة غير مكتملة','Incomplete costs')}</span>
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex justify-center">
@@ -332,7 +344,7 @@ export default function ProductsPage() {
                                   setIsFormOpen(true);
                                 }}
                                 className="p-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-xl transition-all cursor-pointer inline-flex"
-                                title="Edit"
+                                title={tr('تعديل','Edit')}
                               >
                                 <Edit className="w-4 h-4" />
                               </button>
@@ -340,7 +352,7 @@ export default function ProductsPage() {
                                 onClick={() => handleDelete(product.id)}
                                 disabled={deletingId === product.id}
                                 className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-all cursor-pointer disabled:opacity-50 inline-flex"
-                                title="Delete"
+                                title={tr('حذف','Delete')}
                               >
                                 {deletingId === product.id ? (
                                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -382,7 +394,7 @@ export default function ProductsPage() {
 
                       {/* Info */}
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-white text-base leading-tight truncate">{product.name}</h3>
+                        <h3 className="font-bold text-white text-base leading-tight truncate">{ar ? product.nameAr || product.name : product.name}</h3>
                         {product.nameAr && (
                           <p className="text-xs text-chocolate-300 font-medium truncate text-right mt-1" dir="rtl">
                             {product.nameAr}
@@ -394,7 +406,7 @@ export default function ProductsPage() {
                           </span>
                           <span className="text-sm font-extrabold text-gold-400">
                             {Number(product.price).toFixed(2)} EGP
-                            <span className="block text-xs font-normal text-chocolate-300 mt-2">{product.costing ? `Cost ${['chocolate','packaging','nuts','decoration'].reduce((sum,k) => sum + Number(product.costing[k]),0).toFixed(2)} · Margin ${(Number(product.price) - ['chocolate','packaging','nuts','decoration'].reduce((sum,k) => sum + Number(product.costing[k]),0)).toFixed(2)} EGP` : 'التكلفة غير مكتملة'}</span>
+                            <span className="block text-xs font-normal text-chocolate-300 mt-2">{product.costing ? `${tr('التكلفة','Cost')} ${['chocolate','packaging','nuts','decoration'].reduce((sum,k) => sum + Number(product.costing[k]),0).toFixed(2)} · ${tr('الهامش','Margin')} ${(Number(product.price) - ['chocolate','packaging','nuts','decoration'].reduce((sum,k) => sum + Number(product.costing[k]),0)).toFixed(2)} EGP` : tr('التكلفة غير مكتملة','Incomplete costs')}</span>
                           </span>
                         </div>
                       </div>
@@ -405,7 +417,7 @@ export default function ProductsPage() {
                       {/* Availability Switch */}
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-chocolate-300">
-                          {product.isAvailable ? 'Available' : 'Out of Stock'}
+                          {product.isAvailable ? tr('متاح','Available') : tr('غير متاح','Out of stock')}
                         </span>
                         <label className="relative inline-flex items-center cursor-pointer select-none">
                           <input 
@@ -429,7 +441,7 @@ export default function ProductsPage() {
                             setIsFormOpen(true);
                           }}
                           className="p-2 bg-blue-500/10 hover:bg-blue-500/25 text-blue-400 rounded-xl transition-all cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center"
-                          title="Edit"
+                          title={tr('تعديل','Edit')}
                         >
                           <Edit className="w-4 h-4" />
                         </button>
@@ -437,7 +449,7 @@ export default function ProductsPage() {
                           onClick={() => handleDelete(product.id)}
                           disabled={deletingId === product.id}
                           className="p-2 bg-red-500/10 hover:bg-red-500/25 text-red-400 rounded-xl transition-all cursor-pointer disabled:opacity-50 min-h-[36px] min-w-[36px] flex items-center justify-center"
-                          title="Delete"
+                          title={tr('حذف','Delete')}
                         >
                           {deletingId === product.id ? (
                             <Loader2 className="w-4 h-4 animate-spin" />

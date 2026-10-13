@@ -7,7 +7,7 @@ const subscribe = (listener: () => void) => {
   return () => { window.removeEventListener('storage', listener); window.removeEventListener('admin-locale', listener); };
 };
 let tabLocale: AdminLocale | null = null;
-const snapshot = (): AdminLocale => { try { return localStorage.getItem(localeKey) === 'en' ? 'en' : tabLocale ?? 'ar'; } catch { return tabLocale ?? 'ar'; } };
+const snapshot = (): AdminLocale => { try { const saved = localStorage.getItem(localeKey); return saved === 'en' || saved === 'ar' ? saved : tabLocale ?? 'ar'; } catch { return tabLocale ?? 'ar'; } };
 const serverSnapshot = (): AdminLocale => 'ar';
 type AdminValue = {locale:AdminLocale;ar:boolean;setLocale:(locale:AdminLocale)=>void;t:(arabic:string,english:string)=>string};
 const AdminContext = createContext<AdminValue>({locale:'ar',ar:true,setLocale:()=>{},t:arabic=>arabic});
@@ -26,6 +26,9 @@ export function adminError(error: unknown, ar: boolean) {
   const message = error instanceof Error ? error.message : '';
   if (message === 'Unauthorized') return ar ? 'انتهت جلسة الدخول. سجّل الدخول للمتابعة.' : 'Your session expired. Sign in to continue.';
   if (message.startsWith('Conflict:')) return ar ? 'تم تعديل الطلب. حدّث البيانات قبل الحفظ.' : 'Order changed. Refresh before saving.';
+  if (message.startsWith('Invalid price revision after collection')) return ar ? 'لا يمكن تغيير قيمة طلب بدأ تحصيله. سجّل استردادًا بدل تغيير قيمة البيع.' : 'An order with collections cannot be repriced. Record a refund instead.';
+  if (message.startsWith('Invalid collection or refund')) return ar ? 'المحصل لا يتجاوز قيمة الطلب، والمسترد لا يتجاوز المحصل.' : 'Receipts cannot exceed the order total; refunds cannot exceed receipts.';
+  if (message.startsWith('Invalid revision reason')) return ar ? 'أدخل سبب التغيير من ٣ إلى ٥٠٠ حرف.' : 'Enter a revision reason between 3 and 500 characters.';
   if (message.startsWith('Invalid ')) return ar ? 'راجع القيم المدخلة وحدود التحصيل والاسترداد قبل الحفظ.' : 'Check the entered values and collection/refund limits before saving.';
   return ar ? 'تعذر إتمام العملية. حاول مرة أخرى.' : 'Could not complete the request. Please retry.';
 }

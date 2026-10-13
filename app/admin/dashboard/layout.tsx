@@ -5,14 +5,14 @@ import { usePathname } from 'next/navigation';
 import { useAdminQuery } from './components/useAdminQuery';
 import { Sidebar } from './components/Sidebar';
 import OrderNotification from './components/OrderNotification';
-import { AdminProvider, useAdmin } from './components/AdminContext';
+import { useAdmin } from './components/AdminContext';
 import { AdminLoading, AdminNotice } from './components/AdminUI';
 import { ThemeToggle } from '@/app/components/ThemeToggle';
 import styles from './components/Finance.module.css';
 import './admin.css';
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  return <AdminProvider><AdminShell>{children}</AdminShell></AdminProvider>;
+  return <AdminShell>{children}</AdminShell>;
 }
 function AdminShell({ children }: { children: ReactNode }) {
   const { locale, ar, t, setLocale } = useAdmin();

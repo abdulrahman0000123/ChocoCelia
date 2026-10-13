@@ -1,4 +1,5 @@
 'use client';
+import { adminFetch, useAdmin } from './AdminContext';
 
 import React, { useState, useEffect } from 'react';
 import { ProductCostEditor } from './CostFields';
@@ -22,6 +23,7 @@ interface ProductFormProps {
 }
 
 export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProps) {
+  const {t} = useAdmin();
   const [categories, setCategories] = useState<Category[]>([]);
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
@@ -45,7 +47,7 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
   const [uploading, setUploading] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
   const [seo, setSeo] = useState<SeoValues>({});
-  useEffect(() => {if(initialData?.id) fetch(`/api/admin/seo?entityType=product&entityId=${initialData.id}`).then(r => r.json()).then(r => setSeo(r.values || {}));}, [initialData?.id]);
+  useEffect(() => {if(initialData?.id) adminFetch(`/api/admin/seo?entityType=product&entityId=${initialData.id}`).then(r => r.json()).then(r => setSeo(r.values || {}));}, [initialData?.id]);
 
   useEffect(() => {
     fetchCategories();
@@ -53,7 +55,7 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch('/api/categories');
+      const res = await adminFetch('/api/categories');
       if (res.ok) {
         const data = await res.json();
         setCategories(data);
@@ -146,7 +148,7 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
       <ProductCostEditor key={initialData?.id || "new"} productId={initialData?.id} price={Number(formData.price) || 0}/>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className={labelClasses}>Product Name (English)</label>
+          <label className={labelClasses}>{t('اسم المنتج بالإنجليزية','Product Name (English)')}</label>
           <input
             type="text"
             required
@@ -157,7 +159,7 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
         </div>
 
         <div>
-          <label className={`${labelClasses} text-right`}>اسم المنتج (عربي)</label>
+          <label className={`${labelClasses} text-right`}>{t('اسم المنتج بالعربية','Product name (Arabic)')}</label>
           <input
             type="text"
             required
@@ -169,7 +171,7 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
         </div>
 
         <div className="col-span-2">
-          <label className={labelClasses}>Description (English)</label>
+          <label className={labelClasses}>{t('الوصف بالإنجليزية','Description (English)')}</label>
           <textarea
             rows={3}
             className={inputClasses}
@@ -179,7 +181,7 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
         </div>
 
         <div className="col-span-2">
-          <label className={`${labelClasses} text-right`}>الوصف (عربي)</label>
+          <label className={`${labelClasses} text-right`}>{t('الوصف بالعربية','Description (Arabic)')}</label>
           <textarea
             rows={3}
             className={`${inputClasses} text-right`}
@@ -190,7 +192,7 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
         </div>
 
         <div>
-          <label className={labelClasses}>Price (EGP)</label>
+          <label className={labelClasses}>{t('السعر بالجنيه','Price (EGP)')}</label>
           <input
             type="number"
             step="0.01"
@@ -202,14 +204,14 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
         </div>
 
         <div>
-          <label className={labelClasses}>Category</label>
+          <label className={labelClasses}>{t('التصنيف','Category')}</label>
           <select
             required
             className={inputClasses}
             value={formData.categoryId}
             onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
           >
-            <option value="">Select a category</option>
+            <option value="">{t('اختر التصنيف','Select a category')}</option>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
@@ -220,7 +222,7 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
 
         <div className="col-span-2">
           <label className={labelClasses}>
-            Main Product Image (Required)
+            {t('صورة المنتج الأساسية','Main Product Image (Required)')}
           </label>
           
           {imagePreview ? (
@@ -234,7 +236,7 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
                 type="button"
                 onClick={removeImage}
                 className="absolute top-3 right-3 bg-red-500 hover:bg-red-600 text-white p-2 rounded-full transition-colors cursor-pointer shadow"
-                aria-label="Remove image"
+                aria-label={t('إزالة الصورة','Remove image')}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -255,10 +257,10 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
               >
                 <Upload className="w-10 h-10 text-chocolate-400 mb-2" />
                 <span className="text-sm text-chocolate-200">
-                  {uploading ? 'Uploading & compressing...' : 'Click to upload main image'}
+                  {uploading ? t('جارٍ ضغط الصورة…','Uploading & compressing...') : t('رفع الصورة الأساسية','Click to upload main image')}
                 </span>
                 <span className="text-xs text-chocolate-400 mt-1">
-                  PNG, JPG auto-compressed
+                  {t('صور PNG وJPG تُضغط تلقائيًا','PNG, JPG auto-compressed')}
                 </span>
               </label>
             </div>
@@ -267,7 +269,7 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
 
         <div className="col-span-2">
           <label className={labelClasses}>
-            Additional Gallery Images (Optional)
+            {t('صور إضافية اختيارية','Additional Gallery Images (Optional)')}
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-2">
             {formData.images.map((imgUrl: string, index: number) => (
@@ -281,7 +283,7 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
                   type="button"
                   onClick={() => removeGalleryImage(index)}
                   className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-full transition-colors cursor-pointer shadow"
-                  aria-label="Remove gallery image"
+                  aria-label={t('إزالة الصورة','Remove gallery image')}
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -304,13 +306,13 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
                 >
                   <Upload className="w-6 h-6 text-chocolate-400 mb-2" />
                   <span className="text-xs text-center text-chocolate-200 px-2">
-                    {uploadingGallery ? 'Uploading...' : 'Add Image'}
+                    {uploadingGallery ? t('جارٍ الرفع…','Uploading...') : t('إضافة صورة','Add Image')}
                   </span>
                 </label>
               </div>
             )}
           </div>
-          <p className="text-xs text-chocolate-400 mt-2">You can add up to 5 additional images for the product gallery.</p>
+          <p className="text-xs text-chocolate-400 mt-2">{t('يمكن إضافة ٥ صور إضافية للمنتج.','You can add up to 5 additional images for the product gallery.')}</p>
         </div>
 
         <div className="col-span-2">
@@ -321,16 +323,16 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
               checked={formData.isAvailable}
               onChange={(e) => setFormData({ ...formData, isAvailable: e.target.checked })}
             />
-            <span className="text-sm font-semibold text-chocolate-200">Available for purchase</span>
+            <span className="text-sm font-semibold text-chocolate-200">{t('متاح للشراء','Available for purchase')}</span>
           </label>
         </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         {(['slug', 'tags', 'imageAltAr', 'imageAltEn'] as const).map(field => <label key={field} className="text-sm"><span className="block mb-1">{{slug: 'URL name (optional)', tags: 'Labels: New, Best Seller', imageAltAr: 'وصف الصورة بالعربي', imageAltEn: 'Image description (English)'}[field]}</span><input className={inputClasses} dir={field === 'imageAltAr' ? 'rtl' : 'ltr'} value={formData[field]} onChange={e => setFormData({...formData, [field]: e.target.value})}/></label>)}
-        <label className="text-sm"><input type="checkbox" checked={formData.published} onChange={e => setFormData({...formData, published: e.target.checked})}/> Published / ظاهر للجمهور</label>
+        <label className="text-sm"><input type="checkbox" checked={formData.published} onChange={e => setFormData({...formData, published: e.target.checked})}/> {t('منشور للجمهور','Published / ظاهر للجمهور')}</label>
       </div>
-      {initialData?.id && <a className="inline-block text-sm text-gold-300 underline" href={`/ar/menu/${initialData.slug || initialData.id}?preview=1`} target="_blank" rel="noreferrer">Preview product / معاينة المنتج</a>}
+      {initialData?.id && <a className="inline-block text-sm text-gold-300 underline" href={`/ar/menu/${initialData.slug || initialData.id}?preview=1`} target="_blank" rel="noreferrer">{t('معاينة المنتج','Preview product / معاينة المنتج')}</a>}
       <AttributesEditor value={formData.attributes} onChange={attributes => setFormData({...formData, attributes})}/>
       <SeoEditor value={seo} onChange={setSeo} entity={initialData?.id ? {type: 'product', id: initialData.id} : undefined} source={{titleAr: formData.nameAr, titleEn: formData.name, bodyAr: formData.descriptionAr, bodyEn: formData.description}}/>
 
@@ -340,13 +342,13 @@ export function ProductForm({ initialData, onCancel, onSubmit }: ProductFormProp
           onClick={onCancel}
           className="px-5 py-2 text-chocolate-300 hover:bg-chocolate-900/40 rounded-xl transition-colors text-sm font-medium cursor-pointer"
         >
-          Cancel
+          {t('إلغاء','Cancel')}
         </button>
         <button
           type="submit"
           className="px-6 py-2 bg-chocolate-600 text-white rounded-xl hover:bg-chocolate-700 transition-colors text-sm font-medium cursor-pointer"
         >
-          Save Product Properties
+          {t('حفظ المنتج','Save Product Properties')}
         </button>
       </div>
     </form>
